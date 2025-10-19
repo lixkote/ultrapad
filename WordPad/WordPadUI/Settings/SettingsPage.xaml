@@ -226,7 +226,12 @@ Background="Transparent" >
                         <TextBlock Style="{StaticResource SectionHeader}" x:Uid="aboutapp" Text="About UltraPad"/>
                         <TextBlock x:Name="PackageVersionText" IsTextSelectionEnabled="True" Text="UltraPad 11.2507.371.0"/>
                         <TextBlock x:Uid="copyrighttext" x:Name="CopyrightText" Margin="{StaticResource ContentBottomWideSpacing}" Text="© 2025 Lixkote. All rights reserved."/>
-                        <HyperlinkButton  Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad" >
+
+                            <TextBlock x:Name="betatext"  Foreground="{ThemeResource SystemErrorTextColor}" IsTextSelectionEnabled="True" Text="Debug build - errors can, and will happen!" Margin="0,0,0,10">
+                            </TextBlock>
+
+
+                            <HyperlinkButton  Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad" >
                             <TextBlock x:Uid="srccode" Text="Source Code"/>
                         </HyperlinkButton>
 

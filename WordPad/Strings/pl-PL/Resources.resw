@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="aboutapp.Text" xml:space="preserve">
-    <value>Informacje o programie RectifyPad</value>
+    <value>Informacje o programie UltraPad</value>
   </data>
   <data name="addspace.Content" xml:space="preserve">
     <value>Dodaj 10-punktową spację po akapitach</value>
@@ -136,7 +136,7 @@
     <value>Motyw aplikacji</value>
   </data>
   <data name="apptitle.Text" xml:space="preserve">
-    <value>Dokument - RectifyPad</value>
+    <value>Dokument - UltraPad</value>
   </data>
   <data name="bottr.Text" xml:space="preserve">
     <value>Dolny:</value>
