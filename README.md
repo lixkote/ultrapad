@@ -34,7 +34,7 @@ If you find this project useful, or you like what i am doing and my work, please
 - [Buy me a cofee](https://ko-fi.com/lixkote)
 
 ## Contributing
-If you want to contribute to UltraPad, please send me an email to lkt27@gmail.com.
+If you want to contribute to UltraPad, please create a pull request.
 
 ## Projects used
  - [TowPad](https://github.com/itsWindows11/TowPad) for some of the mechanics.
