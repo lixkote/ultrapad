@@ -1,12 +1,15 @@
 # UltraPad
 
-UltraPad is a modern unofficial replacement for Windows WordPad. It is free and open source, and aims to provide the same functionality as its predecessor, with a fresh and updated look, and some new useful features here and there.
+The UltraPad app is a modern unofficial replacement for Windows WordPad. 
+It is free and open source, aims to provide the same functionality as its predecessor, with a fresh and updated look, and some new useful features here and there.
 
 ![UltraPad Screenshot](https://github.com/Lixkote/WordPad11/blob/main/preview_dark.png)
 ![UltraPad Screenshot](https://github.com/Lixkote/WordPad11/blob/main/preview_light.png)
 
 ## Features
 - Standard WordPad features, such as rich text editing and inserting various multimedia items.
+- Text margin ruler
+- As lightweight as possible
 - Modern Windows 11-style design, based on the new paint redesign.
 
 ## Compilation
