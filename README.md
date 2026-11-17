@@ -7,7 +7,7 @@ It is free and open source, aims to provide the same functionality as its predec
 ![UltraPad Screenshot in dark mode](https://raw.githubusercontent.com/lixkote/ultrapad/refs/heads/main/Previews/dark.png)
 
 ## Features
-- Standard WordPad features, such as rich text editing and inserting various multimedia items.
+- Most WordPad features, such as rich text editing and inserting various multimedia items reimplemented
 - Text margin ruler
 - As lightweight as possible
 - Modern Windows 11-style design, based on the new paint redesign.
@@ -29,7 +29,7 @@ To compile UltraPad, you will need the following prerequisites:
 - Now you can press the compile button and the app should be ran in debug mode.
 
 ## Donate
-If you find this project useful, or you like what i am doing and my work, please consider buying me a cofee to support the development through the kofi link button at the bottom of this message, so that i can continue to keep fixing bugs, and implement new features like ODT/DOCX support. Much thanks for any support :D
+If you find this project useful, or you like what i am doing and my work, please consider buying me a cofee to support the development through the ko-fi link button at the bottom of this message, so that i can continue to keep fixing bugs, and implement new features. Much thanks for any support :D
 - [Buy me a coffee](https://ko-fi.com/lixkote)
 
 ## Contributing
