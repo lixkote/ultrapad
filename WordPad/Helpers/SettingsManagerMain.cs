@@ -37,6 +37,12 @@ namespace WordPad.Helpers
             ResourceContext defaultContext = ResourceContext.GetForCurrentView();
             var localSettings = ApplicationData.Current.LocalSettings;
 
+            if (localSettings.Values["pagenumbersdefault2"] == null)
+            {
+                localSettings.Values["isprintpagenumbers"] = "yes";
+                localSettings.Values["pagenumbersdefault2"] = true;
+            }
+
             // Check if the app has been launched before and if not, set the default settings.
             if (localSettings.Values["FirstRun"] == null)
             {
@@ -52,7 +58,7 @@ namespace WordPad.Helpers
                 Windows.Storage.ApplicationData.Current.LocalSettings.Values["pagesetupRmargin"] = "0";
                 Windows.Storage.ApplicationData.Current.LocalSettings.Values["pagesetupTmargin"] = "0";
                 Windows.Storage.ApplicationData.Current.LocalSettings.Values["pagesetupLmargin"] = "0";
-                Windows.Storage.ApplicationData.Current.LocalSettings.Values["isprintpagenumbers"] = "no";
+                Windows.Storage.ApplicationData.Current.LocalSettings.Values["isprintpagenumbers"] = "yes";
                 Windows.Storage.ApplicationData.Current.LocalSettings.Values["indentationL"] = "0";
                 Windows.Storage.ApplicationData.Current.LocalSettings.Values["indentationR"] = "0";
                 Windows.Storage.ApplicationData.Current.LocalSettings.Values["indentationFL"] = "0";

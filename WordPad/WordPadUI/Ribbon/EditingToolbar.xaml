@@ -28,16 +28,16 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <muxc:DropDownButton Width="132" x:Name="ReplaceButton" Style="{StaticResource PaintUIButtonStyle}"
-                Grid.Row="1" Click="ReplaceButton_Click" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <muxc:DropDownButton MinWidth="132" x:Name="ReplaceButton" Style="{StaticResource PaintUIButtonStyle}"
+                Grid.Row="1" Click="ReplaceButton_Click" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="4,0,8,0">
                 <muxc:DropDownButton.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="20"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Width="19" Height="16" Source="{Binding Source={ThemeResource Replace}}" HorizontalAlignment="Center" Stretch="Fill" VerticalAlignment="Center" Margin="0,0,0,0" />
-                        <TextBlock Grid.Column="1" x:Uid="EditingReplaceBox" TextWrapping="Wrap" FontFamily="Segoe UI Variable Display" HorizontalAlignment="Left" Margin="5,1,0,0" FontSize="12" VerticalAlignment="Center"/>
+                        <Image x:Name="ReplaceIcon" Grid.Column="0" Width="16" Height="16" Source="{ThemeResource Replace}" HorizontalAlignment="Center" Stretch="Uniform" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" x:Uid="EditingReplaceBox" TextWrapping="NoWrap" FontFamily="Segoe UI Variable Display" HorizontalAlignment="Left" Margin="6,0,0,0" FontSize="12" VerticalAlignment="Center"/>
                     </Grid>
                 </muxc:DropDownButton.Content>
                 <muxc:DropDownButton.Flyout>
@@ -48,15 +48,15 @@
                         FontSize="12"
                         FontWeight="SemiBold"
                         Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="Find" />
+                        x:Uid="ef_findtitle" Text="Find" />
 
                             <TextBox
                         x:Name="findBox"
                         Width="330"
-                        PlaceholderText="Text to look for" />
+                        x:Uid="ef_findbox" PlaceholderText="Text to look for" />
                             <StackPanel Orientation="Horizontal">
-                                <Button Margin="0,10,0,0" Click="FindButton_Click">Find</Button>
-                                <Button Margin="5,10,0,0" Click="RemoveHighlightButton_Click">Remove highlights</Button>
+                                <Button x:Uid="ef_findbutton" Margin="0,10,0,0" Click="FindButton_Click">Find</Button>
+                                <Button x:Uid="ef_removehighlights" Margin="5,10,0,0" Click="RemoveHighlightButton_Click">Remove highlights</Button>
                             </StackPanel>
 
                             <TextBlock
@@ -64,14 +64,14 @@
                         FontSize="12"
                         FontWeight="SemiBold"
                         Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="Replace" />
+                        x:Uid="ef_replacetitle" Text="Replace" />
                             <TextBox
                         x:Name="replaceBox"
                         Width="330"
-                        PlaceholderText="New text" />
+                        x:Uid="ef_replacebox" PlaceholderText="New text" />
                             <StackPanel Orientation="Horizontal">
-                                <Button Margin="0,10,0,0" Click="ReplaceSelected_Click">Replace selected text</Button>
-                                <Button Margin="5,10,0,0" Click="ReplaceAll_Click">Replace all occurrences</Button>
+                                <Button x:Uid="ef_replaceselected" Margin="0,10,0,0" Click="ReplaceSelected_Click">Replace selected text</Button>
+                                <Button x:Uid="ef_replaceall" Margin="5,10,0,0" Click="ReplaceAll_Click">Replace all occurrences</Button>
                             </StackPanel>
                         </StackPanel>
                     </Flyout>
@@ -80,16 +80,16 @@
 
 
 
-            <muxc:DropDownButton Width="132" x:Name="FindButton" Style="{StaticResource PaintUIButtonStyle}"
-    Grid.Row="0" HorizontalAlignment="Stretch" Click="FindButton_Click"  VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="1,0,0,0">
+            <muxc:DropDownButton MinWidth="132" x:Name="FindButton" Style="{StaticResource PaintUIButtonStyle}"
+    Grid.Row="0" HorizontalAlignment="Stretch" Click="FindButton_Click"  VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="4,0,8,0">
                 <muxc:DropDownButton.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="20"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="&#xE11A;" FontFamily="{StaticResource SegoeFluentIcons}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2,0,0,0" ></TextBlock>
-                        <TextBlock Grid.Column="1" x:Uid="EditingFindBox" HorizontalAlignment="Left" Margin="5,1,0,0" TextWrapping="Wrap" FontFamily="Segoe UI Variable Display" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="FindIcon" Grid.Column="0" Text="&#xE11A;" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        <TextBlock Grid.Column="1" x:Uid="EditingFindBox" HorizontalAlignment="Left" Margin="6,0,0,0" TextWrapping="NoWrap" FontFamily="Segoe UI Variable Display" FontSize="12" VerticalAlignment="Center"/>
                     </Grid>
                 </muxc:DropDownButton.Content>
                 <muxc:DropDownButton.Flyout>
@@ -100,30 +100,30 @@
                         FontSize="12"
                         FontWeight="SemiBold"
                         Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="Find" />
+                        x:Uid="ef_findtitle" Text="Find" />
 
                             <TextBox
                         x:Name="replacefindBox"
                         Width="330"
-                        PlaceholderText="Text to look for" />
+                        x:Uid="ef_findbox" PlaceholderText="Text to look for" />
                             <StackPanel Orientation="Horizontal">
-                                <Button Margin="0,10,0,0" Click="FindButton_Click">Find</Button>
-                                <Button Margin="5,10,0,0" Click="RemoveHighlightButton_Click">Remove highlights</Button>
+                                <Button x:Uid="ef_findbutton" Margin="0,10,0,0" Click="FindButton_Click">Find</Button>
+                                <Button x:Uid="ef_removehighlights" Margin="5,10,0,0" Click="RemoveHighlightButton_Click">Remove highlights</Button>
                             </StackPanel>
                         </StackPanel>
                     </Flyout>
                 </muxc:DropDownButton.Flyout>
             </muxc:DropDownButton>
-            <Button Width="132" x:Name="SelectAllButton" Style="{StaticResource PaintUIButtonStyle}"
-                Grid.Row="2" HorizontalAlignment="Stretch" Click="SelectAllButton_Click" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+            <Button MinWidth="132" x:Name="SelectAllButton" Style="{StaticResource PaintUIButtonStyle}"
+                Grid.Row="2" HorizontalAlignment="Stretch" Click="SelectAllButton_Click" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="4,0,8,0">
                 <Button.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="20"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Width="17" Height="17" Source="{Binding Source={ThemeResource SelectAll}}" Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0" />
-                        <TextBlock Grid.Column="1" x:Name="textBlock" x:Uid="EditingSelAllBox" HorizontalAlignment="Left"  TextWrapping="Wrap" VerticalAlignment="Center" FontFamily="Segoe UI Variable Display" Margin="5,1,0,0" FontSize="12"/>
+                        <Image x:Name="SelectAllIcon" Grid.Column="0" Width="16" Height="16" Source="{ThemeResource SelectAll}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" x:Name="textBlock" x:Uid="EditingSelAllBox" HorizontalAlignment="Left"  TextWrapping="NoWrap" VerticalAlignment="Center" FontFamily="Segoe UI Variable Display" Margin="6,0,0,0" FontSize="12"/>
                     </Grid>
                 </Button.Content>
             </Button>

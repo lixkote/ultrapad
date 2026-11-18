@@ -4,126 +4,101 @@
     xmlns:local="using:WordPad.WordPadUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Custom="using:Microsoft.UI.Xaml.Controls"
     x:Class="WordPad.WordPadUI.Pageprop"
     mc:Ignorable="d"
     Style="{StaticResource DefaultContentDialogStyle}"
     x:Uid="pagesetupdialog"
+    Title="Page Setup"
     DefaultButton="Primary"
-    PrimaryButtonText="OK">
-    <Grid>
+    PrimaryButtonText="OK"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="Pageprop_PrimaryButtonClick">
+
+
+    <Grid RowSpacing="4" MinWidth="420">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto">
-
-            </RowDefinition>
-            <RowDefinition Height="Auto">
-
-            </RowDefinition>
-            <RowDefinition Height="Auto">
-
-            </RowDefinition>
-            <RowDefinition Height="Auto">
-
-            </RowDefinition>
-            <RowDefinition Height="Auto">
-
-            </RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid x:Name="Paper" Width="120" Height="165" HorizontalAlignment="Center" VerticalAlignment="Center"                  BorderBrush="#e8e8e8"
-                  Background="White"
-                  BorderThickness="1,1,1,1">
-                <Grid x:Name="exampletextgrid" BorderBrush="{ThemeResource AppBarBorderThemeBrush}" Margin="1,1,1,1" Padding="1,0,0,0">
-                    <Border Margin="10,10,10,10" RequestedTheme="Light" BorderBrush="{ThemeResource AppBarBorderThemeBrush}" BorderThickness="1">
-                        <TextBlock RequestedTheme="Light" x:Name="exampletext" TextWrapping="Wrap" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin aliquet, tortor in pellentesque semper, diam magna aliquet ipsum, nec cursus ipsum ante nec ex. Nullam vel urna sed lectus commodo tempus. Proin vel ipsum at orci scelerisque volutpat. Nullam leo nulla, luctus ac ullamcorper ut, ullamcorper a libero. Nam consequat, nisl in consectetur molestie, neque odio varius mi, in hendrerit nisi elit quis odio. In pretium faucibus tortor eget sagittis. Ut scelerisque elit leo, id lacinia erat faucibus finibus. Pellentesque consectetur pulvinar hendrerit. Etiam interdum, ipsum sit amet convallis feugiat, tellus turpis imperdiet magna, quis commodo erat felis placerat est. In id sagittis justo, vitae efficitur quam. Quisque sodales orci feugiat justo pretium, at gravida velit laoreet. Vivamus vel viverra nisi. In dapibus elit non nunc laoreet, a fringilla nunc tincidunt. Fusce in aliquam felis, et tincidunt nulla.  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin aliquet, tortor in pellentesque semper, diam magna aliquet ipsum, nec cursus ipsum ante nec ex. Nullam vel urna sed lectus commodo tempus. Proin vel ipsum at orci scelerisque volutpat. Nullam leo nulla, luctus ac ullamcorper ut, ullamcorper a libero. Nam consequat, nisl in consectetur molestie, neque odio varius mi, in hendrerit nisi elit quis odio. In pretium faucibus tortor eget sagittis. Ut scelerisque elit leo, id lacinia erat faucibus finibus. Pellentesque consectetur pulvinar hendrerit. Etiam interdum, ipsum sit amet convallis feugiat, tellus turpis imperdiet magna, quis commodo erat felis placerat est. In id sagittis justo, vitae efficitur quam. Quisque sodales orci feugiat justo pretium, at gravida velit laoreet. Vivamus vel viverra nisi. In dapibus elit non nunc laoreet, a fringilla nunc tincidunt. Fusce in aliquam felis, et tincidunt nulla. " FontSize="6"/>
-                    </Border>
+
+        <Grid Grid.Row="0" Height="170" Margin="0,0,0,8">
+            <Canvas x:Name="PreviewCanvas" Width="170" Height="170" HorizontalAlignment="Center">
+                <Rectangle x:Name="PaperShadow" Fill="{ThemeResource ControlStrongFillColorDisabledBrush}" />
+                <Border x:Name="Paper"
+                        Background="White"
+                        BorderBrush="#FFB8B8B8"
+                        BorderThickness="1"
+                        RequestedTheme="Light" />
+                <Grid x:Name="exampletextgrid" RequestedTheme="Light">
+                    <Rectangle Stroke="#FF8A8A8A" StrokeThickness="0.75" StrokeDashArray="3,2" />
+                    <TextBlock Margin="2,1" x:Name="exampletext"
+                               Foreground="#FF7A7A7A"
+                               TextWrapping="Wrap"
+                               FontSize="4"
+                               LineHeight="5"
+                               Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin aliquet, tortor in pellentesque semper, diam magna aliquet ipsum, nec cursus ipsum ante nec ex. Nullam vel urna sed lectus commodo tempus. Proin vel ipsum at orci scelerisque volutpat. Nullam leo nulla, luctus ac ullamcorper ut, ullamcorper a libero. Nam consequat, nisl in consectetur molestie, neque odio varius mi, in hendrerit nisi elit quis odio. In pretium faucibus tortor eget sagittis. Ut scelerisque elit leo, id lacinia erat faucibus finibus. Pellentesque consectetur pulvinar hendrerit. Etiam interdum, ipsum sit amet convallis feugiat, tellus turpis imperdiet magna, quis commodo erat felis placerat est. In id sagittis justo, vitae efficitur quam. Quisque sodales orci feugiat justo pretium, at gravida velit laoreet. Vivamus vel viverra nisi. In dapibus elit non nunc laoreet, a fringilla nunc tincidunt. Fusce in aliquam felis, et tincidunt nulla. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin aliquet, tortor in pellentesque semper, diam magna aliquet ipsum, nec cursus ipsum ante nec ex. Nullam vel urna sed lectus commodo tempus. Proin vel ipsum at orci scelerisque volutpat. Nullam leo nulla, luctus ac ullamcorper ut, ullamcorper a libero. Nam consequat, nisl in consectetur molestie, neque odio varius mi, in hendrerit nisi elit quis odio. In pretium faucibus tortor eget sagittis. Ut scelerisque elit leo, id lacinia erat faucibus finibus. Pellentesque consectetur pulvinar hendrerit. Etiam interdum, ipsum sit amet convallis feugiat, tellus turpis imperdiet magna, quis commodo erat felis placerat est." />
                 </Grid>
-            </Grid>
+            </Canvas>
         </Grid>
-        <Grid Grid.Row="1" Margin="0,0,0,0" BorderBrush="{ThemeResource SystemChromeMediumColor}" BorderThickness="0,0,0,1">
+
+        <Grid Grid.Row="1" ColumnSpacing="12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40*"/>
-                <RowDefinition Height="42*"/>
-                <RowDefinition Height="42*"/>
-                <RowDefinition Height="4*"/>
-                <RowDefinition Height="8*"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <TextBlock x:Uid="paper" Margin="0,16,0,7" Grid.Row="0" FontSize="14"  Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold" Height="20"/>
-            <TextBlock x:Uid="size" Margin="0,16,0,7" Grid.Row="1" FontSize="14"  Grid.ColumnSpan="2" />
-            <ComboBox x:Name="PaperTypeCombo" Grid.Column="1" SelectionChanged="PaperTypeCombo_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,6,0,10" VerticalAlignment="Top" Grid.Row="1">
-                <ComboBoxItem Content="A3"/>
-                <ComboBoxItem Content="A4"/>
-                <ComboBoxItem Content="B4 (JIS)"/>
-                <ComboBoxItem Content="B5 (JIS)"/>
-                <ComboBoxItem Content="Executive"/>
-                <ComboBoxItem Content="Legal"/>
-                <ComboBoxItem Content="Letter"/>
-                <ComboBoxItem Content="Tabloid"/>
-            </ComboBox>
-
+            <TextBlock x:Uid="paper" Text="Paper" Grid.ColumnSpan="2" Margin="0,4,0,6" FontWeight="SemiBold" />
+            <TextBlock x:Uid="size" Text="Size" Grid.Row="1" VerticalAlignment="Center" />
+            <ComboBox x:Name="PaperTypeCombo" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch"
+                      SelectionChanged="PaperTypeCombo_SelectionChanged" />
+            <TextBlock x:Uid="papersourcelabel" Text="Source" Grid.Row="2" VerticalAlignment="Center" Margin="0,8,0,0" />
+            <ComboBox x:Name="PaperSourceCombo" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
         </Grid>
-        <Grid x:Name="Orientcontainer" Grid.Row="2" BorderBrush="{ThemeResource SystemChromeMediumColor}" BorderThickness="0,0,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition>
 
-                </RowDefinition>
-                <RowDefinition>
+        <StackPanel Grid.Row="2" Margin="0,8,0,0">
+            <TextBlock x:Uid="orientation" Text="Orientation" Margin="0,0,0,2" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <RadioButton x:Uid="portrait" x:Name="orientationportait" GroupName="pageorient" Content="Portrait" Checked="Orientation_Checked" />
+                <RadioButton x:Uid="landscape" x:Name="orientationlandscape" GroupName="pageorient" Content="Landscape" Checked="Orientation_Checked" />
+            </StackPanel>
+        </StackPanel>
 
-                </RowDefinition>
-                <RowDefinition>
-
-                </RowDefinition>
-            </Grid.RowDefinitions>
+        <Grid Grid.Row="3" Margin="0,8,0,0" ColumnSpacing="12" RowSpacing="8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBlock x:Uid="orientation" Margin="0,16,0,7" Grid.Row="0" FontSize="14" Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold"/>
-            <RadioButton x:Uid="portrait" x:Name="orientationportait" Checked="orientationportait_Checked" Tag="Landscape"  Grid.Row="2" Margin="0,3,0,10" />
-            <RadioButton x:Uid="landscape" x:Name="orientationlandscape" Checked="orientationlandscape_Checked" Tag="Portrait"  Grid.Row="1" Margin="0,3,0,1" />
-        </Grid>
-        <Grid Visibility="Collapsed" Grid.Row="3" BorderBrush="{ThemeResource SystemChromeMediumColor}" BorderThickness="0,0,0,1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="8*">
-
-                </RowDefinition>
-                <RowDefinition Height="Auto">
-
-                </RowDefinition>
-                <RowDefinition Height="5*"/>
-                <RowDefinition Height="42">
-
-                </RowDefinition>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="112*"/>
-                <ColumnDefinition Width="80*"/>
-                <ColumnDefinition Width="112*"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Visibility="Collapsed" x:Name="marginsnameinch" x:Uid="marginsnameinch" Margin="0,16,0,10" Grid.Row="0" FontSize="14" Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold"/>
-            <TextBlock Visibility="Collapsed" x:Name="marginsnamecm" x:Uid="marginsnamecm" Margin="0,16,0,10" Grid.Row="0" FontSize="14" Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold"/>
-            <TextBlock Visibility="Collapsed" x:Name="marginsnamept" x:Uid="marginsnamept" Margin="0,16,0,10" Grid.Row="0" FontSize="14" Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold"/>
-            <TextBlock Visibility="Collapsed" x:Name="marginsnamepicas" x:Uid="marginsnamepicas" Margin="0,16,0,10" Grid.Row="0" FontSize="14" Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold"/>
 
-            <TextBox x:Name="RightMarginTextBox" Grid.Row="1" Grid.Column="3" Margin="0,0,0,10" Grid.RowSpan="2"/>
-            <TextBox x:Name="BottomMarginTextBox" Grid.Row="3" Grid.Column="3" Margin="0,0,0,10"/>
-            <TextBox x:Name="TopMarginTextBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,10"/>
-            <TextBox x:Name="LeftMarginTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" Grid.RowSpan="2"/>
-            <TextBlock x:Uid="lefttr" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
-            <TextBlock x:Uid="righttr" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
-            <TextBlock x:Uid="toptr" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
-            <TextBlock x:Uid="bottr" Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+            <TextBlock Visibility="Collapsed" x:Name="marginsnameinch" x:Uid="marginsnameinch" Text="Margins (inches)" Grid.ColumnSpan="4" FontWeight="SemiBold" />
+            <TextBlock Visibility="Collapsed" x:Name="marginsnamecm" x:Uid="marginsnamecm" Text="Margins (centimeters)" Grid.ColumnSpan="4" FontWeight="SemiBold" />
+            <TextBlock Visibility="Collapsed" x:Name="marginsnamept" x:Uid="marginsnamept" Text="Margins (points)" Grid.ColumnSpan="4" FontWeight="SemiBold" />
+            <TextBlock Visibility="Collapsed" x:Name="marginsnamepicas" x:Uid="marginsnamepicas" Text="Margins (picas)" Grid.ColumnSpan="4" FontWeight="SemiBold" />
+
+            <TextBlock x:Uid="lefttr" Text="Left:" Grid.Row="1" VerticalAlignment="Center" />
+            <TextBox x:Name="LeftMarginTextBox" Grid.Row="1" Grid.Column="1" TextChanged="Margin_TextChanged" />
+            <TextBlock x:Uid="righttr" Text="Right:" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" />
+            <TextBox x:Name="RightMarginTextBox" Grid.Row="1" Grid.Column="3" TextChanged="Margin_TextChanged" />
+
+            <TextBlock x:Uid="toptr" Text="Top:" Grid.Row="2" VerticalAlignment="Center" />
+            <TextBox x:Name="TopMarginTextBox" Grid.Row="2" Grid.Column="1" TextChanged="Margin_TextChanged" />
+            <TextBlock x:Uid="bottr" Text="Bottom:" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" />
+            <TextBox x:Name="BottomMarginTextBox" Grid.Row="2" Grid.Column="3" TextChanged="Margin_TextChanged" />
         </Grid>
-        <Grid Visibility="Collapsed" Grid.Row="4">
-            <CheckBox x:Name="printpagenumbers" x:Uid="printpageTR"  Margin="0,10,0,0" />
-        </Grid>
+
+        <CheckBox x:Name="printpagenumbers" x:Uid="printpageTR" Content="Print Page Numbers" Grid.Row="4" Margin="0,8,0,0" />
     </Grid>
-
-
-
 </ContentDialog>

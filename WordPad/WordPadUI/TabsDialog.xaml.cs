@@ -1,110 +1,144 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text.RegularExpressions;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using WordPad.Helpers;
 
 namespace WordPad.WordPadUI
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class TabsDialog : ContentDialog
     {
-        private ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-        public TabsDialog()
+        private const double MaxTabTwips = 22 * PageSettings.TwipsPerInch;
+        private const int MaxTabs = 32;
+
+        private readonly RichEditBox _editor;
+        private readonly MeasureUnit _unit;
+        private readonly List<double> _tabs = new List<double>();
+        private bool _changed;
+
+        public TabsDialog() : this(null) { }
+
+        public TabsDialog(RichEditBox editor)
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            _editor = editor;
+            _unit = PageSettings.Unit;
+
+            if (_editor != null)
+            {
+                List<float> tabs = ParagraphHelper.GetTabs(_editor);
+                if (tabs != null) _tabs.AddRange(tabs.Select(pt => PageSettings.PointsToTwips(pt)));
+            }
+            RefreshList();
+            UpdateButtons();
         }
 
-        private void IndicateTextBoxImproperValue()
+        private void RefreshList()
         {
-            // Set the error indication on the border
-            EnteringBox.BorderBrush = (SolidColorBrush)Application.Current.Resources["TextBoxErrorIndication"];
-            TabsDialog1.IsSecondaryButtonEnabled = false;
-            SetButton.IsEnabled = false;
-            return;
+            _tabs.Sort();
+            TabsPostitionsListView.Items.Clear();
+            foreach (double tw in _tabs)
+                TabsPostitionsListView.Items.Add(PageSettings.FormatTwips(tw, _unit));
         }
 
-        private void EnteringBox_TextChanged(object sender, TextChangedEventArgs e)
+        private bool TryReadEntry(out double twips)
         {
-            SetButton.IsEnabled = true;
-            ClearButton.IsEnabled = true;
-            string enteredvalue = EnteringBox.Text;
+            return PageSettings.TryParseToTwips(EnteringBox.Text, _unit, out twips) && twips >= 0 && twips <= MaxTabTwips;
+        }
 
-            // Check if the input is empty
-            if (string.IsNullOrEmpty(enteredvalue))
-            {
-                IndicateTextBoxImproperValue();
-            }
+        private void UpdateButtons()
+        {
+            bool hasText = !string.IsNullOrWhiteSpace(EnteringBox.Text);
+            bool valid = TryReadEntry(out _);
 
-            // Check if the input consists only of numbers
-            if (!Regex.IsMatch(enteredvalue, @"^\d+$"))
-            {
-                IndicateTextBoxImproperValue();
-            }
-
-            // Convert the input to an integer and validate the range
-            if (int.TryParse(enteredvalue, out int number))
-            {
-                // Check if the number is within the valid range
-                if (number > 0 && number < 132)
-                {
-                    // Input is valid, so enable the secondary button and reset the border color
-                    EnteringBox.BorderBrush = (LinearGradientBrush)Application.Current.Resources["TextControlElevationBorderFocusedBrush"];
-                    TabsDialog1.IsSecondaryButtonEnabled = true;
-                    SetButton.IsEnabled=true;
-                }
-                else
-                {
-                    IndicateTextBoxImproperValue();
-                }
-            }
+            if (!hasText || valid)
+                EnteringBox.ClearValue(Control.BorderBrushProperty);
             else
+                EnteringBox.BorderBrush = new SolidColorBrush(Windows.UI.Colors.Red);
+
+            SetButton.IsEnabled = valid && _tabs.Count < MaxTabs;
+            ClearButton.IsEnabled = TabsPostitionsListView.SelectedIndex >= 0 || (valid && FindTab(EnteringBox.Text) >= 0);
+            ClearAllButton.IsEnabled = _tabs.Count > 0;
+        }
+
+        private int FindTab(string text)
+        {
+            if (!PageSettings.TryParseToTwips(text, _unit, out double twips)) return -1;
+            return _tabs.FindIndex(t => Math.Abs(t - twips) < 1);
+        }
+
+        private void EnteringBox_TextChanged(object sender, TextChangedEventArgs e) => UpdateButtons();
+
+        private void EnteringBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Enter && SetButton.IsEnabled)
             {
-                IndicateTextBoxImproperValue();
+                SetButton_Click(sender, null);
+                e.Handled = true;
             }
         }
 
-
-        private void ClearButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private void TabsPostitionsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItem = TabsPostitionsListView.SelectedItem;
+            int i = TabsPostitionsListView.SelectedIndex;
+            if (i >= 0 && i < _tabs.Count) EnteringBox.Text = PageSettings.FormatTwips(_tabs[i], _unit);
+            UpdateButtons();
+        }
 
-            if (selectedItem != null)
+        private void SetButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryReadEntry(out double twips)) return;
+            if (!_tabs.Any(t => Math.Abs(t - twips) < 1))
             {
-                TabsPostitionsListView.Items.Remove(selectedItem);
+                _tabs.Add(twips);
+                _changed = true;
             }
-            IndicateTextBoxImproperValue();
+            RefreshList();
             EnteringBox.Text = string.Empty;
+            EnteringBox.Focus(FocusState.Programmatic);
+            UpdateButtons();
         }
 
-        private void SetButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
-            string enteredvalue = EnteringBox.Text;
-            string unitprefix = (string)localSettings.Values["unit"];
-            TabsPostitionsListView.Items.Add(enteredvalue + " " + unitprefix);
+            int index = TabsPostitionsListView.SelectedIndex;
+            if (index < 0) index = FindTab(EnteringBox.Text);
+            if (index >= 0 && index < _tabs.Count)
+            {
+                _tabs.RemoveAt(index);
+                _changed = true;
+            }
+            RefreshList();
+            EnteringBox.Text = string.Empty;
+            UpdateButtons();
         }
 
         private void ClearAllButton_Click(object sender, RoutedEventArgs e)
         {
-            TabsPostitionsListView.Items.Clear();
-            IndicateTextBoxImproperValue();
+            if (_tabs.Count > 0) _changed = true;
+            _tabs.Clear();
+            RefreshList();
             EnteringBox.Text = string.Empty;
+            UpdateButtons();
+        }
+
+        private void TabsDialog1_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            if (TryReadEntry(out double twips) && !_tabs.Any(t => Math.Abs(t - twips) < 1) && _tabs.Count < MaxTabs)
+            {
+                _tabs.Add(twips);
+                _changed = true;
+            }
+        }
+
+        public void Apply()
+        {
+            if (_editor == null || !_changed) return;
+            ParagraphHelper.SetTabs(_editor, _tabs.Select(tw => (float)PageSettings.TwipsToPoints(tw)));
         }
     }
 }

@@ -312,39 +312,36 @@
   <data name="qprint.Text" xml:space="preserve">
     <value>Szybkie drukowanie</value>
   </data>
-  <data name="redobuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="redobuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Ponów (Ctrl+Y) </value>
   </data>
   <data name="saveasdocx.Text" xml:space="preserve">
     <value>Dokument Office Open XML</value>
   </data>
   <data name="saveasrtf.Text" xml:space="preserve">
-    <value>Dokument sformatowany</value>
+    <value>Dokument w formacie RTF</value>
     <comment>Save the document in the Rich Text Format</comment>
   </data>
-  <data name="savebutton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="savebutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Zapisz (Ctrl+S)</value>
   </data>
   <data name="sharebuttonmenu.Text" xml:space="preserve">
     <value>Udostępnij</value>
   </data>
-  <data name="sharebuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="sharebuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Udostępnij</value>
   </data>
-  <data name="toolbarsetbutton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="toolbarsetbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Otwórz ustawienia</value>
   </data>
-  <data name="undobuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="undobuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Cofnij (Ctrl+Z)</value>
   </data>
   <data name="saveasodt.Text" xml:space="preserve">
-    <value>Tekst w formacie OpenDocument</value>
+    <value>Dokument OpenDocument Text</value>
   </data>
   <data name="saveastxt.Text" xml:space="preserve">
-    <value>Dokument tekstowy</value>
-  </data>
-  <data name="saveasother.Text" xml:space="preserve">
-    <value>Inne formaty</value>
+    <value>Dokument w formacie zwykłego tekstu</value>
   </data>
   <data name="closebuttonmenu.Text" xml:space="preserve">
     <value>Zakończ</value>
@@ -377,7 +374,7 @@
     <value>Jednostki miary</value>
   </data>
   <data name="sysradio.Content" xml:space="preserve">
-    <value>Ustawienie systemowe</value>
+    <value>Użyj ustawienia systemu</value>
   </data>
   <data name="lightradio.Content" xml:space="preserve">
     <value>Jasny</value>
@@ -446,7 +443,7 @@
     <value>Więcej kolorów</value>
   </data>
   <data name="marginsnamecm.Text" xml:space="preserve">
-    <value>Marginesy (milimetry)</value>
+    <value>Marginesy (centymetry)</value>
   </data>
   <data name="marginsnameinch.Text" xml:space="preserve">
     <value>Marginesy (cale)</value>
@@ -486,5 +483,605 @@
   </data>
   <data name="cut.Text" xml:space="preserve">
     <value>Wytnij</value>
+  </data>
+  <data name="vw_zoomin.Text" xml:space="preserve">
+    <value>Powiększ</value>
+  </data>
+  <data name="vw_zoomout.Text" xml:space="preserve">
+    <value>Pomniejsz</value>
+  </data>
+  <data name="vw_autohidetoolbar.Text" xml:space="preserve">
+    <value>Automatycznie ukrywaj pasek narzędzi</value>
+  </data>
+  <data name="vw_wordwrap.Text" xml:space="preserve">
+    <value>Zawijanie wierszy</value>
+  </data>
+  <data name="vw_nowrap.Text" xml:space="preserve">
+    <value>Bez zawijania</value>
+  </data>
+  <data name="vw_wrapwindow.Text" xml:space="preserve">
+    <value>Zawijaj według okna</value>
+  </data>
+  <data name="vw_wrapruler.Text" xml:space="preserve">
+    <value>Zawijaj według linijki</value>
+  </data>
+  <data name="vw_units.Text" xml:space="preserve">
+    <value>Jednostki miary</value>
+  </data>
+  <data name="vw_inches.Text" xml:space="preserve">
+    <value>Cale</value>
+  </data>
+  <data name="vw_cm.Text" xml:space="preserve">
+    <value>Centymetry</value>
+  </data>
+  <data name="vw_points.Text" xml:space="preserve">
+    <value>Punkty</value>
+  </data>
+  <data name="vw_picas.Text" xml:space="preserve">
+    <value>Cycera</value>
+  </data>
+  <data name="showtoolbar.Text" xml:space="preserve">
+    <value>Pokaż pasek narzędzi</value>
+  </data>
+  <data name="toolbaroptions.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Opcje paska narzędzi</value>
+  </data>
+  <data name="alwaysshowtoolbar.Text" xml:space="preserve">
+    <value>Zawsze pokazuj pasek narzędzi</value>
+  </data>
+  <data name="autohidetoolbar.Text" xml:space="preserve">
+    <value>Automatycznie ukrywaj pasek narzędzi</value>
+  </data>
+  <data name="addspacemenu.Text" xml:space="preserve">
+    <value>Dodaj 10-punktową spację po akapitach</value>
+  </data>
+  <data name="spellNoSuggestions" xml:space="preserve">
+    <value>(Brak sugestii pisowni)</value>
+  </data>
+  <data name="spellAddToDictionary" xml:space="preserve">
+    <value>Dodaj do słownika</value>
+  </data>
+  <data name="norecent" xml:space="preserve">
+    <value>Brak ostatnich dokumentów</value>
+  </data>
+  <data name="recentmissing" xml:space="preserve">
+    <value>Nie można odnaleźć pliku. Mógł zostać przeniesiony lub usunięty.</value>
+  </data>
+  <data name="vw_zoom.Text" xml:space="preserve">
+    <value>Powiększenie</value>
+  </data>
+  <data name="vw_fit.Text" xml:space="preserve">
+    <value>Dopasuj do okna</value>
+  </data>
+  <data name="vw_fullscreen.Text" xml:space="preserve">
+    <value>Pełny ekran</value>
+  </data>
+  <data name="hidetoolbar.Text" xml:space="preserve">
+    <value>Ukryj pasek narzędzi</value>
+  </data>
+  <data name="fittowindowbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Dopasuj do okna</value>
+  </data>
+  <data name="papersourcelabel.Text" xml:space="preserve">
+    <value>Źródło</value>
+  </data>
+  <data name="papersource_auto" xml:space="preserve">
+    <value>Automatyczny wybór</value>
+  </data>
+  <data name="papersource_manual" xml:space="preserve">
+    <value>Podajnik ręczny</value>
+  </data>
+  <data name="papersource_tray1" xml:space="preserve">
+    <value>Podajnik 1</value>
+  </data>
+  <data name="papersource_tray2" xml:space="preserve">
+    <value>Podajnik 2</value>
+  </data>
+  <data name="papersource_tray3" xml:space="preserve">
+    <value>Podajnik 3</value>
+  </data>
+  <data name="papersource_envelope" xml:space="preserve">
+    <value>Podajnik kopert</value>
+  </data>
+  <data name="createNew.Content" xml:space="preserve">
+    <value>Utwórz nowy</value>
+  </data>
+  <data name="createFile.Content" xml:space="preserve">
+    <value>Utwórz z pliku</value>
+  </data>
+  <data name="objecttypelabel.Text" xml:space="preserve">
+    <value>Typ obiektu:</value>
+  </data>
+  <data name="objectfilelabel.Text" xml:space="preserve">
+    <value>Plik:</value>
+  </data>
+  <data name="objectbrowse.Content" xml:space="preserve">
+    <value>Przeglądaj...</value>
+  </data>
+  <data name="displayasicon.Content" xml:space="preserve">
+    <value>Wyświetl jako ikonę</value>
+  </data>
+  <data name="objectresult.Text" xml:space="preserve">
+    <value>Wynik</value>
+  </data>
+  <data name="objtype_bitmap" xml:space="preserve">
+    <value>Obraz mapy bitowej</value>
+  </data>
+  <data name="objtype_package" xml:space="preserve">
+    <value>Pakiet</value>
+  </data>
+  <data name="objtype_paint" xml:space="preserve">
+    <value>Obraz programu Paint</value>
+  </data>
+  <data name="objtype_table" xml:space="preserve">
+    <value>Tabela</value>
+  </data>
+  <data name="objresult_new" xml:space="preserve">
+    <value>Wstawia do dokumentu nowy obiekt typu {0}.</value>
+  </data>
+  <data name="objresult_paint" xml:space="preserve">
+    <value>Obraz zostanie otwarty w programie Paint. Zapisz go tam, aby zaktualizować dokument; kliknij go dwukrotnie, aby edytować go ponownie.</value>
+  </data>
+  <data name="objresult_package" xml:space="preserve">
+    <value>Wybierzesz plik do spakowania. Zostanie wyświetlony jako ikona; kliknij ją dwukrotnie, aby otworzyć plik.</value>
+  </data>
+  <data name="objresult_fileicon" xml:space="preserve">
+    <value>Wstawia do dokumentu ikonę pliku. Kliknij ją dwukrotnie, aby otworzyć plik.</value>
+  </data>
+  <data name="objresult_file" xml:space="preserve">
+    <value>Wstawia zawartość pliku do dokumentu. Obrazy można edytować w programie Paint, klikając je dwukrotnie; inne pliki są wstawiane jako ikona.</value>
+  </data>
+  <data name="resize_title" xml:space="preserve">
+    <value>Zmienianie rozmiaru</value>
+  </data>
+  <data name="resize_scale" xml:space="preserve">
+    <value>Skala</value>
+  </data>
+  <data name="resize_horizontal" xml:space="preserve">
+    <value>Poziomo (%):</value>
+  </data>
+  <data name="resize_vertical" xml:space="preserve">
+    <value>Pionowo (%):</value>
+  </data>
+  <data name="resize_lock" xml:space="preserve">
+    <value>Zablokuj współczynnik proporcji</value>
+  </data>
+  <data name="resize_cancel" xml:space="preserve">
+    <value>Anuluj</value>
+  </data>
+  <data name="pp_printbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Drukuj</value>
+  </data>
+  <data name="pp_printbutton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Drukuj</value>
+  </data>
+  <data name="pp_printgroup.Text" xml:space="preserve">
+    <value>Drukuj</value>
+  </data>
+  <data name="pp_zoomgroup.Text" xml:space="preserve">
+    <value>Powiększenie</value>
+  </data>
+  <data name="pp_onepage.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Jedna strona</value>
+  </data>
+  <data name="pp_onepage.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Jedna strona</value>
+  </data>
+  <data name="pp_twopages.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Dwie strony</value>
+  </data>
+  <data name="pp_twopages.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Dwie strony</value>
+  </data>
+  <data name="pp_displaygroup.Text" xml:space="preserve">
+    <value>Wyświetlanie</value>
+  </data>
+  <data name="pp_prevpage.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Poprzednia strona</value>
+  </data>
+  <data name="pp_prevpage.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Poprzednia strona</value>
+  </data>
+  <data name="pp_nextpage.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Następna strona</value>
+  </data>
+  <data name="pp_nextpage.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Następna strona</value>
+  </data>
+  <data name="pp_pagesgroup.Text" xml:space="preserve">
+    <value>Strony</value>
+  </data>
+  <data name="pp_closebutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Zamknij podgląd</value>
+  </data>
+  <data name="pp_closebutton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Zamknij podgląd</value>
+  </data>
+  <data name="pp_closegroup.Text" xml:space="preserve">
+    <value>Zamknij podgląd</value>
+  </data>
+  <data name="pp_zoom100.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>100%</value>
+  </data>
+  <data name="menu_cut.Text" xml:space="preserve">
+    <value>Wytnij</value>
+  </data>
+  <data name="menu_docstree.Text" xml:space="preserve">
+    <value>Drzewo dokumentów</value>
+  </data>
+  <data name="zoomoutbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Pomniejsz</value>
+  </data>
+  <data name="zoominbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Powiększ</value>
+  </data>
+  <data name="ef_findtitle.Text" xml:space="preserve">
+    <value>Znajdź</value>
+  </data>
+  <data name="ef_replacetitle.Text" xml:space="preserve">
+    <value>Zamień</value>
+  </data>
+  <data name="ef_findbox.PlaceholderText" xml:space="preserve">
+    <value>Szukany tekst</value>
+  </data>
+  <data name="ef_replacebox.PlaceholderText" xml:space="preserve">
+    <value>Nowy tekst</value>
+  </data>
+  <data name="ef_findbutton.Content" xml:space="preserve">
+    <value>Znajdź</value>
+  </data>
+  <data name="ef_removehighlights.Content" xml:space="preserve">
+    <value>Usuń wyróżnienia</value>
+  </data>
+  <data name="ef_replaceselected.Content" xml:space="preserve">
+    <value>Zamień zaznaczony tekst</value>
+  </data>
+  <data name="ef_replaceall.Content" xml:space="preserve">
+    <value>Zamień wszystkie wystąpienia</value>
+  </data>
+  <data name="tt_fontgrow.Content" xml:space="preserve">
+    <value>Powiększ czcionkę</value>
+  </data>
+  <data name="tt_fontshrink.Content" xml:space="preserve">
+    <value>Zmniejsz czcionkę</value>
+  </data>
+  <data name="tt_bold.Content" xml:space="preserve">
+    <value>Pogrubienie</value>
+  </data>
+  <data name="tt_italic.Content" xml:space="preserve">
+    <value>Kursywa</value>
+  </data>
+  <data name="tt_underline.Content" xml:space="preserve">
+    <value>Podkreślenie</value>
+  </data>
+  <data name="tt_strike.Content" xml:space="preserve">
+    <value>Przekreślenie</value>
+  </data>
+  <data name="tt_subscript.Content" xml:space="preserve">
+    <value>Indeks dolny</value>
+  </data>
+  <data name="tt_superscript.Content" xml:space="preserve">
+    <value>Indeks górny</value>
+  </data>
+  <data name="tt_textcolor.Content" xml:space="preserve">
+    <value>Kolor tekstu</value>
+  </data>
+  <data name="tt_highlight.Content" xml:space="preserve">
+    <value>Kolor wyróżnienia tekstu</value>
+  </data>
+  <data name="color_red.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Czerwony</value>
+  </data>
+  <data name="color_orange.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Pomarańczowy</value>
+  </data>
+  <data name="color_yellow.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Żółty</value>
+  </data>
+  <data name="color_green.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Zielony</value>
+  </data>
+  <data name="color_blue.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Niebieski</value>
+  </data>
+  <data name="color_lightblue.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Jasnoniebieski</value>
+  </data>
+  <data name="color_indigo.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Indygo</value>
+  </data>
+  <data name="color_violet.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Fioletowy</value>
+  </data>
+  <data name="color_gray.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Szary</value>
+  </data>
+  <data name="color_beige.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Beżowy</value>
+  </data>
+  <data name="color_black.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Czarny</value>
+  </data>
+  <data name="color_white.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Biały</value>
+  </data>
+  <data name="fc_ok.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="fc_cancel.Content" xml:space="preserve">
+    <value>Anuluj</value>
+  </data>
+  <data name="nocolor.Text" xml:space="preserve">
+    <value>Brak koloru</value>
+  </data>
+  <data name="tt_alignleft.Content" xml:space="preserve">
+    <value>Wyrównaj do lewej</value>
+  </data>
+  <data name="tt_aligncenter.Content" xml:space="preserve">
+    <value>Wyśrodkuj</value>
+  </data>
+  <data name="tt_alignright.Content" xml:space="preserve">
+    <value>Wyrównaj do prawej</value>
+  </data>
+  <data name="tt_justify.Content" xml:space="preserve">
+    <value>Wyjustuj</value>
+  </data>
+  <data name="tt_paragraph.Content" xml:space="preserve">
+    <value>Akapit</value>
+  </data>
+  <data name="tt_list.Content" xml:space="preserve">
+    <value>Rozpocznij listę</value>
+  </data>
+  <data name="tt_linespacing.Content" xml:space="preserve">
+    <value>Odstępy między wierszami</value>
+  </data>
+  <data name="tt_indentdec.Content" xml:space="preserve">
+    <value>Zmniejsz wcięcie</value>
+  </data>
+  <data name="tt_indentinc.Content" xml:space="preserve">
+    <value>Zwiększ wcięcie</value>
+  </data>
+  <data name="settings_onlysystem.Text" xml:space="preserve">
+    <value>W wersji UWP obsługiwany jest tylko motyw systemowy</value>
+  </data>
+  <data name="settings_advanced.Text" xml:space="preserve">
+    <value>Włącz funkcje zaawansowane</value>
+  </data>
+  <data name="settings_advanceddesc.Text" xml:space="preserve">
+    <value>Widok drzewa dokumentów, wiele kart</value>
+  </data>
+  <data name="doctree_pick.Text" xml:space="preserve">
+    <value>Wybierz folder źródłowy</value>
+  </data>
+  <data name="dlg_ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="dlg_cancel" xml:space="preserve">
+    <value>Anuluj</value>
+  </data>
+  <data name="dlg_close" xml:space="preserve">
+    <value>Zamknij</value>
+  </data>
+  <data name="dlg_openfailed" xml:space="preserve">
+    <value>Nie można otworzyć pliku {0}.</value>
+  </data>
+  <data name="dlg_unsaved_title" xml:space="preserve">
+    <value>Czy chcesz zapisać swoją pracę?</value>
+  </data>
+  <data name="dlg_unsaved_content" xml:space="preserve">
+    <value>Istnieją niezapisane zmiany w „{0}”.</value>
+  </data>
+  <data name="dlg_save" xml:space="preserve">
+    <value>Zapisz</value>
+  </data>
+  <data name="dlg_dontsave" xml:space="preserve">
+    <value>Nie zapisuj</value>
+  </data>
+  <data name="dlg_savefailed_title" xml:space="preserve">
+    <value>Nie udało się zapisać</value>
+  </data>
+  <data name="dlg_savefailed_content" xml:space="preserve">
+    <value>Nie można zapisać pliku {0}.</value>
+  </data>
+  <data name="dlg_datetime_title" xml:space="preserve">
+    <value>Data i godzina</value>
+  </data>
+  <data name="dlg_picturefailed" xml:space="preserve">
+    <value>Nie można wstawić obrazu.</value>
+  </data>
+  <data name="dlg_fontsize_range" xml:space="preserve">
+    <value>Rozmiar czcionki musi być liczbą od {0} do {1}.</value>
+  </data>
+  <data name="saveasothersub.Text" xml:space="preserve">
+    <value>Inny format</value>
+  </data>
+  <data name="fmtitem_rtf.Text" xml:space="preserve">
+    <value>Tekst sformatowany (RTF)</value>
+  </data>
+  <data name="fmtitem_docx.Text" xml:space="preserve">
+    <value>Dokument Office Open XML</value>
+  </data>
+  <data name="fmtitem_odt.Text" xml:space="preserve">
+    <value>OpenDocument Text</value>
+  </data>
+  <data name="fmtitem_txt.Text" xml:space="preserve">
+    <value>Dokument tekstowy</value>
+  </data>
+  <data name="fmtitem_txtdos.Text" xml:space="preserve">
+    <value>Dokument tekstowy - format MS-DOS</value>
+  </data>
+  <data name="fmtitem_txtunicode.Text" xml:space="preserve">
+    <value>Dokument tekstowy Unicode</value>
+  </data>
+  <data name="fmt_rtf" xml:space="preserve">
+    <value>Tekst sformatowany (RTF)</value>
+  </data>
+  <data name="fmt_docx" xml:space="preserve">
+    <value>Dokument Office Open XML</value>
+  </data>
+  <data name="fmt_odt" xml:space="preserve">
+    <value>OpenDocument Text</value>
+  </data>
+  <data name="fmt_txt" xml:space="preserve">
+    <value>Dokument tekstowy</value>
+  </data>
+  <data name="fmt_txtdos" xml:space="preserve">
+    <value>Dokument tekstowy - format MS-DOS</value>
+  </data>
+  <data name="fmt_txtunicode" xml:space="preserve">
+    <value>Dokument tekstowy Unicode</value>
+  </data>
+  <data name="fmt_txtutf8" xml:space="preserve">
+    <value>Dokument tekstowy (UTF-8)</value>
+  </data>
+  <data name="newdocumentname" xml:space="preserve">
+    <value>Dokument</value>
+  </data>
+  <data name="dlg_textwarning" xml:space="preserve">
+    <value>Zamierzasz zapisać dokument w formacie zwykłego tekstu, co spowoduje usunięcie całego formatowania. Czy na pewno chcesz to zrobić?</value>
+  </data>
+  <data name="dlg_yes" xml:space="preserve">
+    <value>Tak</value>
+  </data>
+  <data name="dlg_no" xml:space="preserve">
+    <value>Nie</value>
+  </data>
+  <data name="pp_page" xml:space="preserve">
+    <value>Strona {0}</value>
+  </data>
+  <data name="pp_pages" xml:space="preserve">
+    <value>Strony {0}–{1}</value>
+  </data>
+  <data name="dlg_textformat_title" xml:space="preserve">
+    <value>Zapisz jako typ</value>
+  </data>
+  <data name="formatwarning.Message" xml:space="preserve">
+    <value>UltraPad nie obsługuje wszystkich funkcji tego formatu dokumentu. Część zawartości może zostać utracona lub może być wyświetlana nieprawidłowo.</value>
+  </data>
+  <data name="colorname_ffffff" xml:space="preserve">
+    <value>Biały</value>
+  </data>
+  <data name="colorname_a5a5a5" xml:space="preserve">
+    <value>Jasnoszary</value>
+  </data>
+  <data name="colorname_7f7f7f" xml:space="preserve">
+    <value>Szary</value>
+  </data>
+  <data name="colorname_666666" xml:space="preserve">
+    <value>Ciemnoszary</value>
+  </data>
+  <data name="colorname_333333" xml:space="preserve">
+    <value>Grafitowy</value>
+  </data>
+  <data name="colorname_000000" xml:space="preserve">
+    <value>Czarny</value>
+  </data>
+  <data name="colorname_ff0000" xml:space="preserve">
+    <value>Czerwony</value>
+  </data>
+  <data name="colorname_ffc000" xml:space="preserve">
+    <value>Pomarańczowy</value>
+  </data>
+  <data name="colorname_ffff00" xml:space="preserve">
+    <value>Żółty</value>
+  </data>
+  <data name="colorname_00b050" xml:space="preserve">
+    <value>Zielony</value>
+  </data>
+  <data name="colorname_004dbb" xml:space="preserve">
+    <value>Niebieski</value>
+  </data>
+  <data name="colorname_9b00d3" xml:space="preserve">
+    <value>Purpurowy</value>
+  </data>
+  <data name="colorname_c0504d" xml:space="preserve">
+    <value>Ciemnoczerwony</value>
+  </data>
+  <data name="colorname_f79646" xml:space="preserve">
+    <value>Jasnopomarańczowy</value>
+  </data>
+  <data name="colorname_9bbb59" xml:space="preserve">
+    <value>Oliwkowy</value>
+  </data>
+  <data name="colorname_4bacc6" xml:space="preserve">
+    <value>Akwamaryna</value>
+  </data>
+  <data name="colorname_4f81bd" xml:space="preserve">
+    <value>Chabrowy</value>
+  </data>
+  <data name="colorname_8064a2" xml:space="preserve">
+    <value>Lawendowy</value>
+  </data>
+  <data name="colorname_d16349" xml:space="preserve">
+    <value>Ceglasty</value>
+  </data>
+  <data name="colorname_d19049" xml:space="preserve">
+    <value>Ochra</value>
+  </data>
+  <data name="colorname_ccb400" xml:space="preserve">
+    <value>Złoty</value>
+  </data>
+  <data name="colorname_8fb08c" xml:space="preserve">
+    <value>Szałwiowy</value>
+  </data>
+  <data name="colorname_646b86" xml:space="preserve">
+    <value>Łupkowy</value>
+  </data>
+  <data name="colorname_9e7c7c" xml:space="preserve">
+    <value>Różanobrązowy</value>
+  </data>
+  <data name="colorname_dd8484" xml:space="preserve">
+    <value>Różany</value>
+  </data>
+  <data name="colorname_f3a447" xml:space="preserve">
+    <value>Mandarynkowy</value>
+  </data>
+  <data name="colorname_dfce04" xml:space="preserve">
+    <value>Cytrynowy</value>
+  </data>
+  <data name="colorname_a5b592" xml:space="preserve">
+    <value>Mchowy</value>
+  </data>
+  <data name="colorname_809ec2" xml:space="preserve">
+    <value>Stalowoniebieski</value>
+  </data>
+  <data name="colorname_9c85c0" xml:space="preserve">
+    <value>Liliowy</value>
+  </data>
+  <data name="colorname_00ff00" xml:space="preserve">
+    <value>Jaskrawozielony</value>
+  </data>
+  <data name="colorname_00ffff" xml:space="preserve">
+    <value>Turkusowy</value>
+  </data>
+  <data name="colorname_ff00ff" xml:space="preserve">
+    <value>Różowy</value>
+  </data>
+  <data name="colorname_0000ff" xml:space="preserve">
+    <value>Niebieski</value>
+  </data>
+  <data name="colorname_000080" xml:space="preserve">
+    <value>Granatowy</value>
+  </data>
+  <data name="colorname_008080" xml:space="preserve">
+    <value>Morski</value>
+  </data>
+  <data name="colorname_008000" xml:space="preserve">
+    <value>Zielony</value>
+  </data>
+  <data name="colorname_800080" xml:space="preserve">
+    <value>Fioletowy</value>
+  </data>
+  <data name="colorname_800000" xml:space="preserve">
+    <value>Ciemnoczerwony</value>
+  </data>
+  <data name="colorname_808000" xml:space="preserve">
+    <value>Ciemnożółty</value>
+  </data>
+  <data name="colorname_808080" xml:space="preserve">
+    <value>Szary 50%</value>
+  </data>
+  <data name="colorname_c0c0c0" xml:space="preserve">
+    <value>Szary 25%</value>
   </data>
 </root>

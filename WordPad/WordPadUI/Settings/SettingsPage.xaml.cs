@@ -53,7 +53,7 @@ namespace WordPad.WordPadUI.Settings
             if (!string.IsNullOrEmpty(selectedTheme))
             {
                 // Find the RadioButton with a matching Tag
-                foreach (var item in radiocontainer.Items)
+                foreach (var item in radiocontainer.Children)
                 {
                     if (item is RadioButton radioButton && radioButton.Tag is string tag && tag == selectedTheme)
                     {
@@ -99,11 +99,9 @@ namespace WordPad.WordPadUI.Settings
             }
         }
 
-
-
         private RadioButton FindRadioButtonByTag(string tag)
         {
-            foreach (var item in radiocontainer.Items)
+            foreach (var item in radiocontainer.Children)
             {
                 if (item is RadioButton rb && rb.Tag.ToString() == tag)
                 {
@@ -115,30 +113,7 @@ namespace WordPad.WordPadUI.Settings
 
         private void ApplyTheme(string selectedTheme)
         {
-            ApplicationViewTitleBar titleBar = ApplicationView.GetForCurrentView().TitleBar;
-
-            if (selectedTheme == "Dark")
-            {
-                titleBar.ButtonForegroundColor = Colors.White;
-                App.RootTheme = ElementTheme.Dark;
-            }
-            else if (selectedTheme == "Light")
-            {
-                titleBar.ButtonForegroundColor = Colors.Black;
-                App.RootTheme = ElementTheme.Light;
-            }
-            else
-            {
-                App.RootTheme = ElementTheme.Default;
-                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
-                {
-                    titleBar.ButtonForegroundColor = Colors.White;
-                }
-                else
-                {
-                    titleBar.ButtonForegroundColor = Colors.Black;
-                }
-            }
+            App.ApplyAppTheme(selectedTheme);
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)

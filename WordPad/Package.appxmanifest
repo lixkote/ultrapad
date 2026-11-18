@@ -78,6 +78,22 @@
 					</uap:SupportedFileTypes>
 				</uap:FileTypeAssociation>
 			</uap:Extension>
+			<uap:Extension Category="windows.fileTypeAssociation">
+				<uap:FileTypeAssociation Name="docx">
+					<uap:Logo>Assets\wordpaddocument.png</uap:Logo>
+					<uap:SupportedFileTypes>
+						<uap:FileType>.docx</uap:FileType>
+					</uap:SupportedFileTypes>
+				</uap:FileTypeAssociation>
+			</uap:Extension>
+			<uap:Extension Category="windows.fileTypeAssociation">
+				<uap:FileTypeAssociation Name="odt">
+					<uap:Logo>Assets\wordpaddocument.png</uap:Logo>
+					<uap:SupportedFileTypes>
+						<uap:FileType>.odt</uap:FileType>
+					</uap:SupportedFileTypes>
+				</uap:FileTypeAssociation>
+			</uap:Extension>
 		</Extensions>
     </Application>
   </Applications>

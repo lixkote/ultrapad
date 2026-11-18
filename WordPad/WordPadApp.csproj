@@ -11,16 +11,13 @@
     <AssemblyName>WordPad</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-    <PackageCertificateThumbprint>36F4E6C1A5E78A160B8968BD7E40FBB4C3C09BAB</PackageCertificateThumbprint>
-    <PackageCertificateKeyFile>
-    </PackageCertificateKeyFile>
+    <AppxPackageSigningEnabled Condition="'$(AppxPackageSigningEnabled)' == ''">False</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
@@ -28,8 +25,15 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <AppxPackageDir>C:\Users\komp\Desktop\outputAPPX\</AppxPackageDir>
+    <AppxPackageDir Condition="'$(AppxPackageDir)' == ''">$(MSBuildProjectDirectory)\..\AppPackages\</AppxPackageDir>
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackageCertificateThumbprint)' == '' And '$(PackageCertificateKeyFile)' == '' And Exists('$(MSBuildProjectDirectory)\WordPad_TemporaryKey.pfx')">
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <PackageCertificateKeyFile>WordPad_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackageCertificateThumbprint)' != '' Or '$(PackageCertificateKeyFile)' != ''">
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -139,8 +143,26 @@
     </Compile>
     <Compile Include="Classes\CUnit.cs" />
     <Compile Include="Editor.cs" />
-    <Compile Include="Helpers\FileFormatsHelper.cs" />
-    <Compile Include="Helpers\OdtHelper.cs" />
+    <Compile Include="Helpers\DocumentPrintHelper.cs" />
+    <Compile Include="Helpers\DocumentPrintHelperStateBag.cs" />
+    <Compile Include="Helpers\EmbeddedObjectManager.cs" />
+    <Compile Include="Helpers\ImageInsertHelper.cs" />
+    <Compile Include="Helpers\PageSettings.cs" />
+    <Compile Include="Helpers\ParagraphHelper.cs" />
+    <Compile Include="Helpers\PictureHelper.cs" />
+    <Compile Include="Helpers\EditorCoordinates.cs" />
+    <Compile Include="Helpers\Loc.cs" />
+    <Compile Include="Helpers\DialogTheme.cs" />
+    <Compile Include="Helpers\DocumentFormats.cs" />
+    <Compile Include="Helpers\Formats\DocModel.cs" />
+    <Compile Include="Helpers\Formats\RtfReader.cs" />
+    <Compile Include="Helpers\Formats\RtfWriter.cs" />
+    <Compile Include="Helpers\Formats\DocxConverter.cs" />
+    <Compile Include="Helpers\Formats\OdtConverter.cs" />
+    <Compile Include="Helpers\DocumentPaginator.cs" />
+    <Compile Include="WordPadUI\PrintPreviewController.cs" />
+    <Compile Include="WordPadUI\PictureAdorner.cs" />
+    <Compile Include="Helpers\SpellCheckHelper.cs" />
     <Compile Include="Helpers\RecentlyUsedHelper.cs" />
     <Compile Include="Helpers\RecentlyUsedViewModel.cs" />
     <Compile Include="Helpers\RichEditHelpers.cs" />
@@ -445,8 +467,6 @@
     <PRIResource Include="Strings\pt-BR\Resources.resw" />
 	<PRIResource Include="Strings\tr-TR\Resources.resw" />
     <Content Include="Assets\Segoe Fluent Icons.ttf" />
-    <None Include="WordPadApp_TemporaryKey.pfx" />
-    <None Include="WordPad_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <XliffResource Include="MultilingualResources\WordPad.pl-PL.xlf">

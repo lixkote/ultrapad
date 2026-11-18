@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
@@ -71,7 +72,6 @@ namespace WordPad.WordPadUI.Ribbon
                     }
                 }
             }
-
 
             string linespacingval = (string)Windows.Storage.ApplicationData.Current.LocalSettings.Values["linespacing"];
             Debug.WriteLine("Detected Spacing: " + linespacingval);
@@ -166,7 +166,6 @@ namespace WordPad.WordPadUI.Ribbon
             }
             catch
             {
-
             }
 
             // Apply the new paragraph format to the current selection or the entire document
@@ -178,115 +177,40 @@ namespace WordPad.WordPadUI.Ribbon
         }
         public async void ShowParagraphDialog()
         {
-            // Create an instance of the ParagraphDialog
-            ParagraphDialog paragraphDialog = new ParagraphDialog();
-            TextBox leftTextBox = (TextBox)paragraphDialog.FindName("LeftIndentBox");
-            TextBox rightTextBox = (TextBox)paragraphDialog.FindName("RightIndentBox");
-            TextBox firstLineTextBox = (TextBox)paragraphDialog.FindName("OneLineBox");
-            ComboBox lineSpacingComboBox = (ComboBox)paragraphDialog.FindName("LineSpacingCombo");
-            ComboBox align = (ComboBox)paragraphDialog.FindName("AlignCombo");
+            await ShowParagraphDialogAsync();
+        }
 
-            if (Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Left)
-            {
-                align.SelectedItem = "Left";
-            }
-            if (Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Right)
-            {
-                align.SelectedItem = "Right";
-            }
-            if (Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Justify)
-            {
-                align.SelectedItem = "Justified";
-            }
-            if (Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Center)
-            {
-                align.SelectedItem = "Center";
-            }
-            if (Editor.Document.Selection.ParagraphFormat.LineSpacingRule == LineSpacingRule.Multiple &&
-                Editor.Document.Selection.ParagraphFormat.LineSpacing == 1)
-            {
-                lineSpacingComboBox.SelectedItem = "1,00";
-            }
-            if (Editor.Document.Selection.ParagraphFormat.LineSpacingRule == LineSpacingRule.Multiple &&
-                Editor.Document.Selection.ParagraphFormat.LineSpacing == (float)1.15)
-            {
-                lineSpacingComboBox.SelectedItem = "1,15";
-            }
-            if (Editor.Document.Selection.ParagraphFormat.LineSpacingRule == LineSpacingRule.Multiple &&
-                Editor.Document.Selection.ParagraphFormat.LineSpacing == (float)1.50)
-            {
-                lineSpacingComboBox.SelectedItem = "1,50";
-            }
-            if (Editor.Document.Selection.ParagraphFormat.LineSpacingRule == LineSpacingRule.Multiple &&
-            Editor.Document.Selection.ParagraphFormat.LineSpacing == 2)
-            {
-                lineSpacingComboBox.SelectedItem = "2,00";
-            }
-            leftTextBox.Text = Editor.Document.Selection.ParagraphFormat.LeftIndent.ToString() + " " + (string)localSettings.Values["unit"];
+        public async Task ShowParagraphDialogAsync()
+        {
+            if (Editor == null) return;
+            var paragraphDialog = new ParagraphDialog(Editor);
+            ContentDialogResult result = await paragraphDialog.ShowThemedAsync();
 
-            rightTextBox.Text = Editor.Document.Selection.ParagraphFormat.RightIndent.ToString() + " " + (string)localSettings.Values["unit"];
-
-            firstLineTextBox.Text = Editor.Document.Selection.ParagraphFormat.FirstLineIndent.ToString() + " " + (string)localSettings.Values["unit"];
-
-
-            // Show the dialog and wait for the user's input
-            ContentDialogResult result = await paragraphDialog.ShowAsync();
-
-            // If the user clicked the OK button, adjust the properties of the RichEditBox
-            if (result == ContentDialogResult.Primary)
+            if (result == ContentDialogResult.Secondary || (result == ContentDialogResult.Primary && paragraphDialog.TabsRequested))
             {
-                TabsDialog tabsDialog = new TabsDialog();
-                ContentDialogResult result2 = await tabsDialog.ShowAsync();
+                paragraphDialog.Apply();
             }
 
-            // If the user clicked the OK button, adjust the properties of the RichEditBox
-            if (result == ContentDialogResult.Secondary)
+            if (result == ContentDialogResult.Primary && paragraphDialog.TabsRequested)
             {
-                // Set properties of the RichEditBox based on the values from controls
-                if (align.SelectedItem as string == "Left")
-                {
-                    Editor.Document.Selection.ParagraphFormat.Alignment = ParagraphAlignment.Left;
-                }
-                else if (align.SelectedItem as string == "Right")
-                {
-                    Editor.Document.Selection.ParagraphFormat.Alignment = ParagraphAlignment.Right;
-                }
-                else if (align.SelectedItem as string == "Justified")
-                {
-                    Editor.Document.Selection.ParagraphFormat.Alignment = ParagraphAlignment.Justify;
-                }
-                else if (align.SelectedItem as string == "Center")
-                {
-                    Editor.Document.Selection.ParagraphFormat.Alignment = ParagraphAlignment.Center;
-                }
-
-                if (lineSpacingComboBox.SelectedItem.ToString() == "1,00")
-                {
-                    Editor.Document.Selection.ParagraphFormat.SetLineSpacing(LineSpacingRule.Multiple, 1);
-                }
-                else if(lineSpacingComboBox.SelectedItem.ToString() == "1,15")
-                {
-
-                    Editor.Document.Selection.ParagraphFormat.SetLineSpacing(LineSpacingRule.Multiple, (float)1.15);
-                }
-                else if(lineSpacingComboBox.SelectedItem.ToString() == "1,50")
-                {
-
-                    Editor.Document.Selection.ParagraphFormat.SetLineSpacing(LineSpacingRule.Multiple, (float)1.50);
-                }
-                else if(lineSpacingComboBox.SelectedItem.ToString() == "2,00")
-                {
-                    Editor.Document.Selection.ParagraphFormat.SetLineSpacing(LineSpacingRule.Multiple, 2);
-                }
-
-
-                float.TryParse(leftTextBox.Text, out float leftIndent);
-                float.TryParse(rightTextBox.Text, out float rightIndent);
-                float.TryParse(firstLineTextBox.Text, out float firstLineIndent);
-                SetParagraphIndents(leftIndent, rightIndent, firstLineIndent, false);
+                await ShowTabsDialogAsync();
+            }
+            else
+            {
+                Editor.Focus(FocusState.Programmatic);
             }
         }
 
+        public async Task ShowTabsDialogAsync()
+        {
+            if (Editor == null) return;
+            var tabsDialog = new TabsDialog(Editor);
+            if (await tabsDialog.ShowThemedAsync() == ContentDialogResult.Secondary)
+            {
+                tabsDialog.Apply();
+            }
+            Editor.Focus(FocusState.Programmatic);
+        }
 
         private void NoneNumeral_Click(object sender, RoutedEventArgs e)
         {
@@ -384,7 +308,6 @@ namespace WordPad.WordPadUI.Ribbon
             RichEditBox richEditBox = Editor;
         }
 
-
         private async void ParagraphButton_Click(object sender, RoutedEventArgs e)
         {
             ShowParagraphDialog();
@@ -434,7 +357,6 @@ namespace WordPad.WordPadUI.Ribbon
 
         private void RadioMenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
         {
-
             Editor.Document.Selection.ParagraphFormat.SetLineSpacing(LineSpacingRule.Multiple, (float)1.15);
         }
 
@@ -452,12 +374,31 @@ namespace WordPad.WordPadUI.Ribbon
         {
         }
 
-        private void MenuFlyout_Closed(object sender, object e)
+        private void SpacingFlyout_Opening(object sender, object e)
         {
-            // Save the selected paper size and orientation
-            var settings = ApplicationData.Current.LocalSettings;
-            // Save Print Page Numbers setting
-            settings.Values["isprintpagenumbers"] = _10pt.IsChecked == true ? "yes" : "no";
+            if (Editor == null) return;
+            ITextParagraphFormat f = Editor.Document.Selection.ParagraphFormat;
+
+            float spacing = f.LineSpacing;
+            if (f.LineSpacingRule == LineSpacingRule.Single) spacing = 1.0f;
+            else if (f.LineSpacingRule == LineSpacingRule.OneAndHalf) spacing = 1.5f;
+            else if (f.LineSpacingRule == LineSpacingRule.Double) spacing = 2.0f;
+            else if (f.LineSpacingRule != LineSpacingRule.Multiple) spacing = -1;
+
+            spacingradio1.IsChecked = Math.Abs(spacing - 1.0f) < 0.01f;
+            spacingradio2.IsChecked = Math.Abs(spacing - 1.15f) < 0.01f;
+            spacingradio3.IsChecked = Math.Abs(spacing - 1.5f) < 0.01f;
+            spacingradio4.IsChecked = Math.Abs(spacing - 2.0f) < 0.01f;
+
+            _10pt.IsChecked = f.SpaceAfter >= 9.5f && f.SpaceAfter < 1000000f;
+        }
+
+        private void AddSpace_Click(object sender, RoutedEventArgs e)
+        {
+            if (Editor == null) return;
+            float after = _10pt.IsChecked ? 10f : 0f;
+            ParagraphHelper.ForEachSelectedParagraph(Editor, f => f.SpaceAfter = after);
+            Editor.Focus(FocusState.Keyboard);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using WordPad.Helpers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace WordPad.WordPadUI.Ribbon
         private async void InsertDateAndTimeButton_Click(object sender, RoutedEventArgs e)
         {
             ContentDialog dialog = new ContentDialog();
-            dialog.Title = "Insert current date and time";
+            dialog.Title = WordPad.Helpers.Loc.Get("dlg_datetime_title", "Date and time");
 
             // Create a ListView for the user to select the date format
             ListView listView = new ListView();
@@ -62,7 +63,7 @@ namespace WordPad.WordPadUI.Ribbon
             dialog.DefaultButton = ContentDialogButton.Primary;
 
             // Add an "Insert" button to the ContentDialog
-            dialog.PrimaryButtonText = "OK";
+            dialog.PrimaryButtonText = WordPad.Helpers.Loc.Get("dlg_ok", "OK");
             dialog.PrimaryButtonClick += (s, args) =>
             {
                 string selectedFormat = listView.SelectedItem as string;
@@ -74,15 +75,14 @@ namespace WordPad.WordPadUI.Ribbon
                 }
                 catch
                 {
-
                 }
             };
 
             // Add a "Cancel" button to the ContentDialog
-            dialog.SecondaryButtonText = "Cancel";
+            dialog.SecondaryButtonText = WordPad.Helpers.Loc.Get("dlg_cancel", "Cancel");
 
             // Show the ContentDialog
-            await dialog.ShowAsync();
+            await dialog.ShowThemedAsync();
         }
 
         static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
@@ -99,155 +99,49 @@ namespace WordPad.WordPadUI.Ribbon
 
         private async void InsertObjectButton_Click(object sender, RoutedEventArgs e)
         {
-            // Create a ContentDialog
-            ContentDialog dialog = new ContentDialog();
-            dialog.Title = "Insert object";
-
-            // Create a ListView for the user to select the insert option
-            ListView listView = new ListView();
-            listView.SelectionMode = ListViewSelectionMode.Single;
-
-            // Create a list of insert options to display in the ListView
-            List<string> insertOptions = new List<string>();
-            //insertOptions.Add("Paint a picture");
-            insertOptions.Add("Table");
-
-            // Set the ItemsSource of the ListView to the list of insert options
-            listView.ItemsSource = insertOptions;
-
-            // Set the content of the ContentDialog to the ListView
-            dialog.Content = listView;
-
-            // Make the default button BLU
-            dialog.DefaultButton = ContentDialogButton.Primary;
-
-            // Add an "Insert" button to the ContentDialog
-            dialog.PrimaryButtonText = "OK";
-            dialog.PrimaryButtonClick += async (s, args) =>
+            var dialog = new WordPad.WordPadUI.ObjectInsertion();
+            ContentDialogResult result = await dialog.ShowThemedAsync();
+            if (result == ContentDialogResult.Primary || dialog.ConfirmedByDoubleClick)
             {
-                string selectedOption = listView.SelectedItem as string;
+                await dialog.ExecuteAsync(Editor);
+            }
+        }
 
-                // Draw an image using mspaint and insert it into the RichEditBox
-                if (selectedOption == "Paint a picture")
-                {
-                    var app = await GetAppByPackageFamilyNameAsync("Microsoft.Paint_8wekyb3d8bbwe");
+        private void PictureMenu_Opening(object sender, object e)
+        {
+            bool picture = Editor != null && WordPad.Helpers.PictureHelper.IsPictureSelected(Editor);
+            MenuChangePicture.IsEnabled = picture;
+            MenuResizePicture.IsEnabled = picture;
+        }
 
-                    if (app != null)
-                    {
-                        await app.LaunchAsync();
-                    }
+        private async void MenuChangePicture_Click(object sender, RoutedEventArgs e)
+        {
+            if (Editor != null) await WordPad.Helpers.PictureHelper.ChangePictureAsync(Editor);
+        }
 
-                    // Wait for the user to draw an image and save it to a temporary file
-                    StorageFile tempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("temp.bmp", CreationCollisionOption.ReplaceExisting);
-                    while (true)
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(6));
-                        if (await tempFile.GetBasicPropertiesAsync() != null) break;
-                    }
-
-                    // Load the image into a BitmapImage object
-                    BitmapImage bitmapImage = new BitmapImage();
-                    using (IRandomAccessStream stream = await tempFile.OpenAsync(FileAccessMode.Read))
-                    {
-                        bitmapImage.SetSource(stream);
-                    }
-
-                    // Insert the image into the RichEditBox
-                    using (IRandomAccessStream stream = await tempFile.OpenAsync(FileAccessMode.Read))
-                    {
-                        IRandomAccessStreamReference imageStreamRef = RandomAccessStreamReference.CreateFromStream(stream);
-                        using (var imageStream = await imageStreamRef.OpenReadAsync())
-                        {
-                            // Insert the object into the RichEditBox
-                            Editor.Document.Selection.InsertImage(200, 200, 0, VerticalCharacterAlignment.Baseline, "img", imageStream);
-
-                        }
-                    }
-
-                    // Delete the temporary file
-                    await tempFile.DeleteAsync();
-                }
-                // Insert a table into the RichEditBox
-                else if (selectedOption == "Table")
-                {
-                    //CreateStringBuilder object
-                    StringBuilder strTable = new StringBuilder();
-
-                    //Beginning of rich text format,don’t alter this line
-                    strTable.Append(@"{\rtf1 ");
-
-                    //Create 5 rows with 4 columns
-                    for (int i = 0; i < 5; i++)
-                    {
-                        //Start the row
-                        strTable.Append(@"\trowd");
-
-                        //First cell with width 1000.
-                        strTable.Append(@"\cellx1000");
-
-                        //Second cell with width 1000.Ending point is 2000, which is 1000+1000.
-                        strTable.Append(@"\cellx2000");
-
-                        //Third cell with width 1000.Endingat3000,which is 2000+1000.
-                        strTable.Append(@"\cellx3000");
-
-                        //Last cell with width 1000.Ending at 4000 (which is 3000+1000)
-                        strTable.Append(@"\cellx4000");
-
-                        //Append the row in StringBuilder
-                        strTable.Append(@"\intbl \cell \row"); //create the row
-                    }
-
-                    strTable.Append(@"\pard");
-
-                    strTable.Append(@"}");
-
-                    var strTableString = strTable.ToString();
-
-
-                    Editor.Document.Selection.SetText(TextSetOptions.FormatRtf, strTableString);
-                }
-            };
-
-            // Add a "Cancel" button to the ContentDialog
-            dialog.SecondaryButtonText = "Cancel";
-
-            // Show the ContentDialog
-            await dialog.ShowAsync();
+        private async void MenuResizePicture_Click(object sender, RoutedEventArgs e)
+        {
+            if (Editor != null) await WordPad.Helpers.PictureHelper.ShowResizeDialogAsync(Editor);
         }
 
         private async void InsertImageButton_Click(object sender, RoutedEventArgs e)
         {
-            // Open an image file.
             FileOpenPicker open = new FileOpenPicker();
-            open.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            open.FileTypeFilter.Add(".png");
-            open.FileTypeFilter.Add(".jpg");
-            open.FileTypeFilter.Add(".jpeg");
+            open.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            foreach (string extension in WordPad.Helpers.ImageInsertHelper.SupportedExtensions) open.FileTypeFilter.Add(extension);
 
             StorageFile file = await open.PickSingleFileAsync();
 
             if (file != null)
             {
-                IRandomAccessStream randAccStream = await file.OpenAsync(FileAccessMode.Read);
-                var properties = await file.Properties.GetImagePropertiesAsync();
-                int width = (int)properties.Width;
-                int height = (int)properties.Height;
-
-                // Load the file into the Document property of the RichEditBox.
-                Editor.Document.Selection.InsertImage(width, height, 0, VerticalCharacterAlignment.Baseline, "img", randAccStream);
-                Editor.Focus(FocusState.Keyboard);
+                if (!await WordPad.Helpers.ImageInsertHelper.InsertFileAsync(Editor, file, selectPicture: true))
+                    await WordPad.Helpers.ImageInsertHelper.ShowLastErrorAsync();
             }
         }
 
         private async void InsertPaintImageButton_Click(object sender, RoutedEventArgs e)
         {
-            var app = await GetAppByPackageFamilyNameAsync("Microsoft.Paint_8wekyb3d8bbwe");
-
-            if (app != null)
-            {
-                await app.LaunchAsync();
-            }
+            await WordPad.Helpers.EmbeddedObjectManager.For(Editor).InsertNewPaintPictureAsync(".png");
         }
     }
 }

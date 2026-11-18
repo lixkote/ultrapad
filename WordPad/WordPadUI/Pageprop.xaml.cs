@@ -1,291 +1,191 @@
-﻿using RectifyPad;
-using RectifyPad;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Windows.Storage;
+﻿using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using WordPad.Helpers;
 
 namespace WordPad.WordPadUI
 {
     public sealed partial class Pageprop : ContentDialog
     {
-        public Dictionary<string, (double Width, double Height)> paperSizes;
-        private Thickness currentMargins;
-        private bool isOrientationChanged = false;
+        private const double PreviewSize = 170;
+
+        private readonly MeasureUnit _unit;
+        private bool _loading = true;
+
         public Pageprop()
         {
             InitializeComponent();
+            _unit = PageSettings.Unit;
             LoadUI();
+            _loading = false;
+            UpdatePreview();
         }
 
         private void LoadUI()
         {
-            var settings = ApplicationData.Current.LocalSettings;
+            foreach (var paper in PageSettings.PaperSizes)
+                PaperTypeCombo.Items.Add(paper.Key);
 
-            // Define the dimensions for each paper size based on A4 as a reference
-            paperSizes = new Dictionary<string, (double Width, double Height)>
+            string current = PageSettings.PaperName;
+            for (int i = 0; i < PageSettings.PaperSizes.Count; i++)
+                if (PageSettings.PaperSizes[i].Key == current) PaperTypeCombo.SelectedIndex = i;
+
+            string source = PageSettings.PaperSource;
+            foreach (string id in PageSettings.PaperSourceIds)
             {
-                { "A3", (165 * 297 / 210, 165 * 210 / 297) },
-                { "A4", (165, 120) },
-                { "B5_1", (120 * 176 / 250, 165 * 250 / 176) },
-                { "B5_2", (120 * 176 / 250, 165 * 250 / 176) },
-                { "Executive", (120 * 184 / 215, 165 * 215 / 184) },
-                { "Legal", (120 * 216 / 356, 165 * 356 / 216) },
-                { "Letter", (120 * 216 / 279, 165 * 279 / 216) },
-                { "Tabloid", (120 * 279 / 432, 165 * 432 / 279) }
-            };
-
-            if (settings.Values.TryGetValue("papersize", out object value))
-            {
-                string orientation = (string)settings.Values["orientation"];
-                string selectedPaperSize = value.ToString();
-
-                if (paperSizes.TryGetValue(selectedPaperSize, out var dimensions))
-                {
-                    SetPaperSizeAndOrientation(dimensions.Width, dimensions.Height, orientation);
-                    PaperTypeCombo.SelectedIndex = paperSizes.Keys.ToList().IndexOf(selectedPaperSize);
-                }
+                PaperSourceCombo.Items.Add(new ComboBoxItem { Content = PaperSourceName(id), Tag = id });
+                if (id == source) PaperSourceCombo.SelectedIndex = PaperSourceCombo.Items.Count - 1;
             }
+            if (PaperSourceCombo.SelectedIndex < 0) PaperSourceCombo.SelectedIndex = 0;
 
-            // Load margin values and set limits
-            LoadMarginValues();
+            if (PageSettings.IsLandscape) orientationlandscape.IsChecked = true;
+            else orientationportait.IsChecked = true;
 
-            // Load the Print Page Numbers setting
-            LoadPrintPageNumbersSetting();
+            Thickness m = PageSettings.GetMarginsTwips();
+            LeftMarginTextBox.Text = PageSettings.FormatTwips(m.Left, _unit, false);
+            RightMarginTextBox.Text = PageSettings.FormatTwips(m.Right, _unit, false);
+            TopMarginTextBox.Text = PageSettings.FormatTwips(m.Top, _unit, false);
+            BottomMarginTextBox.Text = PageSettings.FormatTwips(m.Bottom, _unit, false);
 
-            // Load the saved unit value
-            string unit = (string)Windows.Storage.ApplicationData.Current.LocalSettings.Values["unit"];
-            if (unit == "inches")
-            {
-                marginsnameinch.Visibility = Visibility.Visible;
-            }
-            if (unit == "cm")
-            {
-                marginsnamecm.Visibility = Visibility.Visible;
-            }
-            if (unit == "points")
-            {
-                marginsnamept.Visibility = Visibility.Visible;
-            }
-            if (unit == "picas")
-            {
-                marginsnamepicas.Visibility = Visibility.Visible;
-            }
+            printpagenumbers.IsChecked = PageSettings.PrintPageNumbers;
+
+            marginsnameinch.Visibility = _unit == MeasureUnit.Inches ? Visibility.Visible : Visibility.Collapsed;
+            marginsnamecm.Visibility = _unit == MeasureUnit.Centimeters ? Visibility.Visible : Visibility.Collapsed;
+            marginsnamept.Visibility = _unit == MeasureUnit.Points ? Visibility.Visible : Visibility.Collapsed;
+            marginsnamepicas.Visibility = _unit == MeasureUnit.Picas ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void SetPaperSizeAndOrientation(double width, double height, string orientation)
+        public static string PaperSourceName(string id)
         {
-            // Swap width and height if orientation is Landscape
-            if (orientation == "Portrait")
+            string fallback;
+            switch (id)
             {
-                double temp = width;
-                width = height;
-                height = temp;
-                isOrientationChanged = true;
+                case "manual": fallback = "Manual feed"; break;
+                case "tray1": fallback = "Tray 1"; break;
+                case "tray2": fallback = "Tray 2"; break;
+                case "tray3": fallback = "Tray 3"; break;
+                case "envelope": fallback = "Envelope feed"; break;
+                default: fallback = "Automatically select"; break;
             }
-
-            Paper.Width = width;
-            Paper.Height = height;
-
-            // Update the exampletextgrid margin
-            //UpdateMarginPreview();
-
-            // Update the orientation radio buttons
-            orientationportait.IsChecked = orientation == "Landscape";
-            orientationlandscape.IsChecked = orientation == "Portrait";
-        }
-
-        private void LoadMarginValues()
-        {
-            // Load margin values and set limits
-            string unit = (string)Windows.Storage.ApplicationData.Current.LocalSettings.Values["unitSetting"];
-            double maxMargin = 100.0; // Set a maximum margin value
-
-            LoadAndLimitMarginValue(LeftMarginTextBox, "pagesetupLmargin", unit, maxMargin);
-            LoadAndLimitMarginValue(RightMarginTextBox, "pagesetupRmargin", unit, maxMargin);
-            LoadAndLimitMarginValue(TopMarginTextBox, "pagesetupTmargin", unit, maxMargin);
-            LoadAndLimitMarginValue(BottomMarginTextBox, "pagesetupBmargin", unit, maxMargin);
-
-            // Update the exampletextgrid margin based on the loaded values
-            //UpdateMarginPreview();
-        }
-
-        private void LoadAndLimitMarginValue(TextBox textBox, string settingKey, string unit, double maxMargin)
-        {
-            var settings = ApplicationData.Current.LocalSettings;
-
-            if (settings.Values.TryGetValue(settingKey, out object value))
-            {
-                // double margin = ConvertFromUnit(Convert.ToDouble(value), "Inches");
-                Debug.WriteLine("unitsetting!" + value);
-
-                // Limit the margin value
-                // margin = Math.Min(maxMargin, margin);
-
-                //string formattedMargin = ConvertToUnit(margin, unit).ToString("0.##"); // Display with up to 2 decimal places
-                //textBox.Text = formattedMargin.TrimEnd('0').TrimEnd('.'); // Remove trailing "00" or "." if present
-            }
-        }
-
-        private void UpdateMarginPreview()
-        {
             try
             {
-                double left = double.Parse(LeftMarginTextBox.Text);
-                double right = double.Parse(RightMarginTextBox.Text);
-                double top = double.Parse(TopMarginTextBox.Text);
-                double bottom = double.Parse(BottomMarginTextBox.Text);
-
-                string unit = (string)Windows.Storage.ApplicationData.Current.LocalSettings.Values["unitSetting"];
-
-                double maxWidth = exampletextgrid.Width;
-                double maxHeight = exampletextgrid.Height;
-
-                double maxLeftMargin = maxWidth - ConvertToUnit(right, unit);
-                double maxRightMargin = maxWidth - ConvertToUnit(left, unit);
-                double maxTopMargin = maxHeight - ConvertToUnit(bottom, unit);
-                double maxBottomMargin = maxHeight - ConvertToUnit(top, unit);
-
-                double finalLeftMargin = Math.Max(0, Math.Min(ConvertToUnit(left, unit), maxLeftMargin));
-                double finalRightMargin = Math.Max(0, Math.Min(ConvertToUnit(right, unit), maxRightMargin));
-                double finalTopMargin = Math.Max(0, Math.Min(ConvertToUnit(top, unit), maxTopMargin));
-                double finalBottomMargin = Math.Max(0, Math.Min(ConvertToUnit(bottom, unit), maxBottomMargin));
-
-                currentMargins = new Thickness(
-                    finalLeftMargin,
-                    finalTopMargin,
-                    finalRightMargin,
-                    finalBottomMargin);
-
-                exampletextgrid.Margin = currentMargins;
-                Debug.WriteLine(currentMargins.ToString());
-                Debug.WriteLine(maxLeftMargin.ToString());
+                string text = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("papersource_" + id);
+                return string.IsNullOrEmpty(text) ? fallback : text;
             }
-            catch (Exception ex)
+            catch
             {
-                // Handle any exceptions that might occur during parsing or margin calculation
-                Debug.WriteLine("An error occurred: " + ex.Message);
+                return fallback;
             }
         }
 
-        private void LoadPrintPageNumbersSetting()
+        private string SelectedPaper =>
+            PaperTypeCombo.SelectedItem as string ?? PageSettings.PaperName;
+
+        private bool Landscape => orientationlandscape.IsChecked == true;
+
+        private PageSettings.Size2 SelectedPageSize()
         {
-            string no = "no";
-            var settings = ApplicationData.Current.LocalSettings;
-            if (settings.Values.TryGetValue("isprintpagenumbers", out object value))
+            PageSettings.Size2 s = PageSettings.GetPaperSize(SelectedPaper);
+            return Landscape ? new PageSettings.Size2(s.Height, s.Width) : s;
+        }
+
+        private bool TryReadMargins(out Thickness margins, bool mark)
+        {
+            margins = new Thickness();
+            PageSettings.Size2 page = SelectedPageSize();
+            bool ok = true;
+
+            double l = ReadBox(LeftMarginTextBox, ref ok, mark);
+            double r = ReadBox(RightMarginTextBox, ref ok, mark);
+            double t = ReadBox(TopMarginTextBox, ref ok, mark);
+            double b = ReadBox(BottomMarginTextBox, ref ok, mark);
+            if (!ok) return false;
+
+            const double minText = PageSettings.TwipsPerInch;
+            if (l + r > page.Width - minText)
             {
-                string yesorno = value.ToString();
-                if (yesorno != null)
-                {
-                    if (yesorno != no)
-                    {
-                        printpagenumbers.IsChecked = true;
-                    }
-                }
+                ok = false;
+                if (mark) { MarkInvalid(LeftMarginTextBox); MarkInvalid(RightMarginTextBox); }
+            }
+            if (t + b > page.Height - minText)
+            {
+                ok = false;
+                if (mark) { MarkInvalid(TopMarginTextBox); MarkInvalid(BottomMarginTextBox); }
+            }
+
+            margins = new Thickness(l, t, r, b);
+            return ok;
+        }
+
+        private double ReadBox(TextBox box, ref bool ok, bool mark)
+        {
+            if (PageSettings.TryParseToTwips(box.Text, _unit, out double twips) && twips >= 0)
+            {
+                if (mark) box.ClearValue(Control.BorderBrushProperty);
+                return twips;
+            }
+            ok = false;
+            if (mark) MarkInvalid(box);
+            return 0;
+        }
+
+        private static void MarkInvalid(TextBox box)
+        {
+            box.BorderBrush = new SolidColorBrush(Windows.UI.Colors.Red);
+        }
+
+        private void UpdatePreview()
+        {
+            if (_loading) return;
+
+            PageSettings.Size2 page = SelectedPageSize();
+            double scale = (PreviewSize - 16) / Math.Max(page.Width, page.Height);
+            double w = page.Width * scale, h = page.Height * scale;
+            double x = (PreviewSize - w) / 2 - 2, y = (PreviewSize - h) / 2 - 2;
+
+            Paper.Width = w;
+            Paper.Height = h;
+            Canvas.SetLeft(Paper, x);
+            Canvas.SetTop(Paper, y);
+            PaperShadow.Width = w;
+            PaperShadow.Height = h;
+            Canvas.SetLeft(PaperShadow, x + 5);
+            Canvas.SetTop(PaperShadow, y + 5);
+
+            if (!TryReadMargins(out Thickness m, false))
+            {
+                return;
+            }
+
+            double ml = m.Left * scale, mr = m.Right * scale, mt = m.Top * scale, mb = m.Bottom * scale;
+            exampletextgrid.Width = Math.Max(1, w - ml - mr);
+            exampletextgrid.Height = Math.Max(1, h - mt - mb);
+            Canvas.SetLeft(exampletextgrid, x + ml);
+            Canvas.SetTop(exampletextgrid, y + mt);
+        }
+
+        private void PaperTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdatePreview();
+
+        private void Orientation_Checked(object sender, RoutedEventArgs e) => UpdatePreview();
+
+        private void Margin_TextChanged(object sender, TextChangedEventArgs e) => UpdatePreview();
+
+        private void Pageprop_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            if (!TryReadMargins(out _, true))
+            {
+                args.Cancel = true;
             }
         }
 
-        private void orientationportait_Checked(object sender, RoutedEventArgs e)
+        public void Save()
         {
-            if (isOrientationChanged)
-            {
-                // Swap width and height back to Portrait orientation
-                double temp = Paper.Width;
-                Paper.Width = Paper.Height;
-                Paper.Height = temp;
-                isOrientationChanged = false;
-            }
-
-            //UpdateMarginPreview();
-        }
-
-        private void orientationlandscape_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!isOrientationChanged)
-            {
-                // Swap width and height for Landscape orientation
-                double temp = Paper.Width;
-                Paper.Width = Paper.Height;
-                Paper.Height = temp;
-                isOrientationChanged = true;
-            }
-
-            //UpdateMarginPreview();
-        }
-
-        private double ConvertToUnit(double value, string unit)
-        {
-            switch (unit)
-            {
-                case "Inches":
-                    return value;
-                case "Centimeters":
-                    return value * 2.54; // Convert inches to centimeters
-                case "Points":
-                    return value * 72; // Convert inches to points
-                case "Picas":
-                    return value * 6; // Convert inches to picas
-                default:
-                    return value; // Default to inches
-            }
-        }
-
-        private double ConvertFromUnit(double value, string unit)
-        {
-            switch (unit)
-            {
-                case "Inches":
-                    return value;
-                case "Centimeters":
-                    return value / 2.54; // Convert centimeters to inches
-                case "Points":
-                    return value / 72; // Convert points to inches
-                case "Picas":
-                    return value / 6; // Convert picas to inches
-                default:
-                    return value; // Default to inches
-            }
-        }
-
-        private void PaperTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (PaperTypeCombo.SelectedItem != null)
-            {
-                string selectedPaperSize = (PaperTypeCombo.SelectedItem as ComboBoxItem).Content.ToString();
-                if (paperSizes.TryGetValue(selectedPaperSize, out var dimensions))
-                {
-                    double width = dimensions.Width;
-                    double height = dimensions.Height;
-
-                    // Calculate the new width and height based on proportions
-                    double originalWidth = 812; // Original RichEditBox width
-                    double originalHeight = 1151; // Original RichEditBox height
-
-                    if (width > height)
-                    {
-                        // Landscape paper size, adjust height while maintaining proportions
-                        double scaleFactor = height / originalHeight;
-                        height = dimensions.Height;
-                        width = originalWidth * scaleFactor;
-                    }
-                    else
-                    {
-                        // Portrait paper size, adjust width while maintaining proportions
-                        double scaleFactor = width / originalWidth;
-                        width = dimensions.Width;
-                        height = originalHeight * scaleFactor;
-                    }
-
-                    // Set the size of the Paper grid
-                    Paper.Width = width;
-                    Paper.Height = height;
-                }
-            }
+            PageSettings.PaperName = SelectedPaper;
+            PageSettings.IsLandscape = Landscape;
+            if (TryReadMargins(out Thickness m, false)) PageSettings.SetMarginsTwips(m);
+            PageSettings.PrintPageNumbers = printpagenumbers.IsChecked == true;
+            PageSettings.PaperSource = (PaperSourceCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "auto";
         }
     }
 }

@@ -74,6 +74,7 @@ namespace WordPad.WordPadUI.Ribbon
         public FontToolbar()
         {
             this.InitializeComponent();
+            BuildPalettes();
             BackTextColorMarkerMain.FontFamily = (FontFamily)Application.Current.Resources["CustomIconFont"];
             BackTextColorMarker.FontFamily = (FontFamily)Application.Current.Resources["CustomIconFont"]; 
             FontColorMarkerMain.FontFamily = (FontFamily)Application.Current.Resources["CustomIconFont"];
@@ -96,7 +97,6 @@ namespace WordPad.WordPadUI.Ribbon
                 }
             }
         }
-
 
         private void FontSizeCombo_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
         {
@@ -124,11 +124,11 @@ namespace WordPad.WordPadUI.Ribbon
 
                 var dialog = new ContentDialog
                 {
-                    Content = "The font size must be a number between 0 and 300.",
-                    CloseButtonText = "Close",
+                    Content = Loc.Format("dlg_fontsize_range", "The font size must be a number between {0} and {1}.", 0, 300),
+                    CloseButtonText = Loc.Get("dlg_close", "Close"),
                     DefaultButton = ContentDialogButton.Close
                 };
-                var task = dialog.ShowAsync();
+                var task = dialog.ShowThemedAsync();
             }
 
             // Mark the event as handled so the framework doesn’t update the selected item automatically. 
@@ -177,10 +177,11 @@ namespace WordPad.WordPadUI.Ribbon
             }
         }
 
-
         private void FontTextColorDropDownButton_Click(Microsoft.UI.Xaml.Controls.SplitButton sender, Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs args)
         {
             var color = ((SolidColorBrush)FontColorMarker.Foreground).Color;
+            if (color.A == 0) color = Windows.UI.Colors.Black;
+            if (Editor.ActualTheme == ElementTheme.Dark && color.R == 0 && color.G == 0 && color.B == 0) color = Windows.UI.Colors.White;
             Editor.Document.Selection.CharacterFormat.ForegroundColor = color;
             Editor.Focus(FocusState.Keyboard);
         }
@@ -218,11 +219,11 @@ namespace WordPad.WordPadUI.Ribbon
 
                 var dialog = new ContentDialog
                 {
-                    Content = "The font size must be a number between 8 and 200.",
-                    CloseButtonText = "Close",
+                    Content = Loc.Format("dlg_fontsize_range", "The font size must be a number between {0} and {1}.", 8, 200),
+                    CloseButtonText = Loc.Get("dlg_close", "Close"),
                     DefaultButton = ContentDialogButton.Close
                 };
-                var task = dialog.ShowAsync();
+                var task = dialog.ShowThemedAsync();
             }
 
             // Mark the event as handled so the framework doesn’t update the selected item automatically. 
@@ -287,36 +288,6 @@ namespace WordPad.WordPadUI.Ribbon
             fontSizeComboBox.SelectedItem = richEditBox.Document.Selection.CharacterFormat.Size;
         }
 
-        private void TextColorPickerButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Extract the color of the button that was clicked.
-            Button clickedColor = (Button)sender;
-            var borderone = (Windows.UI.Xaml.Controls.Border)clickedColor.Content;
-            var bordertwo = (Windows.UI.Xaml.Controls.Border)borderone.Child;
-            var rectangle = (Windows.UI.Xaml.Shapes.Rectangle)bordertwo.Child;
-            var color = (rectangle.Fill as SolidColorBrush).Color;
-            Editor.Document.Selection.CharacterFormat.ForegroundColor = color;
-            FontColorMarker.SetValue(ForegroundProperty, new SolidColorBrush(color));
-
-            FontTextColorDropDownButton.Flyout.Hide();
-            Editor.Focus(FocusState.Keyboard);
-        }
-
-        private void BackColorButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Extract the color of the button that was clicked.
-            Button clickedColor = (Button)sender;
-            var borderone = (Windows.UI.Xaml.Controls.Border)clickedColor.Content;
-            var bordertwo = (Windows.UI.Xaml.Controls.Border)borderone.Child;
-            var rectangle = (Windows.UI.Xaml.Shapes.Rectangle)bordertwo.Child;
-            var color = (rectangle.Fill as SolidColorBrush).Color;
-            Editor.Document.Selection.CharacterFormat.BackgroundColor = color;
-            BackTextColorMarker.SetValue(ForegroundProperty, new SolidColorBrush(color));
-
-            FontBackgroundColorDropDownButton.Flyout.Hide();
-            Editor.Focus(FocusState.Keyboard);
-        }
-
         private void FontsComboBox_Loaded(object sender, RoutedEventArgs e)
         {
             if (textboxwasalreadyloaded == false)
@@ -331,6 +302,11 @@ namespace WordPad.WordPadUI.Ribbon
                     FontsComboBox.SelectedItem = "Calibri";
                     Editor.FontFamily = new FontFamily("Calibri");
                 }
+                double points = 11;
+                if (localSettings.Values["fontsize"] is string sizeSetting &&
+                    double.TryParse(sizeSetting, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double parsed) && parsed > 0)
+                    points = parsed;
+                Editor.FontSize = points * 96.0 / 72.0;
                 textboxwasalreadyloaded = true;
             }
         }
@@ -356,43 +332,139 @@ namespace WordPad.WordPadUI.Ribbon
 
             // Prevent accidental font changes when selection contains multiple styles
             updateFontFormat = false;
-            FontsComboBox.SelectedItem = Editor.Document.Selection.CharacterFormat.Name;
+            ShowFontName(Editor.Document.Selection.CharacterFormat.Name);
             updateFontFormat = true;
         }
 
-        private void Autobutton_Checked(object sender, RoutedEventArgs e)
+        private void ShowFontName(string name)
         {
-            // Black is the default
-            Windows.UI.Color color = ActualTheme == ElementTheme.Light ? Windows.UI.Colors.Black : Windows.UI.Colors.White;
+            name = name?.Trim() ?? "";
+            string match = null;
+            if (FontsComboBox.ItemsSource is System.Collections.Generic.IEnumerable<string> fonts)
+                match = System.Linq.Enumerable.FirstOrDefault(fonts, f => string.Equals(f, name, StringComparison.OrdinalIgnoreCase));
+
+            if (match != null)
+            {
+                FontsComboBox.SelectedItem = match;
+            }
+            else
+            {
+                FontsComboBox.SelectedIndex = -1;
+                FontsComboBox.Text = name;
+            }
+        }
+
+        private static readonly string[][] TextColors =
+        {
+            new[] { "FFFFFF", "White" }, new[] { "A5A5A5", "Light gray" }, new[] { "7F7F7F", "Gray" }, new[] { "666666", "Dark gray" }, new[] { "333333", "Charcoal" }, new[] { "000000", "Black" },
+            new[] { "FF0000", "Red" }, new[] { "FFC000", "Orange" }, new[] { "FFFF00", "Yellow" }, new[] { "00B050", "Green" }, new[] { "004DBB", "Blue" }, new[] { "9B00D3", "Purple" },
+            new[] { "C0504D", "Dark red" }, new[] { "F79646", "Light orange" }, new[] { "9BBB59", "Olive green" }, new[] { "4BACC6", "Aqua" }, new[] { "4F81BD", "Cornflower blue" }, new[] { "8064A2", "Lavender" },
+            new[] { "D16349", "Brick" }, new[] { "D19049", "Ochre" }, new[] { "CCB400", "Gold" }, new[] { "8FB08C", "Sage" }, new[] { "646B86", "Slate" }, new[] { "9E7C7C", "Rose brown" },
+            new[] { "DD8484", "Rose" }, new[] { "F3A447", "Tangerine" }, new[] { "DFCE04", "Lemon" }, new[] { "A5B592", "Moss" }, new[] { "809EC2", "Steel blue" }, new[] { "9C85C0", "Lilac" },
+        };
+
+        private static readonly string[][] HighlightColors =
+        {
+            new[] { "FFFF00", "Yellow" }, new[] { "00FF00", "Bright green" }, new[] { "00FFFF", "Turquoise" }, new[] { "FF00FF", "Pink" }, new[] { "0000FF", "Blue" },
+            new[] { "FF0000", "Red" }, new[] { "000080", "Dark blue" }, new[] { "008080", "Teal" }, new[] { "008000", "Green" }, new[] { "800080", "Violet" },
+            new[] { "800000", "Dark red" }, new[] { "808000", "Dark yellow" }, new[] { "808080", "Gray 50%" }, new[] { "C0C0C0", "Gray 25%" }, new[] { "000000", "Black" },
+        };
+
+        private bool _palettesBuilt;
+
+        private void BuildPalettes()
+        {
+            if (_palettesBuilt) return;
+            _palettesBuilt = true;
+            foreach (string[] c in TextColors) colorGrid.Children.Add(CreateSwatch(c[0], c[1], TextSwatch_Click));
+            foreach (string[] c in HighlightColors) colorGrid2.Children.Add(CreateSwatch(c[0], c[1], HighlightSwatch_Click));
+
+            FontTextColorDropDownButton.Flyout.Opening += (s, e) => MarkSwatch(colorGrid, Editor.Document.Selection.CharacterFormat.ForegroundColor, false);
+            FontBackgroundColorDropDownButton.Flyout.Opening += (s, e) => MarkSwatch(colorGrid2, Editor.Document.Selection.CharacterFormat.BackgroundColor, true);
+        }
+
+        private Button CreateSwatch(string hex, string name, RoutedEventHandler click)
+        {
+            Windows.UI.Color color = ParseHex(hex);
+            var ring = new Windows.UI.Xaml.Shapes.Ellipse
+            {
+                Width = 32, Height = 32, Opacity = 0,
+                Style = (Style)Application.Current.Resources["PaintSwatchRingStyle"]
+            };
+            var swatch = new Windows.UI.Xaml.Shapes.Ellipse
+            {
+                Width = 24, Height = 24,
+                Fill = new SolidColorBrush(color),
+                Style = (Style)Application.Current.Resources["PaintSwatchEllipseStyle"]
+            };
+            var grid = new Grid { Width = 32, Height = 32 };
+            grid.Children.Add(ring);
+            grid.Children.Add(swatch);
+
+            var button = new Button
+            {
+                Style = (Style)Application.Current.Resources["PaintSwatchButtonStyle"],
+                Width = 34, Height = 34, Padding = new Thickness(0), Margin = new Thickness(1),
+                CornerRadius = new CornerRadius(17),
+                Content = grid, Tag = color
+            };
+            string label = Loc.Get("colorname_" + hex.ToLowerInvariant(), name);
+            ToolTipService.SetToolTip(button, label);
+            Windows.UI.Xaml.Automation.AutomationProperties.SetName(button, label);
+            button.Click += click;
+            return button;
+        }
+
+        private static Windows.UI.Color ParseHex(string hex)
+        {
+            byte r = Convert.ToByte(hex.Substring(0, 2), 16), g = Convert.ToByte(hex.Substring(2, 2), 16), b = Convert.ToByte(hex.Substring(4, 2), 16);
+            return Windows.UI.Color.FromArgb(255, r, g, b);
+        }
+
+        private void MarkSwatch(Panel grid, Windows.UI.Color current, bool highlight)
+        {
+            if (!highlight && Editor.ActualTheme == ElementTheme.Dark && current.R == 255 && current.G == 255 && current.B == 255)
+                current = Windows.UI.Colors.Black;
+            foreach (Button b in grid.Children.OfType<Button>())
+            {
+                bool selected = current.A == 255 && b.Tag is Windows.UI.Color c && c.R == current.R && c.G == current.G && c.B == current.B;
+                if (b.Content is Grid g && g.Children.Count > 0) g.Children[0].Opacity = selected ? 1 : 0;
+            }
+        }
+
+        private void TextSwatch_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.Tag is Windows.UI.Color color)) return;
+            Windows.UI.Color applied = Editor.ActualTheme == ElementTheme.Dark && color.R == 0 && color.G == 0 && color.B == 0 ? Windows.UI.Colors.White : color;
+            Editor.Document.Selection.CharacterFormat.ForegroundColor = applied;
+            FontColorMarker.Foreground = new SolidColorBrush(color);
+            FontTextColorDropDownButton.Flyout.Hide();
+            Editor.Focus(FocusState.Keyboard);
+        }
+
+        private void HighlightSwatch_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.Tag is Windows.UI.Color color)) return;
+            Editor.Document.Selection.CharacterFormat.BackgroundColor = color;
+            BackTextColorMarker.Foreground = new SolidColorBrush(color);
+            FontBackgroundColorDropDownButton.Flyout.Hide();
+            Editor.Focus(FocusState.Keyboard);
+        }
+
+        private void Autobutton_Click(object sender, RoutedEventArgs e)
+        {
+            Windows.UI.Color color = Editor.ActualTheme == ElementTheme.Dark ? Windows.UI.Colors.White : Windows.UI.Colors.Black;
             Editor.Document.Selection.CharacterFormat.ForegroundColor = color;
+            FontColorMarker.Foreground = new SolidColorBrush(Windows.UI.Colors.Black);
             FontTextColorDropDownButton.Flyout.Hide();
             Editor.Focus(FocusState.Programmatic);
         }
 
-        private void Autobutton_Unchecked(object sender, RoutedEventArgs e)
-        {
-            SolidColorBrush fontColorMarkerBrush = FontColorMarker.Foreground as SolidColorBrush;
-            if (fontColorMarkerBrush != null)
-            {
-                Windows.UI.Color markerColor = fontColorMarkerBrush.Color;
-
-                // Set the selection color in the RichEditBox
-                var selectedText = Editor.Document.Selection;
-                if (selectedText != null)
-                {
-                    selectedText.CharacterFormat.ForegroundColor = markerColor;
-                    FontTextColorDropDownButton.Flyout.Hide();
-                    Editor.Focus(FocusState.Programmatic);
-                }
-            }
-        }
-
         private void NoColorButton_Click(object sender, RoutedEventArgs e)
         {
-            // Transparent is the default
-            Windows.UI.Color color = Windows.UI.Colors.Transparent;
-            Editor.Document.Selection.CharacterFormat.BackgroundColor = color;
-            FontTextColorDropDownButton.Flyout.Hide();
+            Editor.Document.Selection.CharacterFormat.BackgroundColor = Windows.UI.Colors.Transparent;
+            BackTextColorMarker.Foreground = new SolidColorBrush(Windows.UI.Colors.Transparent);
+            FontBackgroundColorDropDownButton.Flyout.Hide();
             Editor.Focus(FocusState.Programmatic);
         }
     }

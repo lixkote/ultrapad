@@ -22,10 +22,56 @@ namespace WordPad.WordPadUI.Ribbon
 {
     public sealed partial class EditingToolbar : UserControl
     {
-        public RichEditBox Editor { get; set; }
+        private RichEditBox _editor;
+
+        public RichEditBox Editor
+        {
+            get => _editor;
+            set
+            {
+                if (_editor != null) _editor.TextChanged -= Editor_TextChanged;
+                _editor = value;
+                if (_editor != null) _editor.TextChanged += Editor_TextChanged;
+                UpdateEnabledState();
+            }
+        }
+
         public EditingToolbar()
         {
             this.InitializeComponent();
+            Loaded += (s, e) => UpdateEnabledState();
+        }
+
+        private void Editor_TextChanged(object sender, RoutedEventArgs e) => UpdateEnabledState();
+
+        public void UpdateEnabledState()
+        {
+            bool hasContent = false;
+            try
+            {
+                if (_editor != null)
+                {
+                    int end = _editor.Document.GetRange(0, TextConstants.MaxUnitCount).EndPosition;
+                    if (end > 1) hasContent = true;
+                    else if (end == 1)
+                    {
+                        _editor.Document.GetRange(0, 1).GetText(TextGetOptions.None, out string first);
+                        hasContent = first != "\r" && first.Length > 0;
+                    }
+                }
+            }
+            catch { hasContent = true; }
+
+            SetEnabled(FindButton, FindIcon, hasContent);
+            SetEnabled(ReplaceButton, ReplaceIcon, hasContent);
+            SetEnabled(SelectAllButton, SelectAllIcon, hasContent);
+        }
+
+        private static void SetEnabled(Control button, UIElement icon, bool enabled)
+        {
+            if (button.IsEnabled == enabled) return;
+            button.IsEnabled = enabled;
+            if (icon is Image) icon.Opacity = enabled ? 1.0 : 0.36;
         }
 
         private void FindButton_Click(object sender, RoutedEventArgs e)
@@ -35,7 +81,6 @@ namespace WordPad.WordPadUI.Ribbon
 
         private void FindBoxHighlightMatches()
         {
-
             FindBoxRemoveHighlights();
 
             Color highlightBackgroundColor = (Color)Application.Current.Resources["SystemColorHighlightColor"];
@@ -65,7 +110,6 @@ namespace WordPad.WordPadUI.Ribbon
 
         private void ReplaceButton_Click(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void SelectAllButton_Click(object sender, RoutedEventArgs e)
@@ -81,9 +125,7 @@ namespace WordPad.WordPadUI.Ribbon
             }
         }
 
-
         /// The button click events defined below are click events for the flyouts, not the main ribbon toolbar's buttons.
-
 
         private void ReplaceSelected_Click(object sender, RoutedEventArgs e)
         {

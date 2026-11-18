@@ -20,6 +20,7 @@ using System.Xml;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Email;
+using Windows.ApplicationModel.Resources;
 using Windows.ApplicationModel.Resources.Core;
 using Windows.Foundation;
 using Windows.Graphics.Display;
@@ -40,6 +41,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Documents;
+using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -48,14 +50,15 @@ using Windows.UI.Xaml.Navigation;
 using WordPad.Helpers;
 using WordPad.WordPadUI;
 using WordPad.WordPadUI.Settings;
-using static System.Net.Mime.MediaTypeNames;
 using Application = Windows.UI.Xaml.Application;
 using CheckBox = Windows.UI.Xaml.Controls.CheckBox;
+using Color = Windows.UI.Color;
+using Point = Windows.Foundation.Point;
 using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
 using UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding;
 
-// UltraPad made by Lixkote 
+// UltraPad made by Lixkote
 // Main page c# source code
 
 namespace RectifyPad
@@ -72,6 +75,7 @@ namespace RectifyPad
         private bool _initialized = false;
         public StorageFile RichEditFile;
         private string appTitleStr => "UltraPad";
+        private string _untitledTitle;
 
         ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
@@ -86,7 +90,40 @@ namespace RectifyPad
 
         UnitManager unitConverter = new UnitManager();
         SettingsManagerMain settingsManager = new SettingsManagerMain();
-        OdtHelper odtHelper = new OdtHelper();
+        private DocumentFileFormat _currentFormat = DocumentFileFormat.Rtf;
+        private double _pageHeightDip = 1056;
+        private bool _caretScrollQueued;
+
+        private int _suppressDirty;
+        private DateTime _ignoreTextChangedUntil = DateTime.MinValue;
+
+        private bool _isEditorDark;
+        private bool _spellCheckEnabled;
+        private bool _autocorrectEnabled;
+
+        private bool _toolbarAutoHide;
+        private bool _toolbarOverlayOpen;
+
+        private ScrollViewer _editorScrollViewer;
+        private bool _wheelSelecting;
+        private int _wheelAnchor = -1;
+        private Point _lastPointerWindowPos;
+        private ulong _lastWheelTimestamp;
+
+        private readonly List<MenuFlyoutItemBase> _spellMenuItems = new List<MenuFlyoutItemBase>();
+        private Point _lastRightClickPoint;
+        private DateTime _lastRightClickTime = DateTime.MinValue;
+
+        private bool _inPaste;
+        private PictureAdorner _pictureAdorner;
+
+        private static readonly Color Black = Color.FromArgb(255, 0, 0, 0);
+        private static readonly Color White = Color.FromArgb(255, 255, 255, 255);
+
+        private const string KeyShowRuler = "showRuler";
+        private const string KeyShowStatusBar = "showStatusBar";
+        private const string KeyToolbarAutoHide = "toolbarAutoHide";
+        private const int MaxRecentFiles = 9;
 
         public List<string> Fonts
         {
@@ -96,7 +133,10 @@ namespace RectifyPad
             }
         }
 
-        public ObservableCollection<double> ZoomOptions { get; } = new ObservableCollection<double> { 5, 4, 3, 2, 1, 0.75, 0.5, 0.25, 0.125 };
+        private static readonly double[] ZoomLevels = { 3, 2, 1.5, 1.25, 1, 0.75, 0.5, 0.25 };
+        private bool _updatingZoomBox;
+        private bool _fitToWindowActive;
+        private bool _applyingFit;
 
         public List<double> FontSizes { get; } = new List<double>()
         {
@@ -142,11 +182,16 @@ namespace RectifyPad
 
             // Run the startup functions
             InitializeComponent();
+            _untitledTitle = AppTitle.Text;
             settingsManager.InitializeDefaults();
             LoadThemeFromSettings();
-            LoadSettingsValues();
-            PopulateRecents();
             ConnectRibbonToolbars();
+            LoadViewSettings();
+            ApplyEditorSettings();
+            ApplyPageLayout();
+            UpdateViewMenuChecks();
+            _ = PopulateRecentsAsync();
+            InitializeZoomBox();
 
             // ParagraphMenuIcon.FontFamily = (Windows.UI.Xaml.Media.FontFamily)Application.Current.Resources["CustomIconFont"];
             MenuParagraphIcon.FontFamily = (Windows.UI.Xaml.Media.FontFamily)Application.Current.Resources["CustomIconFont"];
@@ -155,153 +200,1138 @@ namespace RectifyPad
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += OnCloseRequest;
             ribbongrid.DataContext = this;
 
-            // Load the saved settings and apply them
-            if (localSettings.Values["IsDarkThemeEditor"] != null)
-            {
-                EditorContainer.RequestedTheme = (bool)Windows.Storage.ApplicationData.Current.LocalSettings.Values["IsDarkThemeEditor"] ? ElementTheme.Dark : ElementTheme.Light;
-            }
-            if (localSettings.Values["isSpellCheckEnabled"] != null)
-            {
-                Editor.IsSpellCheckEnabled = (bool)Windows.Storage.ApplicationData.Current.LocalSettings.Values["isSpellCheckEnabled"] ? true : false;
-            } 
-            if (localSettings.Values["isTextPredictEnabled"] != null)
-            {
-                Editor.IsTextPredictionEnabled = (bool)Windows.Storage.ApplicationData.Current.LocalSettings.Values["isTextPredictEnabled"] ? true : false;
-            }
-            // Subscribe to theme change events
             SettingsPageManager.ThemeChanged += ChangeEditorContainerTheme;
+            SettingsPageManager.SpellChanged += EnableEditorSpellCheck;
+            SettingsPageManager.PredictChanged += EnableEditorAutocorrect;
+            PageSettings.UnitChanged += unit => UpdateViewMenuChecks();
+            PageSettings.WrapChanged += mode => { ApplyPageLayout(); UpdateViewMenuChecks(); };
+
             DataTransferManager dataTransferManager = DataTransferManager.GetForCurrentView();
             dataTransferManager.DataRequested += DataTransferManager_DataRequested;
+
+            Editor.TextChanging += Editor_TextChanging;
+            Editor.Paste += Editor_Paste;
+            Editor.AddHandler(UIElement.CharacterReceivedEvent, new TypedEventHandler<UIElement, CharacterReceivedRoutedEventArgs>(Editor_CharacterReceived), true);
+            Editor.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(Editor_PointerPressedAll), true);
+            Editor.AddHandler(UIElement.PointerMovedEvent, new PointerEventHandler(Editor_PointerMovedAll), true);
+            Editor.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(Editor_PointerReleasedAll), true);
+            Editor.AddHandler(UIElement.PointerCaptureLostEvent, new PointerEventHandler(Editor_PointerReleasedAll), true);
+            Editor.AddHandler(UIElement.PointerWheelChangedEvent, new PointerEventHandler(Editor_PointerWheelChangedAll), true);
+            EditorContextMenu.Opening += EditorContextMenu_Opening;
+
+            _pictureAdorner = new PictureAdorner(Editor, PictureAdornerCanvas);
+            Editor.BringIntoViewRequested += (snd, args) => { if (_pictureAdorner?.IsDragging ?? false) args.Handled = true; };
+
+            Editor.AddHandler(UIElement.DoubleTappedEvent, new DoubleTappedEventHandler(Editor_DoubleTappedAll), true);
+            Window.Current.Activated += Window_Activated;
+
+            this.Loaded += (s, e) => ApplyToolbarMode();
+            EditorContextMenu.Closed += EditorContextMenu_Closed;
+
+            EditorContentHost.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ContentArea_PointerPressed), true);
+            RulerBorder.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ContentArea_PointerPressed), true);
+
+            TextRuler.GuideChanged += TextRuler_GuideChanged;
+            TextRuler.ParagraphDialogRequested += (s, e) => pararibbontoolbar.ShowParagraphDialog();
+            TextRuler.TabsDialogRequested += async (s, e) => await pararibbontoolbar.ShowTabsDialogAsync();
+
+            var toolbarAccelerator = new KeyboardAccelerator { Key = VirtualKey.F1, Modifiers = VirtualKeyModifiers.Control };
+            toolbarAccelerator.Invoked += (s, a) => { SetToolbarAutoHide(!_toolbarAutoHide); a.Handled = true; };
+            this.KeyboardAccelerators.Add(toolbarAccelerator);
+
+            BeginProgrammaticChange();
             SetLineSpacing(1, LineSpacingRule.Multiple); // Single spacing
-
-
-            ResetDirtyAfterDelay();
+            EndProgrammaticChange();
+            MarkClean();
         }
+
+        #region Dirty tracking
 
         private void MarkClean()
         {
             _isDirty = false;
         }
 
+        private void BeginProgrammaticChange()
+        {
+            _suppressDirty++;
+        }
+
+        private void EndProgrammaticChange()
+        {
+            if (_suppressDirty > 0) _suppressDirty--;
+            _ignoreTextChangedUntil = DateTime.UtcNow.AddMilliseconds(400);
+        }
+
+        private void Editor_TextChanging(RichEditBox sender, RichEditBoxTextChangingEventArgs args)
+        {
+            if (_suppressDirty == 0) _isDirty = true;
+        }
+
         private void Editor_TextChanged(object sender, RoutedEventArgs e)
         {
-            _isDirty = true;
+            if (_suppressDirty == 0 && DateTime.UtcNow > _ignoreTextChangedUntil) _isDirty = true;
         }
-        private async void ResetDirtyAfterDelay()
+
+        #endregion
+
+        #region Editor settings
+
+        private bool GetBoolSetting(string key, bool fallback)
         {
-            await Task.Delay(500);
-            _isDirty = false;
+            object value = localSettings.Values[key];
+            return value is bool b ? b : fallback;
+        }
+
+        private void ApplyEditorSettings()
+        {
+            SetEditorDark(GetBoolSetting("IsDarkThemeEditor", false), recolor: true);
+            EnableEditorSpellCheck(GetBoolSetting("isSpellCheckEnabled", false));
+            EnableEditorAutocorrect(GetBoolSetting("isTextPredictEnabled", false));
         }
 
         public void ChangeEditorContainerTheme(bool isDarkThemeEditor)
         {
-            EditorContainer.RequestedTheme = isDarkThemeEditor ? ElementTheme.Dark : ElementTheme.Light;
-            PrintSubItem.IsEnabled = isDarkThemeEditor ? false : true;
+            SetEditorDark(isDarkThemeEditor, recolor: true);
+        }
+
+        private void SetEditorDark(bool dark, bool recolor)
+        {
+            bool changed = _isEditorDark != dark;
+            _isEditorDark = dark;
+            EditorContainer.RequestedTheme = dark ? ElementTheme.Dark : ElementTheme.Light;
+            PrintSubItem.IsEnabled = !dark;
+
+            if (recolor && changed)
+            {
+                if (dark) RecolorRange(null, Black, White);
+                else RecolorRange(null, White, Black);
+            }
         }
 
         public void EnableEditorSpellCheck(bool isSpellCheckEnabled)
         {
-            Editor.IsSpellCheckEnabled = isSpellCheckEnabled ? true : false;
+            _spellCheckEnabled = isSpellCheckEnabled;
+            Editor.IsSpellCheckEnabled = isSpellCheckEnabled;
         }
 
         public void EnableEditorAutocorrect(bool isTextPredictEnabled)
         {
-            Editor.IsTextPredictionEnabled = isTextPredictEnabled ? true : false;
+            _autocorrectEnabled = isTextPredictEnabled;
+            Editor.IsTextPredictionEnabled = isTextPredictEnabled;
         }
 
-        private void LoadSettingsValues()
+        private void RecolorRange(ITextRange target, Color from, Color to)
         {
+            bool wasDirty = _isDirty;
+            BeginProgrammaticChange();
             try
             {
-                // Load text wrapping value from settings:
-                string textWrapping = localSettings.Values["textwrapping"] as string;
-                if (textWrapping == "wrapwindow")
-                {
-                    Editor.TextWrapping = TextWrapping.Wrap;
-                }
-                else if (textWrapping == "nowrap")
-                {
-                    Editor.TextWrapping = TextWrapping.NoWrap;
-                }
-                else if (textWrapping == "wrapruler")
-                {
-                    // Add a function here that will do the ruler-based wrapping
-                }
+                ITextDocument doc = Editor.Document;
+                int start = target?.StartPosition ?? 0;
+                int end = target?.EndPosition ?? doc.GetRange(0, TextConstants.MaxUnitCount).EndPosition;
+                if (end <= start) return;
 
-                // Load margin values from the settings:
-                var settings = ApplicationData.Current.LocalSettings;
-
-                string unit = settings.Values["unitSetting"] as string;
-                string Lmargin = settings.Values["pagesetupLmargin"] as string;
-                string Rmargin = settings.Values["pagesetupRmargin"] as string;
-                string Tmargin = settings.Values["pagesetupTmargin"] as string;
-                string Bmargin = settings.Values["pagesetupBmargin"] as string;
-
-                // Debugging output to check retrieved values and their types
-                Debug.WriteLine($"unit: {unit}, Lmargin: {Lmargin}, Rmargin: {Rmargin}, Tmargin: {Tmargin}, Bmargin: {Bmargin}");
-
-                // Check if any of the values retrieved are null or not of type string
-                if (!string.IsNullOrEmpty(unit) && !string.IsNullOrEmpty(Lmargin) && !string.IsNullOrEmpty(Rmargin) && !string.IsNullOrEmpty(Tmargin) && !string.IsNullOrEmpty(Bmargin))
+                ITextRange run = doc.GetRange(start, start);
+                int guard = 0;
+                while (run.EndPosition < end && guard++ < 200000)
                 {
-                    // Convert margin values to match the unit and format them as needed
-                    // double left = unitConverter.ConvertToUnitAndFormat(Lmargin, unit);
-                    // double right = unitConverter.ConvertToUnitAndFormat(Rmargin, unit);
-                    // double top = unitConverter.ConvertToUnitAndFormat(Tmargin, unit);
-                    // double bottom = unitConverter.ConvertToUnitAndFormat(Bmargin, unit);
-                }
-                else
-                {
-                    // Handle the case where one or more values are missing or not of type string
-                    Debug.WriteLine("One or more settings values are missing or not of type string.");
+                    int before = run.EndPosition;
+                    run.MoveEnd(TextRangeUnit.CharacterFormat, 1);
+                    if (run.EndPosition > end) run.EndPosition = end;
+                    if (run.EndPosition <= before) break;
+
+                    Color c = run.CharacterFormat.ForegroundColor;
+                    if (c.A != 0 && c.R == from.R && c.G == from.G && c.B == from.B)
+                    {
+                        run.CharacterFormat.ForegroundColor = to;
+                    }
+                    run.Collapse(false);
                 }
             }
             catch (Exception ex)
             {
-                // Handle the exception
-                Debug.WriteLine($"An exception occurred: {ex.Message}");
+                Debug.WriteLine("RecolorRange: " + ex.Message);
+            }
+            finally
+            {
+                EndProgrammaticChange();
+                _isDirty = wasDirty;
             }
         }
 
+        private static string RecolorRtfColorTable(string rtf, bool blackToWhite)
+        {
+            if (string.IsNullOrEmpty(rtf)) return rtf;
+            int start = rtf.IndexOf(@"{\colortbl", StringComparison.Ordinal);
+            if (start < 0) return rtf;
+
+            int depth = 0, end = start;
+            for (; end < rtf.Length; end++)
+            {
+                char ch = rtf[end];
+                if (ch == '\\') { end++; continue; }
+                if (ch == '{') depth++;
+                else if (ch == '}')
+                {
+                    depth--;
+                    if (depth == 0) break;
+                }
+            }
+            if (end >= rtf.Length) return rtf;
+
+            string table = rtf.Substring(start, end - start + 1);
+            string newTable = blackToWhite
+                ? Regex.Replace(table, @"\\red0\\green0\\blue0(?![0-9])", @"\red255\green255\blue255")
+                : Regex.Replace(table, @"\\red255\\green255\\blue255(?![0-9])", @"\red0\green0\blue0");
+
+            return rtf.Substring(0, start) + newTable + rtf.Substring(end + 1);
+        }
+
+        private string GetRtfForExport()
+        {
+            Editor.Document.GetText(TextGetOptions.FormatRtf, out string rtf);
+            return _isEditorDark ? RecolorRtfColorTable(rtf, blackToWhite: false) : rtf;
+        }
+
+        #endregion
+
+        #region View settings
+
+        private void LoadViewSettings()
+        {
+            RulerToggle.IsChecked = GetBoolSetting(KeyShowRuler, true);
+            StatusbarToggle.IsChecked = GetBoolSetting(KeyShowStatusBar, true);
+            _toolbarAutoHide = GetBoolSetting(KeyToolbarAutoHide, false);
+            ApplyRulerVisibility();
+            ApplyStatusBarVisibility();
+            ApplyToolbarMode();
+        }
+
+        private void RulerToggle_Click(object sender, RoutedEventArgs e)
+        {
+            localSettings.Values[KeyShowRuler] = RulerToggle.IsChecked;
+            ApplyRulerVisibility();
+        }
+
+        private void StatusbarToggle_Click(object sender, RoutedEventArgs e)
+        {
+            localSettings.Values[KeyShowStatusBar] = StatusbarToggle.IsChecked;
+            ApplyStatusBarVisibility();
+        }
+
+        private void ApplyRulerVisibility()
+        {
+            bool show = RulerToggle.IsChecked && PrintPreviewRibbon.Visibility != Visibility.Visible;
+            RulerBorder.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+
+            double banner = FormatWarningBar.IsOpen
+                ? FormatWarningBar.ActualHeight + FormatWarningBar.Margin.Top + FormatWarningBar.Margin.Bottom
+                : 0;
+            RulerBorder.Margin = new Thickness(0, banner, 0, 0);
+            EditorContentHost.Margin = new Thickness(0, banner + (show ? 40 : 0), 0, 0);
+            RulerGuideLine.Y1 = banner + (show ? 40 : 0);
+        }
+
+        private void ShowFormatWarning(bool show)
+        {
+            FormatWarningBar.IsOpen = show;
+            ApplyRulerVisibility();
+        }
+
+        private void FormatWarningBar_SizeChanged(object sender, SizeChangedEventArgs e) => ApplyRulerVisibility();
+
+        private void FormatWarningBar_Closed(Microsoft.UI.Xaml.Controls.InfoBar sender, Microsoft.UI.Xaml.Controls.InfoBarClosedEventArgs args) => ApplyRulerVisibility();
+
+        private void ApplyStatusBarVisibility()
+        {
+            StatusBarBorder.Visibility = StatusbarToggle.IsChecked && PrintPreviewRibbon.Visibility != Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void UpdateViewMenuChecks()
+        {
+            WrapMode wrap = PageSettings.Wrap;
+            WrapNoneMenuItem.IsChecked = wrap == WrapMode.NoWrap;
+            WrapWindowMenuItem.IsChecked = wrap == WrapMode.WrapToWindow;
+            WrapRulerMenuItem.IsChecked = wrap == WrapMode.WrapToRuler;
+
+            MeasureUnit unit = PageSettings.Unit;
+            UnitInchesMenuItem.IsChecked = unit == MeasureUnit.Inches;
+            UnitCmMenuItem.IsChecked = unit == MeasureUnit.Centimeters;
+            UnitPointsMenuItem.IsChecked = unit == MeasureUnit.Points;
+            UnitPicasMenuItem.IsChecked = unit == MeasureUnit.Picas;
+        }
+
+        private void WrapMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            switch ((sender as FrameworkElement)?.Tag as string)
+            {
+                case "nowrap": PageSettings.Wrap = WrapMode.NoWrap; break;
+                case "wrapwindow": PageSettings.Wrap = WrapMode.WrapToWindow; break;
+                default: PageSettings.Wrap = WrapMode.WrapToRuler; break;
+            }
+        }
+
+        private void UnitMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            switch ((sender as FrameworkElement)?.Tag as string)
+            {
+                case "cm": PageSettings.Unit = MeasureUnit.Centimeters; break;
+                case "points": PageSettings.Unit = MeasureUnit.Points; break;
+                case "picas": PageSettings.Unit = MeasureUnit.Picas; break;
+                default: PageSettings.Unit = MeasureUnit.Inches; break;
+            }
+        }
+
+        private void Zoom100_Click(object sender, RoutedEventArgs e)
+        {
+            ZoomSlider.Value = 1;
+        }
+
+        private void ApplyPageLayout()
+        {
+            PageSettings.Size2 size = PageSettings.GetPageSizeTwips();
+            Thickness m = PageSettings.GetMarginsTwips();
+
+            double pageWidth = PageSettings.TwipsToDip(size.Width);
+            double pageHeight = PageSettings.TwipsToDip(size.Height);
+            double left = PageSettings.TwipsToDip(m.Left);
+            double right = PageSettings.TwipsToDip(m.Right);
+            double top = PageSettings.TwipsToDip(m.Top);
+            double bottom = PageSettings.TwipsToDip(m.Bottom);
+
+            WrapMode wrap = PageSettings.Wrap;
+            double width = pageWidth;
+
+            if (wrap == WrapMode.WrapToWindow)
+            {
+                double zoom = RichTextScrollView.ZoomFactor > 0 ? RichTextScrollView.ZoomFactor : 1;
+                double viewport = RichTextScrollView.ViewportWidth > 0 ? RichTextScrollView.ViewportWidth : RichTextScrollView.ActualWidth;
+                left = right = 16;
+                if (viewport > 0) width = Math.Max(240, viewport / zoom - 8);
+            }
+
+            Editor.TextWrapping = wrap == WrapMode.NoWrap ? TextWrapping.NoWrap : TextWrapping.Wrap;
+            Editor.Padding = new Thickness(left, top, right, bottom);
+            _pageHeightDip = pageHeight;
+            Editor.Width = width;
+            Editor.Height = double.NaN;
+            Editor.MinHeight = pageHeight;
+            EditorMandatoryPrintingGrid.Width = width;
+            EditorMandatoryPrintingGrid.Height = double.NaN;
+            EditorMandatoryPrintingGrid.MinHeight = pageHeight;
+
+            TextRuler.SetPage(width, left, right);
+        }
+
+        private void RichTextScrollView_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (_fitToWindowActive) ApplyFitToWindow();
+            if (PageSettings.Wrap == WrapMode.WrapToWindow) ApplyPageLayout();
+        }
+
+        private void RichTextScrollView_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            TextRuler.UpdatePagePosition();
+            if (_wheelSelecting) UpdateWheelSelection();
+        }
+
+        private void TextRuler_GuideChanged(double? x)
+        {
+            if (x == null)
+            {
+                RulerGuideLine.Visibility = Visibility.Collapsed;
+                return;
+            }
+            try
+            {
+                Point p = TextRuler.TransformToVisual(RulerGuideCanvas).TransformPoint(new Point(x.Value, 0));
+                RulerGuideLine.X1 = RulerGuideLine.X2 = Math.Round(p.X) + 0.5;
+                RulerGuideLine.Y2 = Math.Max(RulerGuideCanvas.ActualHeight, 100);
+                RulerGuideLine.Visibility = Visibility.Visible;
+            }
+            catch
+            {
+                RulerGuideLine.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        #endregion
+
+        #region Toolbar auto hide
+
+        private Storyboard _ribbonStoryboard;
+
+        private void SetToolbarAutoHide(bool autoHide)
+        {
+            bool wasAutoHide = _toolbarAutoHide;
+            _toolbarAutoHide = autoHide;
+            localSettings.Values[KeyToolbarAutoHide] = autoHide;
+            bool preview = PrintPreviewRibbon.Visibility == Visibility.Visible;
+
+            if (autoHide && !wasAutoHide && !preview && RibbonHost.Visibility == Visibility.Visible)
+            {
+                _toolbarOverlayOpen = true;
+                UpdateToolbarMenuChecks();
+                ShowToolbarButton.Visibility = Visibility.Visible;
+                ShowToolbarSeparator.Visibility = Visibility.Visible;
+                HideToolbarOverlay();
+                return;
+            }
+
+            bool reveal = !autoHide && wasAutoHide && !_toolbarOverlayOpen && !preview;
+            _toolbarOverlayOpen = false;
+            ApplyToolbarMode();
+            if (reveal) PlayToolbarEntrance();
+        }
+
+        private void UpdateToolbarMenuChecks()
+        {
+            AlwaysShowToolbarItem.IsChecked = !_toolbarAutoHide;
+            AutoHideToolbarItem.IsChecked = _toolbarAutoHide;
+            AlwaysShowToolbarViewToggle.IsChecked = !_toolbarAutoHide;
+            AutoHideToolbarViewToggle.IsChecked = _toolbarAutoHide;
+        }
+
+        private void ApplyToolbarMode()
+        {
+            _ribbonStoryboard?.Stop();
+
+            UpdateToolbarMenuChecks();
+
+            Visibility buttonVisibility = _toolbarAutoHide ? Visibility.Visible : Visibility.Collapsed;
+            ShowToolbarButton.Visibility = buttonVisibility;
+            ShowToolbarSeparator.Visibility = buttonVisibility;
+            UpdateShowToolbarButton();
+
+            ribbongrid.Visibility = Visibility.Visible;
+            ribbongrid.Opacity = 1;
+            RibbonSlide.Y = 0;
+
+            if (PrintPreviewRibbon.Visibility == Visibility.Visible)
+            {
+                RibbonHost.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            if (!_toolbarAutoHide)
+            {
+                Grid.SetRow(RibbonHost, 3);
+                VisualStateManager.GoToState(this, "ToolbarDocked", false);
+                RibbonHost.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Grid.SetRow(RibbonHost, 4);
+                VisualStateManager.GoToState(this, "ToolbarFloating", false);
+                RibbonHost.Visibility = _toolbarOverlayOpen ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        private void UpdateShowToolbarButton()
+        {
+            bool open = _toolbarAutoHide && _toolbarOverlayOpen;
+            ShowToolbarIcon.Glyph = open ? "\uED1A" : "\uE890";
+            ShowToolbarText.Opacity = open ? 0 : 1;
+            HideToolbarText.Opacity = open ? 1 : 0;
+            AutomationProperties.SetName(ShowToolbarButton, open ? HideToolbarText.Text : ShowToolbarText.Text);
+            ToolTipService.SetToolTip(ShowToolbarButton, (open ? HideToolbarText.Text : ShowToolbarText.Text) + " (Ctrl+F1)");
+        }
+
+        private static readonly TimeSpan ToolbarAnimationDuration = TimeSpan.FromMilliseconds(167);
+
+        private Storyboard CreateRibbonStoryboard(double fromY, double toY, double fromOpacity, double toOpacity)
+        {
+            var sb = new Storyboard();
+            var ease = new CircleEase { EasingMode = EasingMode.EaseInOut };
+
+            var slide = new DoubleAnimation { From = fromY, To = toY, Duration = ToolbarAnimationDuration, EasingFunction = ease };
+            Storyboard.SetTarget(slide, RibbonSlide);
+            Storyboard.SetTargetProperty(slide, "Y");
+
+            var fade = new DoubleAnimation { From = fromOpacity, To = toOpacity, Duration = ToolbarAnimationDuration, EasingFunction = ease };
+            Storyboard.SetTarget(fade, ribbongrid);
+            Storyboard.SetTargetProperty(fade, "Opacity");
+
+            sb.Children.Add(slide);
+            sb.Children.Add(fade);
+            return sb;
+        }
+
+        private double ToolbarSlideDistance()
+        {
+            if (ribbongrid.ActualHeight <= 0) RibbonHost.UpdateLayout();
+            return ribbongrid.ActualHeight > 0 ? ribbongrid.ActualHeight : 110;
+        }
+
+        private void PlayToolbarEntrance()
+        {
+            _ribbonStoryboard?.Stop();
+            double distance = ToolbarSlideDistance();
+            RibbonSlide.Y = -distance;
+            ribbongrid.Opacity = 0;
+            _ribbonStoryboard = CreateRibbonStoryboard(-distance, 0, 0, 1);
+            _ribbonStoryboard.Completed += (s, e) => { RibbonSlide.Y = 0; ribbongrid.Opacity = 1; };
+            _ribbonStoryboard.Begin();
+        }
+
+        private void ShowToolbarOverlay()
+        {
+            _toolbarOverlayOpen = true;
+            ApplyToolbarMode();
+            PlayToolbarEntrance();
+        }
+
+        private void HideToolbarOverlay()
+        {
+            if (!_toolbarOverlayOpen) return;
+            _toolbarOverlayOpen = false;
+            UpdateShowToolbarButton();
+
+            double distance = ToolbarSlideDistance();
+            _ribbonStoryboard?.Stop();
+            var sb = CreateRibbonStoryboard(0, -distance, 1, 0);
+            sb.Completed += (s, e) =>
+            {
+                if (!_toolbarOverlayOpen) ApplyToolbarMode();
+            };
+            _ribbonStoryboard = sb;
+            sb.Begin();
+        }
+
+        private void RibbonHost_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            RibbonHost.Clip = new RectangleGeometry { Rect = new Rect(0, 0, e.NewSize.Width, e.NewSize.Height + 24) };
+        }
+
+        private void ShowToolbarButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_toolbarOverlayOpen) HideToolbarOverlay();
+            else ShowToolbarOverlay();
+        }
+
+        private void AlwaysShowToolbarItem_Click(object sender, RoutedEventArgs e)
+        {
+            SetToolbarAutoHide(false);
+        }
+
+        private void AutoHideToolbarItem_Click(object sender, RoutedEventArgs e)
+        {
+            SetToolbarAutoHide(true);
+        }
+
+        private void AutoHideToolbarViewToggle_Click(object sender, RoutedEventArgs e)
+        {
+            SetToolbarAutoHide(AutoHideToolbarViewToggle.IsChecked);
+        }
+
+        private void ContentArea_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (_toolbarAutoHide && _toolbarOverlayOpen) HideToolbarOverlay();
+        }
+
+        #endregion
+
+        #region Zoom
+
+        private static string ZoomText(double zoom) =>
+            Math.Round(zoom * 100).ToString(System.Globalization.CultureInfo.CurrentCulture) + "%";
+
+        private void InitializeZoomBox()
+        {
+            _updatingZoomBox = true;
+            ZoomComboBox.Items.Clear();
+            foreach (double level in ZoomLevels) ZoomComboBox.Items.Add(ZoomText(level));
+            _updatingZoomBox = false;
+            UpdateZoomBox();
+        }
+
+        private void UpdateZoomBox()
+        {
+            if (ZoomComboBox == null || ZoomSlider == null) return;
+            _updatingZoomBox = true;
+            try
+            {
+                string text = ZoomText(ZoomSlider.Value);
+                int index = ZoomComboBox.Items.IndexOf(text);
+                ZoomComboBox.SelectedIndex = index;
+                ZoomComboBox.Text = text;
+            }
+            finally
+            {
+                _updatingZoomBox = false;
+            }
+        }
+
+        private static bool TryParseZoom(string text, out double zoom)
+        {
+            zoom = 0;
+            if (string.IsNullOrWhiteSpace(text)) return false;
+            string t = text.Trim().TrimEnd('%').Trim().Replace(',', '.');
+            if (!double.TryParse(t, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double percent)) return false;
+            zoom = percent / 100.0;
+            return zoom > 0;
+        }
+
+        private void ZoomComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_updatingZoomBox) return;
+            if (ZoomComboBox.SelectedItem is string text && TryParseZoom(text, out double zoom))
+            {
+                ZoomSlider.Value = Math.Max(ZoomSlider.Minimum, Math.Min(ZoomSlider.Maximum, zoom));
+            }
+        }
+
+        private void ZoomComboBox_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
+        {
+            if (TryParseZoom(args.Text, out double zoom))
+            {
+                ZoomSlider.Value = Math.Max(ZoomSlider.Minimum, Math.Min(ZoomSlider.Maximum, zoom));
+            }
+            args.Handled = true;
+            UpdateZoomBox();
+        }
+
+        private void SetFitToWindowActive(bool active)
+        {
+            _fitToWindowActive = active;
+            FitIconCircle.Visibility = active ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void FitToWindow_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyFitToWindow();
+            SetFitToWindowActive(true);
+        }
+
+        private void ApplyFitToWindow()
+        {
+            double viewW = RichTextScrollView.ViewportWidth > 0 ? RichTextScrollView.ViewportWidth : RichTextScrollView.ActualWidth;
+            double viewH = RichTextScrollView.ViewportHeight > 0 ? RichTextScrollView.ViewportHeight : RichTextScrollView.ActualHeight;
+            double pageW = EditorMandatoryPrintingGrid.ActualWidth > 0 ? EditorMandatoryPrintingGrid.ActualWidth : EditorMandatoryPrintingGrid.Width;
+            double pageH = _pageHeightDip;
+            if (viewW <= 0 || viewH <= 0 || pageW <= 0 || pageH <= 0) return;
+
+            double zoom = Math.Min((viewW - 24) / pageW, (viewH - 24) / pageH);
+            zoom = Math.Max(ZoomSlider.Minimum, Math.Min(ZoomSlider.Maximum, zoom));
+            _applyingFit = true;
+            try
+            {
+                ZoomSlider.Value = Math.Round(zoom, 2);
+                RichTextScrollView.ChangeView(0, 0, (float)ZoomSlider.Value);
+            }
+            finally
+            {
+                _applyingFit = false;
+            }
+        }
+
+        private void FullScreen_Click(object sender, RoutedEventArgs e)
+        {
+            ApplicationView view = ApplicationView.GetForCurrentView();
+            if (view.IsFullScreenMode) view.ExitFullScreenMode();
+            else view.TryEnterFullScreenMode();
+        }
+
+        #endregion
+
+        #region Mouse wheel
+
+        private static T FindDescendant<T>(DependencyObject root, string name) where T : FrameworkElement
+        {
+            if (root == null) return null;
+            int count = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(root, i);
+                if (child is T match && (name == null || match.Name == name)) return match;
+                T found = FindDescendant<T>(child, name);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        private void HookEditorScrollViewer()
+        {
+            if (_editorScrollViewer != null) return;
+            _editorScrollViewer = FindDescendant<ScrollViewer>(Editor, "ContentElement");
+            if (_editorScrollViewer == null) return;
+
+            _editorScrollViewer.ViewChanged += EditorScrollViewer_ViewChanged;
+
+            var presenter = FindDescendant<ScrollContentPresenter>(_editorScrollViewer, null);
+            presenter?.AddHandler(UIElement.PointerWheelChangedEvent, new PointerEventHandler(Editor_PointerWheelChangedAll), true);
+        }
+
+        private void EditorScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            _pictureAdorner?.TrackScrolling();
+            if (_wheelSelecting) UpdateWheelSelection();
+        }
+
+        private void Editor_PointerPressedAll(object sender, PointerRoutedEventArgs e)
+        {
+            HookEditorScrollViewer();
+            var point = e.GetCurrentPoint(Editor);
+            _wheelSelecting = false;
+            _wheelAnchor = -1;
+            _lastPointerWindowPos = e.GetCurrentPoint(null).Position;
+
+            if (point.Properties.IsRightButtonPressed)
+            {
+                _lastRightClickPoint = point.Position;
+                _lastRightClickTime = DateTime.UtcNow;
+            }
+        }
+
+        private void Editor_PointerMovedAll(object sender, PointerRoutedEventArgs e)
+        {
+            _lastPointerWindowPos = e.GetCurrentPoint(null).Position;
+        }
+
+        private void Editor_PointerReleasedAll(object sender, PointerRoutedEventArgs e)
+        {
+            _wheelSelecting = false;
+            _wheelAnchor = -1;
+        }
+
+        private void Editor_PointerWheelChangedAll(object sender, PointerRoutedEventArgs e)
+        {
+            var point = e.GetCurrentPoint(Editor);
+            if (!point.Properties.IsLeftButtonPressed || point.Properties.IsHorizontalMouseWheel) return;
+
+            e.Handled = true;
+            if (point.Timestamp == _lastWheelTimestamp) return;
+            _lastWheelTimestamp = point.Timestamp;
+
+            HookEditorScrollViewer();
+            _lastPointerWindowPos = e.GetCurrentPoint(null).Position;
+
+            if (!_wheelSelecting)
+            {
+                ITextSelection sel = Editor.Document.Selection;
+                bool startActive = (sel.Options & SelectionOptions.StartActive) == SelectionOptions.StartActive;
+                _wheelAnchor = startActive ? sel.EndPosition : sel.StartPosition;
+                _wheelSelecting = true;
+            }
+
+            int delta = point.Properties.MouseWheelDelta;
+            if (delta == 0) return;
+            double distance = delta / 120.0 * 3 * 19;
+
+            ScrollViewer inner = _editorScrollViewer;
+            bool innerCanScroll = inner != null && inner.ScrollableHeight > 0 &&
+                                  (delta > 0 ? inner.VerticalOffset > 0.5 : inner.VerticalOffset < inner.ScrollableHeight - 0.5);
+
+            if (innerCanScroll)
+            {
+                double target = Math.Max(0, Math.Min(inner.ScrollableHeight, inner.VerticalOffset - distance));
+                inner.ChangeView(null, target, null, true);
+            }
+            else
+            {
+                ScrollViewer outer = RichTextScrollView;
+                double target = Math.Max(0, Math.Min(outer.ScrollableHeight, outer.VerticalOffset - distance * outer.ZoomFactor));
+                outer.ChangeView(null, target, null, true);
+            }
+
+            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, UpdateWheelSelection);
+        }
+
+        private void UpdateWheelSelection()
+        {
+            if (!_wheelSelecting || _wheelAnchor < 0) return;
+            try
+            {
+                Point p = Window.Current.Content.TransformToVisual(Editor).TransformPoint(_lastPointerWindowPos);
+                double x = Math.Max(1, Math.Min(Editor.ActualWidth - 2, p.X));
+                double y = Math.Max(1, Math.Min(Editor.ActualHeight - 2, p.Y));
+                Point client = WordPad.Helpers.EditorCoordinates.ToClient(Editor, Editor, new Point(x, y));
+                ITextRange r = Editor.Document.GetRangeFromPoint(client, PointOptions.ClientCoordinates);
+                int active = r.StartPosition;
+                ITextSelection sel = Editor.Document.Selection;
+                if (active >= _wheelAnchor)
+                {
+                    sel.SetRange(_wheelAnchor, active);
+                    sel.Options &= ~SelectionOptions.StartActive;
+                }
+                else
+                {
+                    sel.SetRange(active, _wheelAnchor);
+                    sel.Options |= SelectionOptions.StartActive;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("UpdateWheelSelection: " + ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region Autocorrect
+
+        private static bool IsWordChar(char c) => char.IsLetter(c) || c == '\'' || c == '’';
+
+        private void Editor_CharacterReceived(UIElement sender, CharacterReceivedRoutedEventArgs args)
+        {
+            if (!_autocorrectEnabled || !_spellCheckEnabled) return;
+            char c = args.Character;
+            if (c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '.' || c == ',' || c == ';' || c == ':' || c == '!' || c == '?' || c == ')' || c == '"')
+            {
+                _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, TryAutoCorrectBeforeCaret);
+            }
+        }
+
+        private void TryAutoCorrectBeforeCaret()
+        {
+            try
+            {
+                ITextSelection sel = Editor.Document.Selection;
+                if (sel.Length != 0) return;
+                int caret = sel.StartPosition;
+                if (caret < 3) return;
+
+                int from = Math.Max(0, caret - 64);
+                Editor.Document.GetRange(from, caret).GetText(TextGetOptions.None, out string text);
+                if (string.IsNullOrEmpty(text) || text.Length != caret - from) return;
+
+                int end = text.Length - 1;
+                if (IsWordChar(text[end])) return;
+                int start = end;
+                while (start > 0 && IsWordChar(text[start - 1])) start--;
+                if (end - start < 2) return;
+
+                if (start > 0 && !char.IsWhiteSpace(text[start - 1]) && "([{\"„“".IndexOf(text[start - 1]) < 0) return;
+
+                string word = text.Substring(start, end - start).Trim('\'', '’');
+                if (word.Length < 2 || word.Any(char.IsDigit)) return;
+                int wordStart = from + text.IndexOf(word, start, StringComparison.Ordinal);
+
+                string fix = SpellCheckHelper.GetAutoCorrection(word);
+                if (string.IsNullOrEmpty(fix) || fix == word) return;
+
+                if (word.Length > 1 && word.All(ch => !char.IsLetter(ch) || char.IsUpper(ch))) fix = fix.ToUpper();
+                else if (char.IsUpper(word[0]) && char.IsLower(fix[0])) fix = char.ToUpper(fix[0]) + fix.Substring(1);
+
+                ITextRange wordRange = Editor.Document.GetRange(wordStart, wordStart + word.Length);
+                wordRange.GetText(TextGetOptions.None, out string check);
+                if (check != word) return;
+
+                Editor.Document.BeginUndoGroup();
+                try { wordRange.Text = fix; }
+                finally { Editor.Document.EndUndoGroup(); }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("TryAutoCorrectBeforeCaret: " + ex.Message);
+            }
+        }
+
+        private static string L(string key, string fallback)
+        {
+            try
+            {
+                string value = ResourceLoader.GetForCurrentView().GetString(key);
+                return string.IsNullOrEmpty(value) ? fallback : value;
+            }
+            catch
+            {
+                return fallback;
+            }
+        }
+
+        private void EditorContextMenu_Opening(object sender, object e)
+        {
+            RemoveSpellMenuItems();
+            if (!_spellCheckEnabled) return;
+
+            try
+            {
+                int position;
+                if ((DateTime.UtcNow - _lastRightClickTime).TotalSeconds < 2)
+                    position = Editor.Document.GetRangeFromPoint(WordPad.Helpers.EditorCoordinates.ToClient(Editor, Editor, _lastRightClickPoint), PointOptions.ClientCoordinates).StartPosition;
+                else
+                    position = Editor.Document.Selection.StartPosition;
+
+                ITextRange range = Editor.Document.GetRange(position, position);
+                range.Expand(TextRangeUnit.Word);
+                range.GetText(TextGetOptions.None, out string raw);
+                if (string.IsNullOrEmpty(raw)) return;
+
+                int s = 0, t = raw.Length;
+                while (s < t && !IsWordChar(raw[s])) s++;
+                while (t > s && !IsWordChar(raw[t - 1])) t--;
+                string word = raw.Substring(s, t - s).Trim('\'', '’');
+                if (word.Length < 2 || word.Any(char.IsDigit)) return;
+                int wordStart = range.StartPosition + raw.IndexOf(word, s, StringComparison.Ordinal);
+
+                if (!SpellCheckHelper.IsMisspelled(word, 5, out List<string> suggestions)) return;
+
+                int index = 0;
+                foreach (string suggestion in suggestions)
+                {
+                    var item = new MenuFlyoutItem { Text = suggestion, FontWeight = Windows.UI.Text.FontWeights.SemiBold };
+                    string replacement = suggestion;
+                    item.Click += (a, b) => ReplaceWord(wordStart, word, replacement);
+                    InsertSpellMenuItem(index++, item);
+                }
+                if (suggestions.Count == 0)
+                {
+                    InsertSpellMenuItem(index++, new MenuFlyoutItem { Text = L("spellNoSuggestions", "(No spelling suggestions)"), IsEnabled = false });
+                }
+
+                var add = new MenuFlyoutItem { Text = L("spellAddToDictionary", "Add to dictionary"), Icon = new FontIcon { Glyph = "" } };
+                add.Click += (a, b) =>
+                {
+                    SpellCheckHelper.AddToDictionary(word);
+                    Editor.IsSpellCheckEnabled = false;
+                    Editor.IsSpellCheckEnabled = _spellCheckEnabled;
+                };
+                InsertSpellMenuItem(index++, add);
+                InsertSpellMenuItem(index, new MenuFlyoutSeparator());
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("EditorContextMenu_Opening: " + ex.Message);
+            }
+        }
+
+        private void InsertSpellMenuItem(int index, MenuFlyoutItemBase item)
+        {
+            EditorContextMenu.Items.Insert(index, item);
+            _spellMenuItems.Add(item);
+        }
+
+        private void RemoveSpellMenuItems()
+        {
+            foreach (MenuFlyoutItemBase item in _spellMenuItems) EditorContextMenu.Items.Remove(item);
+            _spellMenuItems.Clear();
+        }
+
+        private void EditorContextMenu_Closed(object sender, object e)
+        {
+        }
+
+        private void ReplaceWord(int start, string word, string replacement)
+        {
+            ITextRange range = Editor.Document.GetRange(start, start + word.Length);
+            range.GetText(TextGetOptions.None, out string current);
+            if (current != word) return;
+            range.Text = replacement;
+            Editor.Document.Selection.SetRange(start + replacement.Length, start + replacement.Length);
+            Editor.Focus(FocusState.Programmatic);
+        }
+
+        #endregion
+
+        #region Objects
+
+        private void Editor_DoubleTappedAll(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            {
+                await EmbeddedObjectManager.For(Editor).TryActivateSelectedObjectAsync();
+            });
+        }
+
+        private async void Window_Activated(object sender, WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState == CoreWindowActivationState.Deactivated) return;
+            await EmbeddedObjectManager.For(Editor).RefreshChangedObjectsAsync();
+        }
+
+        #endregion
+
+        #region Clipboard
+
+        private async Task PasteAsync()
+        {
+            if (_inPaste) return;
+            _inPaste = true;
+            _pictureAdorner?.Materialize(false);
+            try
+            {
+                if (await ImageInsertHelper.PasteFromClipboardAsync(Editor)) return;
+
+                int start = Editor.Document.Selection.StartPosition;
+                Editor.Document.Selection.Paste(0);
+
+                if (_isEditorDark)
+                {
+                    int end = Editor.Document.Selection.EndPosition;
+                    if (end > start) RecolorRange(Editor.Document.GetRange(start, end), Black, White);
+                    _isDirty = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("PasteAsync: " + ex.Message);
+            }
+            finally
+            {
+                _inPaste = false;
+                _pictureAdorner?.EndCommand();
+            }
+        }
+
+        private void Editor_Paste(object sender, TextControlPasteEventArgs e)
+        {
+            if (_inPaste) return;
+            e.Handled = true;
+            _ = PasteAsync();
+        }
+
+        private void CopySelection(bool cut)
+        {
+            _pictureAdorner?.Materialize(false);
+            if (cut) Editor.Document.Selection.Cut();
+            else Editor.Document.Selection.Copy();
+            _pictureAdorner?.EndCommand();
+            if (_isEditorDark) FixClipboardColorsAfterCopy();
+        }
+
+        private async void FixClipboardColorsAfterCopy()
+        {
+            try
+            {
+                DataPackageView content = Clipboard.GetContent();
+                if (!content.Contains(StandardDataFormats.Rtf)) return;
+
+                string rtf = await content.GetRtfAsync();
+                string fixedRtf = RecolorRtfColorTable(rtf, blackToWhite: false);
+                if (fixedRtf == rtf) return;
+
+                var package = new DataPackage();
+                package.SetRtf(fixedRtf);
+                if (content.Contains(StandardDataFormats.Text)) package.SetText(await content.GetTextAsync());
+                if (content.Contains(StandardDataFormats.Bitmap)) package.SetBitmap(await content.GetBitmapAsync());
+                Clipboard.SetContent(package);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("FixClipboardColorsAfterCopy: " + ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region Recent files
+
+        private async Task PopulateRecentsAsync()
+        {
+            var mru = StorageApplicationPermissions.MostRecentlyUsedList;
+            var items = new List<KeyValuePair<string, string>>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (AccessListEntry entry in mru.Entries.ToList())
+            {
+                string path = entry.Metadata;
+                if (string.IsNullOrEmpty(path))
+                {
+                    try
+                    {
+                        StorageFile f = await mru.GetFileAsync(entry.Token, AccessCacheOptions.SuppressAccessTimeUpdate);
+                        path = f.Path;
+                    }
+                    catch
+                    {
+                        mru.Remove(entry.Token);
+                        continue;
+                    }
+                }
+
+                if (!seen.Add(path))
+                {
+                    mru.Remove(entry.Token);
+                    continue;
+                }
+                items.Add(new KeyValuePair<string, string>(entry.Token, path));
+            }
+
+            RecentItemsSubItem.Items.Clear();
+            foreach (var item in items.Take(MaxRecentFiles))
+            {
+                var menuItem = new MenuFlyoutItem
+                {
+                    Text = System.IO.Path.GetFileName(item.Value),
+                    Tag = item.Key
+                };
+                ToolTipService.SetToolTip(menuItem, item.Value);
+                menuItem.Click += RecentItem_Click;
+                RecentItemsSubItem.Items.Add(menuItem);
+            }
+
+            if (RecentItemsSubItem.Items.Count == 0)
+            {
+                RecentItemsSubItem.Items.Add(new MenuFlyoutItem { Text = L("norecent", "No recent documents"), IsEnabled = false });
+            }
+        }
+
+        private async void RecentItem_Click(object sender, RoutedEventArgs e)
+        {
+            string token = (sender as FrameworkElement)?.Tag as string;
+            if (string.IsNullOrEmpty(token)) return;
+
+            if (_isDirty)
+            {
+                var proceed = await ShowUnsavedDialog();
+                if (proceed != true) return;
+            }
+
+            var mru = StorageApplicationPermissions.MostRecentlyUsedList;
+            StorageFile file = null;
+            try
+            {
+                file = await mru.GetFileAsync(token);
+            }
+            catch
+            {
+                file = null;
+            }
+
+            if (file == null)
+            {
+                mru.Remove(token);
+                await PopulateRecentsAsync();
+                await new ContentDialog
+                {
+                    Title = appTitleStr,
+                    Content = L("recentmissing", "The file could not be found. It may have been moved or deleted."),
+                    CloseButtonText = L("dlg_ok", "OK")
+                }.ShowThemedAsync();
+                return;
+            }
+
+            await OpenFileAsync(file, interactive: true);
+        }
+
+        private void AddToRecent(StorageFile file)
+        {
+            try
+            {
+                var mru = StorageApplicationPermissions.MostRecentlyUsedList;
+                foreach (AccessListEntry entry in mru.Entries.ToList())
+                {
+                    if (string.Equals(entry.Metadata, file.Path, StringComparison.OrdinalIgnoreCase))
+                        mru.Remove(entry.Token);
+                }
+                mru.Add(file, file.Path);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("AddToRecent: " + ex.Message);
+            }
+            _ = PopulateRecentsAsync();
+        }
+
+        #endregion
 
         private void LoadThemeFromSettings()
         {
-            string value = (string)Windows.Storage.ApplicationData.Current.LocalSettings.Values["themeSetting"];
-            if (value != null)
-            {
-                try
-                {
-                    // Change title bar color if needed
-                    ApplicationViewTitleBar titleBar = ApplicationView.GetForCurrentView().TitleBar;
-                    if (value == "Dark")
-                    {
-                        titleBar.ButtonForegroundColor = Colors.White;
-                        App.RootTheme = ElementTheme.Dark;
-                    }
-                    else if (value == "Light")
-                    {
-                        titleBar.ButtonForegroundColor = Colors.Black;
-                        App.RootTheme = ElementTheme.Light;
-                    }
-                    else
-                    {
-                        App.RootTheme = ElementTheme.Default;
-                        if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
-                        {
-                            titleBar.ButtonForegroundColor = Colors.White;
-                        }
-                        else
-                        {
-                            titleBar.ButtonForegroundColor = Colors.Black;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Handle the exception
-                    Debug.WriteLine($"An exception occurred: {ex.Message}");
-                }
-
-            }
+            var values = Windows.Storage.ApplicationData.Current.LocalSettings.Values;
+            string value = values["theme"] as string ?? values["themeSetting"] as string ?? "System";
+            App.ApplyAppTheme(value);
             Window.Current.SetTitleBar(AppTitleBar);
         }
 
@@ -318,28 +1348,10 @@ namespace RectifyPad
             pararibbontoolbarcol.Editor = Editor;
             pararibbontoolbarcol.MainPagea = this;
             fontribbontoolbarcol.Editor = Editor;
-            TextRuler.editor = Editor;
-        }
-
-        private async void PopulateRecents()
-        {
-            var recentlyUsedItems = await RecentlyUsedHelper.GetRecentlyUsedItems();
-            var recentItemsSubItem = RecentItemsSubItem;
-            foreach (var item in recentlyUsedItems)
-            {
-                var menuItem = new MenuFlyoutItem { Text = item.Name };
-                menuItem.Click += async (s, args) =>
-                {
-                    var file = await StorageFile.GetFileFromPathAsync(item.Path);
-                    await RecentlyUsedHelper.AddToMostRecentlyUsedList(file);
-                    // Open the file here
-                };
-                recentItemsSubItem.Items.Add(menuItem);
-            }
+            TextRuler.TargetEditor = Editor;
         }
 
         private MarkerType _type = MarkerType.Bullet;
-
 
         private void MyListButton_IsCheckedChanged(Microsoft.UI.Xaml.Controls.ToggleSplitButton sender, Microsoft.UI.Xaml.Controls.ToggleSplitButtonIsCheckedChangedEventArgs args)
         {
@@ -352,7 +1364,6 @@ namespace RectifyPad
             {
                 //remove bulleted list
                 Editor.Document.Selection.ParagraphFormat.ListType = MarkerType.None;
-        
             }
         }
 
@@ -420,137 +1431,37 @@ namespace RectifyPad
 
             return output.ToString();
         }
-        string EscapeRtf(string text)
-        {
-            return text
-                .Replace(@"\", @"\\")
-                .Replace("{", @"\{")
-                .Replace("}", @"\}");
-        }
-
-        string ParseImage(XmlNode node, ZipArchive archive)
-        {
-            var href = node
-                .SelectSingleNode(".//draw:image", null)?
-                .Attributes["xlink:href"]?.Value;
-
-            if (href == null)
-                return "[image]";
-
-            var entry = archive.GetEntry(href.TrimStart('.', '/'));
-
-            if (entry == null)
-                return "[missing image]";
-
-            var stream = entry.Open();
-            var ms = new MemoryStream();
-            stream.CopyTo(ms);
-
-            var base64 = Convert.ToBase64String(ms.ToArray());
-
-            // fallback placeholder (RTF PNG)
-            return @"{\pard\plain\fs20 [Image]\par}";
-        }
-        string ParseSpan(XmlNode node, string styleName)
-        {
-            var text = EscapeRtf(node.InnerText);
-
-            bool bold = styleName?.Contains("bold") == true;
-            bool italic = styleName?.Contains("italic") == true;
-
-            var sb = new StringBuilder();
-
-            if (bold) sb.Append(@"\b ");
-            if (italic) sb.Append(@"\i ");
-
-            sb.Append(text);
-
-            if (italic) sb.Append(@"\i0 ");
-            if (bold) sb.Append(@"\b0 ");
-
-            return sb.ToString();
-        }
-        string ParseParagraph(XmlNode p, XmlNamespaceManager ns, ZipArchive archive)
-        {
-            var sb = new StringBuilder();
-
-            foreach (XmlNode node in p.ChildNodes)
-            {
-                if (node.Name == "text:span")
-                {
-                    var style = node.Attributes?["text:style-name"]?.Value;
-
-                    sb.Append(ParseSpan(node, style));
-                }
-                else if (node.Name == "#text")
-                {
-                    sb.Append(EscapeRtf(node.InnerText));
-                }
-                else if (node.Name == "draw:frame")
-                {
-                    sb.Append(ParseImage(node, archive));
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        async Task LoadOdt(string contentXml, ZipArchive archive, RichEditBox editor)
-        {
-            var doc = new XmlDocument();
-            doc.LoadXml(contentXml);
-
-            var ns = new XmlNamespaceManager(doc.NameTable);
-            ns.AddNamespace("text", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
-            ns.AddNamespace("draw", "urn:oasis:names:tc:opendocument:xmlns:drawing:1.0");
-            ns.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
-
-            var sb = new StringBuilder();
-            sb.Append(@"{\rtf1\ansi");
-
-            foreach (XmlNode p in doc.SelectNodes("//text:p", ns))
-            {
-                sb.Append(@"\par ");
-
-                sb.Append(ParseParagraph(p, ns, archive));
-            }
-
-            sb.Append("}");
-
-            editor.Document.SetText(TextSetOptions.FormatRtf, sb.ToString());
-        }
-
-        string GetOdtText(string contentXml)
-        {
-            var doc = new System.Xml.XmlDocument();
-            doc.LoadXml(contentXml);
-
-            var nsManager = new System.Xml.XmlNamespaceManager(doc.NameTable);
-            nsManager.AddNamespace("text", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
-            nsManager.AddNamespace("office", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
-
-            var nodes = doc.SelectNodes("//text:p", nsManager);
-
-            var sb = new StringBuilder();
-
-            foreach (System.Xml.XmlNode node in nodes)
-            {
-                sb.AppendLine(node.InnerText);
-            }
-
-            return sb.ToString();
-        }
-
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
+            Window.Current.SetTitleBar(AppTitleBar);
+
             if (e.Parameter is StorageFile file)
             {
-                _currentFile = file;
+                await OpenFileAsync(file, interactive: false);
+            }
+            else if (_initialized)
+            {
+                LoadThemeFromSettings();
+                ApplyEditorSettings();
+                ApplyPageLayout();
+                UpdateViewMenuChecks();
+                TextRuler.UpdatePagePosition(true);
+            }
 
-                string ext = file.FileType.ToLower();
+            _initialized = true;
+        }
 
+        private async Task<bool> OpenFileAsync(StorageFile file, bool interactive)
+        {
+            if (file == null) return false;
+            string ext = file.FileType.ToLowerInvariant();
+
+            DocumentFileFormat format = DocumentFileFormat.Rtf;
+            BeginProgrammaticChange();
+            try
+            {
                 if (ext == ".rtf")
                 {
                     string rtf;
@@ -563,160 +1474,81 @@ namespace RectifyPad
 
                     rtf = FixRtf(rtf);
 
+                    if (_isEditorDark) rtf = RecolorRtfColorTable(rtf, blackToWhite: true);
+
                     Editor.Document.SetText(TextSetOptions.FormatRtf, rtf);
                 }
-
-                else if (ext == ".odt")
+                else if (ext == ".docx" || ext == ".odt")
                 {
-                    using (var stream = await file.OpenStreamForReadAsync())
-                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
-                    {
-                        var contentEntry = archive.GetEntry("content.xml");
-                        if (contentEntry == null) return;
-
-                        string contentXml;
-
-                        using (var s = contentEntry.Open())
-                        using (var r = new StreamReader(s))
-                            contentXml = await r.ReadToEndAsync();
-
-                        await LoadOdt(contentXml, archive, Editor);
-                    }
+                    format = ext == ".docx" ? DocumentFileFormat.Docx : DocumentFileFormat.Odt;
+                    string rtf = FixRtf(await DocumentFormats.LoadAsRtfAsync(file, format));
+                    if (_isEditorDark) rtf = RecolorRtfColorTable(rtf, blackToWhite: true);
+                    Editor.Document.SetText(TextSetOptions.FormatRtf, rtf);
+                }
+                else
+                {
+                    KeyValuePair<string, DocumentFileFormat> loaded = await DocumentFormats.LoadTextAsync(file);
+                    format = loaded.Value;
+                    Editor.Document.SetText(TextSetOptions.None, loaded.Key);
                 }
 
-                else if (ext == ".txt")
-                {
-                    string text;
+                EmbeddedObjectManager.For(Editor).Clear();
 
-                    using (var stream = await file.OpenStreamForReadAsync())
-                    using (var reader = new StreamReader(
-                        stream,
-                        Encoding.UTF8,
-                        detectEncodingFromByteOrderMarks: true,
-                        bufferSize: 1024))
-                    {
-                        text = await reader.ReadToEndAsync();
-                    }
-
-                    if (text.Contains("�"))
-                    {
-                        using (var stream = await file.OpenStreamForReadAsync())
-                        using (var reader = new StreamReader(stream, Encoding.GetEncoding(1250)))
-                        {
-                            text = await reader.ReadToEndAsync();
-                        }
-                    }
-
-                    Editor.Document.SetText(TextSetOptions.None, text);
-                }
-
-                fileNameWithPath = file.Path;
-                AppTitle.Text = file.Name + " - " + appTitleStr;
-
-                StorageApplicationPermissions.MostRecentlyUsedList.Add(file);
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace("CurrentlyOpenFile", file);
-
-                Editor.Document.GetText(TextGetOptions.None, out _lastSavedText);
-
-                ResetDirtyAfterDelay();
+                try { Editor.TextDocument.ClearUndoRedoHistory(); } catch { }
+                Editor.Document.Selection.SetRange(0, 0);
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("OpenFileAsync: " + ex.Message);
+                await new ContentDialog
+                {
+                    Title = appTitleStr,
+                    Content = Loc.Format("dlg_openfailed", "File {0} couldn't be opened.", file.Name),
+                    CloseButtonText = Loc.Get("dlg_ok", "OK")
+                }.ShowThemedAsync();
+                return false;
+            }
+            finally
+            {
+                EndProgrammaticChange();
+            }
+
+            _currentFile = file;
+            _currentFormat = format;
+            ShowFormatWarning(format == DocumentFileFormat.Docx || format == DocumentFileFormat.Odt);
+            _currentFilePath = file.Path;
+            fileNameWithPath = file.Path;
+            AppTitle.Text = file.Name + " - " + appTitleStr;
+
+            AddToRecent(file);
+            StorageApplicationPermissions.FutureAccessList.AddOrReplace("CurrentlyOpenFile", file);
+
+            Editor.Document.GetText(TextGetOptions.None, out _lastSavedText);
+            MarkClean();
+            TextRuler.RefreshFromSelection();
+            Editor.Focus(FocusState.Programmatic);
+            return true;
         }
 
         private async void Open_Click(object sender, RoutedEventArgs e)
         {
+            if (_isDirty)
+            {
+                var proceed = await ShowUnsavedDialog();
+                if (proceed != true) return;
+            }
+
             FileOpenPicker open = new FileOpenPicker();
             open.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            open.FileTypeFilter.Add(".odt");
             open.FileTypeFilter.Add(".rtf");
+            open.FileTypeFilter.Add(".docx");
+            open.FileTypeFilter.Add(".odt");
             open.FileTypeFilter.Add(".txt");
 
             StorageFile file = await open.PickSingleFileAsync();
             if (file == null) return;
 
-            _currentFile = file;
-
-            string ext = file.FileType.ToLower();
-
-            if (ext == ".rtf")
-            {
-                string rtf;
-
-                using (var stream = await file.OpenStreamForReadAsync())
-                using (var reader = new StreamReader(stream))
-                {
-                    rtf = await reader.ReadToEndAsync();
-                }
-
-                rtf = FixRtf(rtf);
-
-                Editor.Document.SetText(TextSetOptions.FormatRtf, rtf);
-            }
-
-            else if (ext == ".odt")
-            {
-                var dialog = new ContentDialog
-                {
-                    Title = "Experimental feature",
-                    Content = "Support for .odt files is experimental.\n\n" +
-                              "Formatting and images may not display correctly.\n" +
-                              "The app may become unstable with complex files.\n\n" +
-                              "Continue?",
-                    PrimaryButtonText = "Continue",
-                    CloseButtonText = "Cancel"
-                };
-
-                if (await dialog.ShowAsync() != ContentDialogResult.Primary)
-                    return;
-
-                using (var stream = await file.OpenStreamForReadAsync())
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
-                {
-                    var contentEntry = archive.GetEntry("content.xml");
-                    if (contentEntry == null) return;
-
-                    string contentXml;
-
-                    using (var s = contentEntry.Open())
-                    using (var r = new StreamReader(s))
-                        contentXml = await r.ReadToEndAsync();
-
-                    await LoadOdt(contentXml, archive, Editor);
-                }
-            }
-
-            else if (ext == ".txt")
-            {
-                string text;
-
-                using (var stream = await file.OpenStreamForReadAsync())
-                using (var reader = new StreamReader(
-                    stream,
-                    Encoding.UTF8,
-                    detectEncodingFromByteOrderMarks: true,
-                    bufferSize: 1024))
-                {
-                    text = await reader.ReadToEndAsync();
-                }
-
-                if (text.Contains("�"))
-                {
-                    using (var stream = await file.OpenStreamForReadAsync())
-                    using (var reader = new StreamReader(stream, Encoding.GetEncoding(1250)))
-                    {
-                        text = await reader.ReadToEndAsync();
-                    }
-                }
-
-                Editor.Document.SetText(TextSetOptions.None, text);
-            }
-
-            AppTitle.Text = file.Name + " - " + appTitleStr;
-            fileNameWithPath = file.Path;
-
-            StorageApplicationPermissions.MostRecentlyUsedList.Add(file);
-            StorageApplicationPermissions.FutureAccessList.AddOrReplace("CurrentlyOpenFile", file);
-            Editor.Document.GetText(TextGetOptions.None, out _lastSavedText);
-            ResetDirtyAfterDelay();
+            await OpenFileAsync(file, interactive: true);
         }
 
         private void SubscriptButton_Click(object sender, RoutedEventArgs e)
@@ -732,7 +1564,6 @@ namespace RectifyPad
         {
             Editor.FormatSelected(RichEditHelpers.FormattingMode.Strikethrough);
         }
-
 
         private void NoneNumeral_Click(object sender, RoutedEventArgs e)
         {
@@ -775,7 +1606,6 @@ namespace RectifyPad
             Editor.Document.Selection.ParagraphFormat.ListType = MarkerType.UppercaseRoman;
             Editor.Focus(FocusState.Keyboard);
         }
-
 
         private void AlignRightButton_Click(object sender, RoutedEventArgs e)
         {
@@ -821,30 +1651,31 @@ namespace RectifyPad
         }
         private void Cut_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Document.Selection.Cut();
+            CopySelection(cut: true);
         }
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Document.Selection.Copy();
+            CopySelection(cut: false);
         }
 
-        private void Paste_Click(Microsoft.UI.Xaml.Controls.SplitButton sender, Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs args)
+        private async void Paste_Click(Microsoft.UI.Xaml.Controls.SplitButton sender, Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs args)
         {
-            Editor.Document.Selection.Paste(0);
+            await PasteAsync();
         }
 
         private void ZoomSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
+            if (Zoom100MenuItem != null) Zoom100MenuItem.IsEnabled = Math.Abs(e.NewValue - 1) > 0.001;
+            if (!_applyingFit && _fitToWindowActive && FitIconCircle != null) SetFitToWindowActive(false);
+            UpdateZoomBox();
             AnimateZoomSecond(e.OldValue, e.NewValue);
         }
 
-
         private void EditorContentHost_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-
             /*
- 
+
             The status bar is slightly tinted by the mica backdrop
 
             Clipping the editor is needed, as the editor has a
@@ -860,7 +1691,6 @@ namespace RectifyPad
 
         private void ToggleButton_Checked(object sender, RoutedEventArgs e)
         {
-
         }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -892,38 +1722,25 @@ namespace RectifyPad
 
             var dialog = new ContentDialog
             {
-                Title = "Unsaved changes",
-                Content = $"Do you want to save changes to \"{fileName}\"?",
-                PrimaryButtonText = "Save",
-                SecondaryButtonText = "Don't save",
-                CloseButtonText = "Cancel",
+                Title = Loc.Get("dlg_unsaved_title", "Do you want to save your work?"),
+                Content = Loc.Format("dlg_unsaved_content", "There are unsaved changes in \u201C{0}\u201D.", fileName),
+                PrimaryButtonText = Loc.Get("dlg_save", "Save"),
+                SecondaryButtonText = Loc.Get("dlg_dontsave", "Don't save"),
+                CloseButtonText = Loc.Get("dlg_cancel", "Cancel"),
                 DefaultButton = ContentDialogButton.Primary
             };
 
-            var result = await dialog.ShowAsync();
-
-
-
+            var result = await dialog.ShowThemedAsync();
 
             if (result == ContentDialogResult.Secondary)
                 return true;
-            else if(result == ContentDialogResult.Primary)
+
+            if (result == ContentDialogResult.Primary)
             {
-                await SaveFileAsync(false, "DefaultFull");
-                return true;   
-            }
-            else if (result == ContentDialogResult.Primary && fileName == "Document")
-            {
-                await SaveFileAsync(true, "DefaultFull");
-                return true;
-            }
-            else if (result == ContentDialogResult.Primary && fileName == "Dokument")
-            {
-                await SaveFileAsync(true, "DefaultFull");
-                return true;
+                return await SaveFileAsync(false, "DefaultFull");
             }
 
-            return false;     
+            return false;
         }
 
         private void ToggleButton_Checked_2(object sender, RoutedEventArgs e)
@@ -941,124 +1758,161 @@ namespace RectifyPad
             Editor.ChangeFontSize((float)2);
         }
 
-        private void SaveAsButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveAsButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileAsync(true, "DefaultFull");
+            await SaveFileAsync(true, "DefaultFull");
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileAsync(false, "DefaultFull");
+            await SaveFileAsync(false, "DefaultFull");
         }
-
 
         private async void AddImageButton_Click(Microsoft.UI.Xaml.Controls.SplitButton sender, Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs args)
         {
             // Open an image file.
             FileOpenPicker open = new FileOpenPicker();
-            open.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            open.FileTypeFilter.Add(".png");
-            open.FileTypeFilter.Add(".jpg");
-            open.FileTypeFilter.Add(".jpeg");
+            open.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            foreach (string extension in ImageInsertHelper.SupportedExtensions) open.FileTypeFilter.Add(extension);
 
             StorageFile file = await open.PickSingleFileAsync();
 
             if (file != null)
             {
-                IRandomAccessStream randAccStream = await file.OpenAsync(FileAccessMode.Read);
-                var properties = await file.Properties.GetImagePropertiesAsync();
-                int width = (int)properties.Width;
-                int height = (int)properties.Height;
-
-                // Load the file into the Document property of the RichEditBox.
-                Editor.Document.Selection.InsertImage(width, height, 0, VerticalCharacterAlignment.Baseline, "img", randAccStream);
+                if (!await ImageInsertHelper.InsertFileAsync(Editor, file, selectPicture: true))
+                    await ImageInsertHelper.ShowLastErrorAsync();
             }
         }
 
         private StorageFile _currentFile = null;
 
-        private async Task SaveFileAsync(bool forceSaveAs, string selectedName)
+        private async Task<bool> SaveFileAsync(bool forceSaveAs, string selectedName)
         {
             StorageFile file = _currentFile;
+            DocumentFileFormat format = _currentFormat;
 
             if (forceSaveAs || file == null)
             {
+                var choices = new List<DocumentFileFormat>();
+                switch (selectedName)
+                {
+                    case "RTF": choices.Add(DocumentFileFormat.Rtf); break;
+                    case "DOCX": choices.Add(DocumentFileFormat.Docx); break;
+                    case "ODT": choices.Add(DocumentFileFormat.Odt); break;
+                    case "TXT": choices.Add(DocumentFileFormat.Text); break;
+                    case "TXTDOS": choices.Add(DocumentFileFormat.TextDos); break;
+                    case "TXTUNICODE": choices.Add(DocumentFileFormat.TextUnicode); break;
+                    case "ALL":
+                        choices.AddRange(new[] { DocumentFileFormat.Rtf, DocumentFileFormat.Docx, DocumentFileFormat.Odt,
+                            DocumentFileFormat.Text, DocumentFileFormat.TextDos, DocumentFileFormat.TextUnicode });
+                        if (choices.Remove(_currentFormat)) choices.Insert(0, _currentFormat);
+                        break;
+                    default:
+                        choices.AddRange(new[] { DocumentFileFormat.Rtf, DocumentFileFormat.Docx, DocumentFileFormat.Odt, DocumentFileFormat.Text });
+                        DocumentFileFormat current = DocumentFormats.IsText(_currentFormat) ? DocumentFileFormat.Text : _currentFormat;
+                        choices.Remove(current);
+                        choices.Insert(0, current);
+                        break;
+                }
+
                 FileSavePicker savePicker = new FileSavePicker
                 {
                     SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                    SuggestedFileName = "New Document"
+                    SuggestedFileName = file != null ? System.IO.Path.GetFileNameWithoutExtension(file.Name) : L("newdocumentname", "Document")
                 };
-
-                if (selectedName == "RTF")
+                foreach (DocumentFileFormat f in choices)
                 {
-                    savePicker.FileTypeChoices.Add("Rich Text Format", new List<string>() { ".rtf" });
-                }
-                else if (selectedName == "TXT")
-                {
-                    savePicker.FileTypeChoices.Add("Text Document", new List<string>() { ".txt" });
-                }
-                else if (selectedName == "DefaultFull")
-                {
-                    savePicker.FileTypeChoices.Add("Rich Text Format", new List<string>() { ".rtf" });
-                    savePicker.FileTypeChoices.Add("Text Document", new List<string>() { ".txt" });
+                    string ext = DocumentFormats.Extension(f);
+                    savePicker.FileTypeChoices.Add(DocumentFormats.DisplayName(f) + " (*" + ext + ")", new List<string> { ext });
                 }
 
-                file = await savePicker.PickSaveFileAsync();
-                if (file == null) return;
+                StorageFile picked = await savePicker.PickSaveFileAsync();
+                if (picked == null) return false;
 
-                _currentFile = file;
+                DocumentFileFormat newFormat = choices.Count == 1 ? choices[0] : DocumentFormats.FromExtension(picked.FileType);
+                if (selectedName == "ALL" && DocumentFormats.IsText(newFormat))
+                {
+                    DocumentFileFormat? encoding = await AskTextFormatAsync(DocumentFormats.IsText(_currentFormat) ? _currentFormat : DocumentFileFormat.Text);
+                    if (encoding == null) return false;
+                    newFormat = encoding.Value;
+                }
+                if (choices.Count > 1 && newFormat == DocumentFileFormat.Text && DocumentFormats.IsText(_currentFormat)) newFormat = _currentFormat;
+
+                if (DocumentFormats.IsText(newFormat) && !DocumentFormats.IsText(_currentFormat))
+                {
+                    var warning = new ContentDialog
+                    {
+                        Title = appTitleStr,
+                        Content = Loc.Get("dlg_textwarning", "You are about to save the document in a Text-Only format, which will remove all formatting. Are you sure you want to do this?"),
+                        PrimaryButtonText = Loc.Get("dlg_yes", "Yes"),
+                        CloseButtonText = Loc.Get("dlg_no", "No"),
+                        DefaultButton = ContentDialogButton.Primary
+                    };
+                    if (await warning.ShowThemedAsync() != ContentDialogResult.Primary) return false;
+                }
+
+                file = picked;
+                format = newFormat;
             }
 
-            CachedFileManager.DeferUpdates(file);
-
-            using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+            try
             {
-                stream.Seek(0);
+                CachedFileManager.DeferUpdates(file);
 
-                switch (file.FileType)
+                if (format == DocumentFileFormat.Rtf && !_isEditorDark)
                 {
-                    case ".txt":
-                        Editor.Document.GetText(TextGetOptions.None, out string text);
-
-                        using (var writer = new DataWriter(stream))
-                        {
-                            writer.UnicodeEncoding = UnicodeEncoding.Utf8;
-                            writer.WriteString(text);
-
-                            await writer.StoreAsync();
-                            await writer.FlushAsync();
-                        }
-                        break;
-
-                    case ".rtf":
+                    using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                    {
+                        stream.Size = 0;
+                        stream.Seek(0);
                         Editor.Document.SaveToStream(TextGetOptions.FormatRtf, stream);
-                        break;
+                    }
+                }
+                else
+                {
+                    string rtf = format == DocumentFileFormat.Rtf || !DocumentFormats.IsText(format) ? GetRtfForExport() : null;
+                    Editor.Document.GetText(TextGetOptions.None, out string text);
+                    byte[] bytes = DocumentFormats.Serialize(format, rtf, text);
+                    await FileIO.WriteBytesAsync(file, bytes);
+                }
 
-                    case ".docx":
-                        Editor.Document.SaveToStream(TextGetOptions.FormatRtf, stream);
-                        break;
+                var status = await CachedFileManager.CompleteUpdatesAsync(file);
+
+                if (status != FileUpdateStatus.Complete && status != FileUpdateStatus.CompleteAndRenamed)
+                {
+                    await new ContentDialog
+                    {
+                        Title = Loc.Get("dlg_savefailed_title", "Save failed"),
+                        Content = Loc.Format("dlg_savefailed_content", "File {0} couldn't be saved.", file.Name),
+                        CloseButtonText = Loc.Get("dlg_ok", "OK")
+                    }.ShowThemedAsync();
+                    return false;
                 }
             }
-
-            var status = await CachedFileManager.CompleteUpdatesAsync(file);
-
-            if (status != FileUpdateStatus.Complete)
+            catch (Exception ex)
             {
+                Debug.WriteLine("SaveFileAsync: " + ex.Message);
                 await new ContentDialog
                 {
-                    Title = "Save failed",
-                    Content = $"File {file.Name} couldn't be saved.",
-                    CloseButtonText = "OK"
-                }.ShowAsync();
+                    Title = Loc.Get("dlg_savefailed_title", "Save failed"),
+                    Content = Loc.Format("dlg_savefailed_content", "File {0} couldn't be saved.", file.Name) + "\n" + ex.Message,
+                    CloseButtonText = Loc.Get("dlg_ok", "OK")
+                }.ShowThemedAsync();
+                return false;
             }
+
             _currentFile = file;
+            _currentFormat = format;
+            _currentFilePath = file.Path;
+            fileNameWithPath = file.Path;
             _isDirty = false;
 
             Editor.Document.GetText(TextGetOptions.None, out _lastSavedText);
 
             AppTitle.Text = file.Name + " - " + appTitleStr;
 
-            StorageApplicationPermissions.MostRecentlyUsedList.Add(file);
+            AddToRecent(file);
+            return true;
         }
 
         private void CancelColor_Click(object sender, RoutedEventArgs e)
@@ -1077,7 +1931,6 @@ namespace RectifyPad
 
         private void RadioButton_Click(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void ItalicButton_Click(object sender, RoutedEventArgs e)
@@ -1097,16 +1950,16 @@ namespace RectifyPad
 
         private void AlignAdjustedButton_Click(object sender, RoutedEventArgs e)
         {
-
         }
 
-        private async void ParagraphButton_Click(object sender, RoutedEventArgs e)
+        private void ParagraphButton_Click(object sender, RoutedEventArgs e)
         {
             pararibbontoolbar.ShowParagraphDialog();
         }
 
         private void editor_SelectionChanged(object sender, RoutedEventArgs e)
         {
+            QueueCaretIntoView();
 
             if (Editor.Document.Selection.CharacterFormat.Size > 0)
             {
@@ -1116,13 +1969,10 @@ namespace RectifyPad
             //prevent accidental font changes when selection contains multiple styles
             updateFontFormat = false;
             updateFontFormat = true;
-            // Get a reference to the RichEditBox control
-            RichEditBox richEditBox = Editor;
         }
 
-        private async void Button_Click_3Async(object sender, RoutedEventArgs e)
+        private void Button_Click_3Async(object sender, RoutedEventArgs e)
         {
-                
         }
 
         private void DecreaseFontSize_Click(object sender, RoutedEventArgs e)
@@ -1146,7 +1996,7 @@ namespace RectifyPad
         private async void Button_Click_4Async(object sender, RoutedEventArgs e)
         {
             ContentDialog dialog = new ContentDialog();
-            dialog.Title = "Insert current date and time";
+            dialog.Title = Loc.Get("dlg_datetime_title", "Date and time");
 
             // Create a ListView for the user to select the date format
             ListView listView = new ListView();
@@ -1175,49 +2025,288 @@ namespace RectifyPad
             dialog.DefaultButton = ContentDialogButton.Primary;
 
             // Add an "Insert" button to the ContentDialog
-            dialog.PrimaryButtonText = "OK";
+            dialog.PrimaryButtonText = Loc.Get("dlg_ok", "OK");
             dialog.PrimaryButtonClick += (s, args) =>
             {
-                string selectedFormat = listView.SelectedItem as string;
+                if (listView.SelectedIndex < 0) return;
                 string formattedDate = dateFormats[listView.SelectedIndex];
                 Editor.Document.Selection.Text = formattedDate;
             };
 
             // Add a "Cancel" button to the ContentDialog
-            dialog.SecondaryButtonText = "Cancel";
+            dialog.SecondaryButtonText = Loc.Get("dlg_cancel", "Cancel");
 
             // Show the ContentDialog
-            await dialog.ShowAsync();
+            await dialog.ShowThemedAsync();
         }
 
-        private PrintHelper _printHelper;
+        private DocumentPrintHelper _printHelper;
         private DataTemplate customPrintTemplate;
         private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
         {
-            Editor.RequestedTheme = ElementTheme.Light;
-            string value = string.Empty;
-            _printHelper = new PrintHelper(EditorMandatoryPrintingGrid);
-            var printHelperOptions = new PrintHelperOptions(true);
-            printHelperOptions.Orientation = PrintOrientation.Default;
-            await _printHelper.ShowPrintUIAsync("Print Document", printHelperOptions, true);
-            Editor.RequestedTheme = ElementTheme.Default;
+            await PrintDocumentAsync();
         }
-        private void pintpreview_Click(object sender, RoutedEventArgs e)
+
+        private async Task PrintDocumentAsync()
         {
-            ribbongrid.Visibility = Visibility.Collapsed;
-            RulerBorder.Visibility = Visibility.Collapsed;
-            ZoomStack.Visibility = Visibility.Collapsed;
+            try
+            {
+                PageGeometry geometry;
+                IReadOnlyList<string> pages;
+                if (_printPreviewOpen && _printPreview != null && !_printPreview.IsBusy && _printPreview.PageCount > 0)
+                {
+                    geometry = _printPreview.Geometry;
+                    pages = _printPreview.Pages;
+                }
+                else
+                {
+                    geometry = PageGeometry.FromPageSettings();
+                    Windows.UI.Xaml.Controls.Panel measureHost = _printPreviewOpen ? (Windows.UI.Xaml.Controls.Panel)PrintPreviewHost : EditorMandatoryPrintingGrid;
+                    pages = await DocumentPaginator.PaginateAsync(Editor, measureHost, geometry, PrintRtfFilter);
+                }
+
+                _printHelper?.Dispose();
+                _printHelper = new DocumentPrintHelper(PrintCanvasHost)
+                {
+                    ApplicationContentMarginLeft = 0,
+                    ApplicationContentMarginTop = 0,
+                    PrintFullPage = true
+                };
+                _printHelper.PrintTaskCreated += PresetPaperSource;
+
+                bool numbers = PageSettings.PrintPageNumbers;
+                for (int i = 0; i < pages.Count; i++)
+                {
+                    FrameworkElement page = DocumentPaginator.CreatePage(pages[i], geometry, Editor.Style, i + 1, numbers);
+                    _printHelper.AddFrameworkElementToPrint(new Windows.UI.Xaml.Controls.Viewbox
+                    {
+                        Width = geometry.PageWidth,
+                        Height = geometry.PageHeight,
+                        Stretch = Windows.UI.Xaml.Media.Stretch.Uniform,
+                        Child = page
+                    });
+                }
+
+                var printHelperOptions = new PrintHelperOptions(true);
+                printHelperOptions.Orientation = PageSettings.IsLandscape ? PrintOrientation.Landscape : PrintOrientation.Portrait;
+                printHelperOptions.MediaSize = PageSettings.PrintMediaSizeFor(PageSettings.PaperName);
+                printHelperOptions.AddDisplayOption(StandardPrintTaskOptions.MediaSize);
+                printHelperOptions.AddDisplayOption(StandardPrintTaskOptions.InputBin);
+
+                string title = AppTitle.Text.Replace(" - " + appTitleStr, "");
+                await _printHelper.ShowPrintUIAsync(title, printHelperOptions, false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("PrintDocumentAsync: " + ex.Message);
+            }
+        }
+
+        private string PrintRtfFilter(string rtf) => _isEditorDark ? RecolorRtfColorTable(rtf, blackToWhite: false) : rtf;
+
+        private static void PresetPaperSource(PrintTask task)
+        {
+            string source = PageSettings.PaperSource;
+            if (source == "auto") return;
+            try
+            {
+                var details = Windows.Graphics.Printing.OptionDetails.PrintTaskOptionDetails.GetFromPrintTaskOptions(task.Options);
+                if (!details.Options.TryGetValue(StandardPrintTaskOptions.InputBin, out var option)) return;
+                if (!(option is Windows.Graphics.Printing.OptionDetails.IPrintItemListOptionDetails list)) return;
+
+                string[] keywords;
+                switch (source)
+                {
+                    case "manual": keywords = new[] { "manual" }; break;
+                    case "tray1": keywords = new[] { "tray1", "tray 1", "1" }; break;
+                    case "tray2": keywords = new[] { "tray2", "tray 2", "2" }; break;
+                    case "tray3": keywords = new[] { "tray3", "tray 3", "3" }; break;
+                    case "envelope": keywords = new[] { "envelope" }; break;
+                    default: return;
+                }
+
+                foreach (object item in list.Items)
+                {
+                    string text = (item as Windows.Graphics.Printing.OptionDetails.IPrintCustomOptionDetails)?.DisplayName ?? item?.ToString() ?? "";
+                    string id = item?.ToString() ?? "";
+                    string haystack = (text + " " + id).ToLowerInvariant();
+                    if (keywords.Any(k => haystack.Contains(k)))
+                    {
+                        list.TrySetValue(item);
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("PresetPaperSource: " + ex.Message);
+            }
+        }
+        #region Print preview
+
+        private PrintPreviewController _printPreview;
+        private bool _printPreviewOpen;
+
+        private async void pintpreview_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowPrintPreviewAsync();
+        }
+
+        private async Task ShowPrintPreviewAsync()
+        {
+            if (_printPreviewOpen) return;
+            _printPreviewOpen = true;
+
+            if (_printPreview == null)
+            {
+                _printPreview = new PrintPreviewController(PrintPreviewHost, PrintPreviewScroller, PrintPreviewPages);
+                _printPreview.StateChanged += UpdatePrintPreviewButtons;
+                PrintPreviewScroller.AddHandler(KeyDownEvent, new KeyEventHandler(PrintPreviewHost_KeyDown), true);
+            }
+
+            if (_toolbarOverlayOpen) HideToolbarOverlay();
+            _pictureAdorner?.Hide();
+            PictureAdornerCanvas.Visibility = Visibility.Collapsed;
             Editor.IsEnabled = false;
+
             PrintPreviewRibbon.Visibility = Visibility.Visible;
+            PrintPreviewHost.Visibility = Visibility.Visible;
+            SetDocumentViewHidden(true);
+            ApplyToolbarMode();
+            ApplyRulerVisibility();
+            ApplyStatusBarVisibility();
+            ZoomStack.Visibility = Visibility.Collapsed;
+
+            PrintPreviewProgress.IsActive = true;
+            UpdatePrintPreviewButtons();
+            PrintPreviewScroller.Focus(FocusState.Programmatic);
+            try
+            {
+                await _printPreview.ShowAsync(Editor, PrintRtfFilter);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ShowPrintPreviewAsync: " + ex.Message);
+            }
+            finally
+            {
+                PrintPreviewProgress.IsActive = false;
+                UpdatePrintPreviewButtons();
+            }
         }
-        private void closeprintpreviewclick(object sender, RoutedEventArgs e)
+
+        private void SetDocumentViewHidden(bool hidden)
         {
-            ribbongrid.Visibility = Visibility.Visible;
-            RulerBorder.Visibility = Visibility.Visible;
+            foreach (UIElement e in new UIElement[] { EditorContentHost, FormatWarningBar, DocTreeBorder, RulerGuideCanvas, RulerBorder })
+            {
+                if (e == null) continue;
+                e.Opacity = hidden ? 0 : 1;
+                e.IsHitTestVisible = !hidden;
+            }
+            if (!hidden) RulerGuideCanvas.IsHitTestVisible = false;
+        }
+
+        private void ClosePrintPreview()
+        {
+            if (!_printPreviewOpen) return;
+            _printPreviewOpen = false;
+            _printPreview?.Clear();
+
+            PrintPreviewProgress.IsActive = false;
+            PrintPreviewHost.Visibility = Visibility.Collapsed;
+            PrintPreviewRibbon.Visibility = Visibility.Collapsed;
+            SetDocumentViewHidden(false);
             ZoomStack.Visibility = Visibility.Visible;
             Editor.IsEnabled = true;
-            PrintPreviewRibbon.Visibility = Visibility.Collapsed;
+            PictureAdornerCanvas.Visibility = Visibility.Visible;
+
+            ApplyToolbarMode();
+            ApplyRulerVisibility();
+            ApplyStatusBarVisibility();
+            Editor.Focus(FocusState.Programmatic);
+            _pictureAdorner?.Update();
         }
+
+        private void closeprintpreviewclick(object sender, RoutedEventArgs e)
+        {
+            ClosePrintPreview();
+        }
+
+        private void UpdatePrintPreviewButtons()
+        {
+            PrintPreviewController p = _printPreview;
+            bool ready = p != null && !p.IsBusy && p.PageCount > 0;
+            SetPreviewButtonEnabled(PrintPreviewPrintButton, ready);
+            SetPreviewButtonEnabled(PrintPreviewZoom100Button, ready);
+            SetPreviewButtonEnabled(PrintPreviewOnePageButton, ready && p.CanShowOnePage);
+            SetPreviewButtonEnabled(PrintPreviewTwoPagesButton, ready && p.CanShowTwoPages);
+            SetPreviewButtonEnabled(PrintPreviewPrevButton, ready && p.CanGoBack);
+            SetPreviewButtonEnabled(PrintPreviewNextButton, ready && p.CanGoForward);
+            SetPreviewButtonEnabled(closeprintpreview, true);
+
+            SetPreviewButtonSelected(PrintPreviewOnePageButton, ready && !p.TwoPages);
+            SetPreviewButtonSelected(PrintPreviewTwoPagesButton, ready && p.TwoPages);
+
+            string pageText = "";
+            if (ready)
+            {
+                int first = p.CurrentPage + 1;
+                int last = Math.Min(p.PageCount, first + (p.TwoPages ? 1 : 0));
+                pageText = last > first
+                    ? Loc.Format("pp_pages", "Pages {0}-{1}", first, last)
+                    : Loc.Format("pp_page", "Page {0}", first);
+            }
+            PrintPreviewPageText.Text = pageText;
+        }
+
+        private static void SetPreviewButtonEnabled(Windows.UI.Xaml.Controls.Button button, bool enabled)
+        {
+            button.IsEnabled = enabled;
+            if (!(button.Content is Windows.UI.Xaml.Controls.Viewbox box) || !(box.Child is Windows.UI.Xaml.Controls.Canvas canvas)) return;
+            box.Opacity = enabled ? 1.0 : 0.4;
+
+            var paths = canvas.Children.OfType<Windows.UI.Xaml.Shapes.Path>().ToList();
+            Windows.UI.Xaml.Shapes.Path plain = paths.FirstOrDefault(x => !"accent".Equals(x.Tag));
+            foreach (Windows.UI.Xaml.Shapes.Path path in paths.Where(x => "accent".Equals(x.Tag)))
+            {
+                if (path.Tag is string && path.Resources.Count == 0)
+                    path.Resources["AccentStroke"] = path.Stroke;
+                path.Stroke = enabled || plain == null ? (Windows.UI.Xaml.Media.Brush)path.Resources["AccentStroke"] : (plain.Stroke ?? plain.Fill);
+            }
+        }
+
+        private void SetPreviewButtonSelected(Windows.UI.Xaml.Controls.Button button, bool selected)
+        {
+            if (selected)
+            {
+                button.Background = PreviewSelectedBrushes.Background;
+                button.BorderBrush = PreviewSelectedBrushes.BorderBrush;
+            }
+            else
+            {
+                button.ClearValue(Windows.UI.Xaml.Controls.Control.BackgroundProperty);
+                button.ClearValue(Windows.UI.Xaml.Controls.Control.BorderBrushProperty);
+            }
+        }
+
+        private void PrintPreviewZoom100_Click(object sender, RoutedEventArgs e) => _printPreview?.ShowActualSize();
+        private void PrintPreviewOnePage_Click(object sender, RoutedEventArgs e) => _printPreview?.ShowOnePage();
+        private void PrintPreviewTwoPages_Click(object sender, RoutedEventArgs e) => _printPreview?.ShowTwoPages();
+        private void PrintPreviewPrev_Click(object sender, RoutedEventArgs e) => _printPreview?.GoBack();
+        private void PrintPreviewNext_Click(object sender, RoutedEventArgs e) => _printPreview?.GoForward();
+
+        private void PrintPreviewHost_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Escape)
+            {
+                ClosePrintPreview();
+                e.Handled = true;
+                return;
+            }
+            if (_printPreview != null && _printPreview.HandleKey(e.Key)) e.Handled = true;
+        }
+
+        #endregion
 
         bool isTextChanged = false;
         private readonly bool isCopy;
@@ -1231,31 +2320,53 @@ namespace RectifyPad
                 var result = await ShowUnsavedDialog();
                 if (result == true)
                 {
-                    ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                    await ApplicationView.GetForCurrentView().TryConsolidateAsync();
                 }
             }
         }
 
         private async void SaveAsRTF_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileAsync(true, "RTF");
+            await SaveFileAsync(true, "RTF");
         }
 
         private async void SaveAsDOCX_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileAsync(true, "DefaultFull");
-            // Should be changed from DefaultFull to DOCX once .docx save support is added
+            await SaveFileAsync(true, "DOCX");
         }
 
         private async void SaveAsODT_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileAsync(true, "DefaultFull");
-            // Should be changed from DefaultFull to ODT once .odt save support is added
+            await SaveFileAsync(true, "ODT");
+        }
+
+        private async Task<DocumentFileFormat?> AskTextFormatAsync(DocumentFileFormat preselected)
+        {
+            var formats = new[] { DocumentFileFormat.Text, DocumentFileFormat.TextDos, DocumentFileFormat.TextUnicode };
+            var list = new Microsoft.UI.Xaml.Controls.RadioButtons();
+            foreach (DocumentFileFormat f in formats) list.Items.Add(DocumentFormats.DisplayName(f));
+            list.SelectedIndex = Math.Max(0, Array.IndexOf(formats, preselected));
+
+            var dialog = new ContentDialog
+            {
+                Title = Loc.Get("dlg_textformat_title", "Save as type"),
+                Content = list,
+                PrimaryButtonText = Loc.Get("dlg_ok", "OK"),
+                CloseButtonText = Loc.Get("dlg_cancel", "Cancel"),
+                DefaultButton = ContentDialogButton.Primary
+            };
+            if (await dialog.ShowThemedAsync() != ContentDialogResult.Primary) return null;
+            return formats[Math.Max(0, list.SelectedIndex)];
+        }
+
+        private async void SaveAsFormat_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement item && item.Tag is string type) await SaveFileAsync(true, type);
         }
 
         private async void SaveAsTXT_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileAsync(true, "TXT");
+            await SaveFileAsync(true, "TXT");
         }
 
         private void DisableDocTree()
@@ -1272,11 +2383,6 @@ namespace RectifyPad
             Grid.SetColumn(RulerBorder, 1);
         }
 
-        private async void SaveAsOther_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileAsync(true, "DefaultFull");
-        }
-
         private async void NewDoc_Click(object sender, RoutedEventArgs e)
         {
             if (_isDirty)
@@ -1286,12 +2392,29 @@ namespace RectifyPad
                     return;
             }
 
-            Editor.Document.SetText(TextSetOptions.None, string.Empty);
+            BeginProgrammaticChange();
+            try
+            {
+                Editor.Document.SetText(TextSetOptions.None, string.Empty);
+                EmbeddedObjectManager.For(Editor).Clear();
+                try { Editor.TextDocument.ClearUndoRedoHistory(); } catch { }
+            }
+            finally
+            {
+                EndProgrammaticChange();
+            }
+
+            _currentFile = null;
+            _currentFormat = DocumentFileFormat.Rtf;
+            ShowFormatWarning(false);
             _currentFilePath = null;
+            fileNameWithPath = "";
+            AppTitle.Text = _untitledTitle;
             MarkClean();
+            TextRuler.RefreshFromSelection();
         }
 
-        private async void SendButton_Click(object sender, RoutedEventArgs e)
+        private void SendButton_Click(object sender, RoutedEventArgs e)
         {
             DataTransferManager.ShowShareUI();
         }
@@ -1314,27 +2437,27 @@ namespace RectifyPad
 
         private void AnimateZoomSecond(double fromValue, double toValue)
         {
-            RichTextScrollView.ChangeView(0, 0, (float)ZoomSlider.Value);
-            float zoom = (float)ZoomSlider.Value;
-            TextRuler.Width = 814 * zoom;
+            if (RichTextScrollView == null) return;
+            RichTextScrollView.ChangeView(null, null, (float)ZoomSlider.Value);
+            if (PageSettings.Wrap == WrapMode.WrapToWindow) ApplyPageLayout();
         }
 
         private void MenuCut_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Document.Selection.Cut();
+            CopySelection(cut: true);
         }
 
         private void MenuCopy_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Document.Selection.Copy();
+            CopySelection(cut: false);
         }
 
-        private void MenuPaste_Click(object sender, RoutedEventArgs e)
+        private async void MenuPaste_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Document.Selection.Paste(0);
+            await PasteAsync();
         }
 
-        private async void MenuParagraph_Click(object sender, RoutedEventArgs e)
+        private void MenuParagraph_Click(object sender, RoutedEventArgs e)
         {
             pararibbontoolbar.ShowParagraphDialog();
         }
@@ -1353,66 +2476,8 @@ namespace RectifyPad
             _isDirty = false;
         }
 
-        private void SetParagraphIndents(float leftIndent, float rightIndent, float firstLineIndent, bool applyToSelectionOnly = true)
-        {
-            // Get the ITextDocument interface for the RichEditBox's document
-            ITextDocument document = Editor.Document;
-
-            // Get the current selection's start and end positions
-            int start = document.Selection.StartPosition;
-            int end = document.Selection.EndPosition;
-
-            // If applyToSelectionOnly is true, check if there's any selected text in the RichEditBox
-            if (applyToSelectionOnly && start == end)
-            {
-                //return;
-            }
-
-            // Get the ITextRange interface for the selection or the entire document
-            ITextRange textRange;
-            if (applyToSelectionOnly)
-            {
-                textRange = document.Selection;
-            }
-            else
-            {
-                textRange = document.GetRange(0, GetText(Editor).Length);
-            }
-
-            // Get the ITextParagraphFormat interface for the text range
-            ITextParagraphFormat paragraphFormat = textRange.ParagraphFormat;
-
-            // Set the left and right indents for the current selection's paragraph(s)
-            try
-            {
-                if (document.Selection.Length != 0)
-                {
-                    paragraphFormat.SetIndents(firstLineIndent, leftIndent, rightIndent);
-                }
-                else
-                {
-                    document.GetRange(document.Selection.StartPosition, document.Selection.EndPosition + 1);
-                    paragraphFormat.SetIndents(firstLineIndent, leftIndent, rightIndent);
-                }
-            }
-            catch
-            {
-
-            }
-
-            // Apply the new paragraph format to the current selection or the entire document
-            textRange.ParagraphFormat = paragraphFormat;
-
-            // LeftIndent.Text = leftIndent.ToString();
-
-            // RightIndent.Text = rightIndent.ToString();
-        }
-
-        
-
         private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void PageSetup_Click(object sender, RoutedEventArgs e)
@@ -1420,90 +2485,24 @@ namespace RectifyPad
             openpageprop();
         }
 
-        private async void opennotimplement() 
+        private async void opennotimplement()
         {
             // Create an instance of the ParagraphDialog
             NoImplement noimple = new NoImplement();
 
             // Show the dialog and wait for the user's input
-            ContentDialogResult result = await noimple.ShowAsync();
+            ContentDialogResult result = await noimple.ShowThemedAsync();
         }
 
         private async void openpageprop()
         {
-            // Create an instance of the ParagraphDialog
             Pageprop pageprop = new Pageprop();
+            ContentDialogResult result = await pageprop.ShowThemedAsync();
 
-            // Show the dialog and wait for the user's input
-            ContentDialogResult result = await pageprop.ShowAsync();
-
-            // If the user clicked the OK button, adjust the properties of the RichEditBox
             if (result == ContentDialogResult.Primary)
             {
-
-                // Get the values from the dialog's TextBoxes and ComboBoxes
-                TextBox LeftMarginTextBox = (TextBox)pageprop.FindName("LeftMarginTextBox");
-                TextBox RightMarginTextBox = (TextBox)pageprop.FindName("RightMarginTextBox");
-                TextBox TopMarginTextBox = (TextBox)pageprop.FindName("TopMarginTextBox");
-                TextBox BottomMarginTextBox = (TextBox)pageprop.FindName("BottomMarginTextBox");
-
-                TextBlock marginsname = (TextBlock)pageprop.FindName("marginsname");
-
-                ComboBox PaperTypeCombo = (ComboBox)pageprop.FindName("PaperTypeCombo");
-                RadioButton orientationportait = (RadioButton)pageprop.FindName("orientationportait");
-                CheckBox printpagenumbers = (CheckBox)pageprop.FindName("printpagenumbers");
-
-                // Save the selected paper size and orientation
-                var settings = ApplicationData.Current.LocalSettings;
-                if (PaperTypeCombo.SelectedItem != null)
-                {
-                    string selectedPaperSize = (PaperTypeCombo.SelectedItem as ComboBoxItem).Content.ToString();
-                    settings.Values["papersize"] = selectedPaperSize;
-                }
-
-                settings.Values["orientation"] = orientationportait.IsChecked == true ? "Portrait" : "Landscape";
-
-                // Save margin values
-                // settings.Values["pagesetupLmargin"] = unitConverter.ConvertToUnit(double.Parse(LeftMarginTextBox.Text), marginsname.Text);
-                // settings.Values["pagesetupRmargin"] = unitConverter.ConvertToUnit(double.Parse(RightMarginTextBox.Text), marginsname.Text);
-                // settings.Values["pagesetupTmargin"] = unitConverter.ConvertToUnit(double.Parse(TopMarginTextBox.Text), marginsname.Text);
-                // settings.Values["pagesetupBmargin"] = unitConverter.ConvertToUnit(double.Parse(BottomMarginTextBox.Text), marginsname.Text);
-
-                // Save Print Page Numbers setting
-                settings.Values["isprintpagenumbers"] = printpagenumbers.IsChecked == true ? "yes" : "no";
-
-                Dictionary<string, (double Width, double Height)> paperSizes = pageprop.paperSizes;
-
-                string selectedPaperSizea = (PaperTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
-                if (!string.IsNullOrEmpty(selectedPaperSizea) && paperSizes.TryGetValue(selectedPaperSizea, out var dimensions))
-                {
-                    double originalWidth = 812; // Original RichEditBox width
-                    double originalHeight = 1116; // Original RichEditBox height
-
-                    double width = dimensions.Width;
-                    double height = dimensions.Height;
-
-                    // Calculate the scaling factors for width and height to maintain the aspect ratio
-                    double widthScaleFactor = width / originalWidth;
-                    double heightScaleFactor = height / originalHeight;
-
-                    // Determine the scaling factor that fits the width within the original width
-                    double widthFitScaleFactor = originalWidth / width;
-
-                    // Determine the scaling factor that fits the height within the original height
-                    double heightFitScaleFactor = originalHeight / height;
-
-                    // Choose the minimum scaling factor to ensure the content fits entirely within the original dimensions
-                    double minScaleFactor = Math.Min(widthFitScaleFactor, heightFitScaleFactor);
-
-                    // Apply the minimum scaling factor to both width and height to maintain the aspect ratio
-                    width *= minScaleFactor;
-                    height *= minScaleFactor;
-
-                    // Set the UWP's RichEditBox width and height
-                    // EditorGrid.Width = width;
-                    // EditorGrid.Height = height;
-                }
+                pageprop.Save();
+                ApplyPageLayout();
             }
         }
 
@@ -1514,7 +2513,37 @@ namespace RectifyPad
 
         private void Editor_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // RulerBorder.Width = Editor.Width;
+            TextRuler.UpdatePagePosition();
+        }
+
+        private void QueueCaretIntoView()
+        {
+            if (_caretScrollQueued || _printPreviewOpen || (_pictureAdorner?.IsDragging ?? false)) return;
+            _caretScrollQueued = true;
+            _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
+            {
+                _caretScrollQueued = false;
+                try
+                {
+                    if (FocusManager.GetFocusedElement() != Editor) return;
+                    ITextSelection sel = Editor.Document.Selection;
+                    ITextRange caret = Editor.Document.GetRange(sel.EndPosition, sel.EndPosition);
+                    caret.GetRect(PointOptions.ClientCoordinates, out Rect r, out _);
+                    if (r.Height <= 0) return;
+                    Rect v = EditorCoordinates.FromClient(Editor, RichTextScrollView, r);
+                    double viewH = RichTextScrollView.ViewportHeight;
+                    const double pad = 24;
+                    double offset = RichTextScrollView.VerticalOffset;
+                    if (v.Bottom > viewH) offset += v.Bottom - viewH + pad;
+                    else if (v.Top < 0) offset += v.Top - pad;
+                    else return;
+                    RichTextScrollView.ChangeView(null, Math.Max(0, offset), null, true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("QueueCaretIntoView: " + ex.Message);
+                }
+            });
         }
 
         private void SelectWord(RichEditBox box, bool forward)
@@ -1533,13 +2562,7 @@ namespace RectifyPad
 
         private async void PrintPreviewPrintButton_Click(object sender, RoutedEventArgs e)
         {
-            Editor.RequestedTheme = ElementTheme.Light;
-            string value = string.Empty;
-            _printHelper = new PrintHelper(EditorMandatoryPrintingGrid);
-            var printHelperOptions = new PrintHelperOptions(true);
-            printHelperOptions.Orientation = PrintOrientation.Default;
-            await _printHelper.ShowPrintUIAsync("Print Document", printHelperOptions, true);
-            Editor.RequestedTheme = ElementTheme.Default;
+            await PrintDocumentAsync();
         }
 
         private async void Button_Click_2(object sender, RoutedEventArgs e)
@@ -1554,35 +2577,41 @@ namespace RectifyPad
         async void DataTransferManager_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
             DataRequest request = args.Request;
-            request.Data.Properties.Title = "My Custom Subject";
+            var deferral = request.GetDeferral();
+            try
+            {
+                request.Data.Properties.Title = AppTitle.Text.Replace(" - " + appTitleStr, "");
 
-            // Retrieve the RTF content from the RichEditBox.
-            string rtfContent;
-            Editor.Document.GetText(Windows.UI.Text.TextGetOptions.FormatRtf, out rtfContent);
+                DocumentFileFormat format = _currentFormat;
+                string ext = DocumentFormats.Extension(format);
+                string baseName = _currentFile != null
+                    ? System.IO.Path.GetFileNameWithoutExtension(_currentFile.Name)
+                    : L("newdocumentname", "Document");
+                string rtf = format == DocumentFileFormat.Rtf || !DocumentFormats.IsText(format) ? GetRtfForExport() : null;
+                Editor.Document.GetText(TextGetOptions.None, out string text);
+                byte[] bytes = DocumentFormats.Serialize(format, rtf, text);
 
-            // Access the temporary folder.
-            var storageFolder = Windows.Storage.ApplicationData.Current.TemporaryFolder;
-            var fileName = "Document.rtf";
+                var storageFolder = Windows.Storage.ApplicationData.Current.TemporaryFolder;
+                var rtfFile = await storageFolder.CreateFileAsync(baseName + ext, Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                await Windows.Storage.FileIO.WriteBytesAsync(rtfFile, bytes);
 
-            // Create a new file.
-            var rtfFile = await storageFolder.CreateFileAsync(fileName, Windows.Storage.CreationCollisionOption.ReplaceExisting);
-
-            // Write the RTF content to the new file.
-            await Windows.Storage.FileIO.WriteTextAsync(rtfFile, rtfContent);
-
-            // Attach the file to the DataRequest.
-            request.Data.SetStorageItems(new List<Windows.Storage.IStorageItem> { rtfFile });
+                // Attach the file to the DataRequest.
+                request.Data.SetStorageItems(new List<Windows.Storage.IStorageItem> { rtfFile });
+            }
+            finally
+            {
+                deferral.Complete();
+            }
         }
-
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(SettingsPage));
         }
 
-        private void QuickPrint_Click(object sender, RoutedEventArgs e)
+        private async void QuickPrint_Click(object sender, RoutedEventArgs e)
         {
-
+            await PrintDocumentAsync();
         }
 
         private void CloseMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
@@ -1595,6 +2624,8 @@ namespace RectifyPad
             var format = Editor.Document.GetDefaultParagraphFormat();
             format.ListStart = 1;
             Editor.Document.SetDefaultParagraphFormat(format);
+            HookEditorScrollViewer();
+            TextRuler.UpdatePagePosition(true);
         }
 
         private int FindWordStart(RichEditBox richEditBox, int position)
@@ -1631,7 +2662,6 @@ namespace RectifyPad
             shadow.Receivers.Add(TextRuler);
         }
 
-
         private bool IsPunctuation(char c)
         {
             return char.IsPunctuation(c);
@@ -1642,7 +2672,7 @@ namespace RectifyPad
             RichEditBox richEditBox = sender as RichEditBox;
             bool ctrl = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
             bool shift = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
-            
+
             if (e.Key == VirtualKey.Tab)
             {
                 if (richEditBox != null)

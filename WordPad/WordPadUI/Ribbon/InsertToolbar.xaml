@@ -39,18 +39,18 @@
                     </Grid>
                 </Button.Content>
                 <Button.Flyout>
-                    <MenuFlyout Placement="Bottom">
+                    <MenuFlyout Placement="Bottom" Opening="PictureMenu_Opening">
                         <MenuFlyoutItem x:Name="MenuPicture" x:Uid="menupicture" Click="InsertImageButton_Click">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xe91b;" FontFamily="Segoe Fluent Icons" FontSize="22" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
-                        <MenuFlyoutItem x:Name="MenuChangePicture" IsEnabled="False" x:Uid="menuchangepicture">
+                        <MenuFlyoutItem x:Name="MenuChangePicture" IsEnabled="False" x:Uid="menuchangepicture" Click="MenuChangePicture_Click">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="" FontFamily="Segoe Fluent Icons" FontSize="22" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
-                        <MenuFlyoutItem x:Name="MenuResizePicture" IsEnabled="False" x:Uid="menuresizepicture">
+                        <MenuFlyoutItem x:Name="MenuResizePicture" IsEnabled="False" x:Uid="menuresizepicture" Click="MenuResizePicture_Click">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="" FontFamily="Segoe Fluent Icons" FontSize="22" />
                             </MenuFlyoutItem.Icon>
@@ -64,7 +64,7 @@
             <Button x:Name="InsertImageButtona"  Style="{StaticResource PaintUIButtonStyle}" Click="InsertImageButton_Click" HorizontalAlignment="Stretch" Height="32" VerticalAlignment="Center" >
 
                 <Grid Height="22" Width="22" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,2">
-                    <Image Width="24" Height="22" Source="{Binding Source={ThemeResource Image}}" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    <Image Width="24" Height="22" Source="{ThemeResource Image}" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 </Grid>
                 <ToolTipService.ToolTip>
                     <ToolTip Content="Picture" x:Uid="TooltipPicture"/>
@@ -79,7 +79,7 @@
      Grid.Column="3" Click="InsertDateAndTimeButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="2"
      >
                 <Grid>
-                    <Image Width="22" Height="22" Source="{Binding Source={ThemeResource Date}}" VerticalAlignment="Top" Stretch="UniformToFill" HorizontalAlignment="Center" />
+                    <Image Width="22" Height="22" Source="{ThemeResource Date}" VerticalAlignment="Top" Stretch="UniformToFill" HorizontalAlignment="Center" />
                 </Grid>
                 <ToolTipService.ToolTip>
                     <ToolTip Content="Date and time" x:Uid="TooltipDateTime" />
@@ -94,7 +94,7 @@
      Grid.Column="2" Click="InsertObjectButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button.Content>
                     <Grid>
-                        <Image Width="22" Height="22" Source="{Binding Source={ThemeResource Objects}}" VerticalAlignment="Center" Stretch="Fill" HorizontalAlignment="Center" />
+                        <Image Width="22" Height="22" Source="{ThemeResource Objects}" VerticalAlignment="Center" Stretch="Fill" HorizontalAlignment="Center" />
                     </Grid>
                 </Button.Content>
                 <ToolTipService.ToolTip>
@@ -108,7 +108,7 @@ MaxWidth="32"
 Height="32"
 Grid.Column="1" Click="InsertPaintImageButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid>
-                    <Image Width="22" Height="22" Source="{Binding Source={ThemeResource PaintImage}}" VerticalAlignment="Center" Stretch="Fill" HorizontalAlignment="Center" />
+                    <Image Width="22" Height="22" Source="{ThemeResource PaintImage}" VerticalAlignment="Center" Stretch="Fill" HorizontalAlignment="Center" />
                 </Grid>
                 <ToolTipService.ToolTip>
                     <ToolTip Content="Paint drawing" x:Uid="TooltipPaint" />

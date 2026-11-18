@@ -13,7 +13,9 @@
     PrimaryButtonText="Tabs..."
     DefaultButton="Secondary"
     SecondaryButtonText="OK"
-    CloseButtonText="Cancel">
+    CloseButtonText="Cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition>
@@ -66,13 +68,8 @@
             </Grid.ColumnDefinitions>
             <TextBlock x:Uid="spacing" Margin="0,16,0,7" Grid.Row="0" FontSize="14" Text="Spacing" Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold"/>
             <TextBlock x:Uid="linespacing" Margin="0,16,0,7" Grid.Row="1" FontSize="14" Text="Line spacing:" Grid.ColumnSpan="2" />
-            <ComboBox x:Name="LineSpacingCombo" Grid.Row="1" Grid.ColumnSpan="2" Width="135" HorizontalAlignment="Right" Margin="0,8,0,0">
-                <x:String>1,00</x:String>
-                <x:String>1,15</x:String>
-                <x:String>1,50</x:String>
-                <x:String>2,00</x:String>
-            </ComboBox>
-            <CheckBox x:Uid="addspace" Content="Add 10pt space after paragraphs" Grid.Row="2" Margin="0,3,0,10" />
+            <ComboBox x:Name="LineSpacingCombo" Grid.Row="1" Grid.ColumnSpan="2" Width="135" HorizontalAlignment="Right" Margin="0,8,0,0" />
+            <CheckBox x:Name="AddSpaceCheckBox" x:Uid="addspace" Content="Add 10pt space after paragraphs" Grid.Row="2" Margin="0,3,0,10" />
         </Grid>
         <Grid Grid.Row="2"  BorderThickness="0,0,0,1">
             <Grid.RowDefinitions>

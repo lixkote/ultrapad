@@ -312,7 +312,7 @@
   <data name="qprint.Text" xml:space="preserve">
     <value>Hızlı yazdır</value>
   </data>
-  <data name="redobuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="redobuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Yinele</value>
   </data>
   <data name="saveasdocx.Text" xml:space="preserve">
@@ -322,19 +322,19 @@
     <value>Zengin Metin belgesi</value>
     <comment>Save the document in the Rich Text Format</comment>
   </data>
-  <data name="savebutton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="savebutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Kaydet (Ctrl+S)</value>
   </data>
   <data name="sharebuttonmenu.Text" xml:space="preserve">
     <value>Paylaş</value>
   </data>
-  <data name="sharebuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="sharebuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Paylaş</value>
   </data>
-  <data name="toolbarsetbutton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="toolbarsetbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Ayarlar</value>
   </data>
-  <data name="undobuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="undobuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Geri Al</value>
   </data>
   <data name="saveasodt.Text" xml:space="preserve">

@@ -312,7 +312,7 @@
   <data name="qprint.Text" xml:space="preserve">
     <value>Quick print</value>
   </data>
-  <data name="redobuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="redobuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Redo</value>
   </data>
   <data name="saveasdocx.Text" xml:space="preserve">
@@ -322,19 +322,19 @@
     <value>Rich Text document</value>
     <comment>Save the document in the Rich Text Format</comment>
   </data>
-  <data name="savebutton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="savebutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Save (Ctrl+S)</value>
   </data>
   <data name="sharebuttonmenu.Text" xml:space="preserve">
     <value>Share</value>
   </data>
-  <data name="sharebuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="sharebuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Share</value>
   </data>
-  <data name="toolbarsetbutton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="toolbarsetbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="undobuttontoolbar.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="undobuttontoolbar.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Undo</value>
   </data>
   <data name="saveasodt.Text" xml:space="preserve">
@@ -342,9 +342,6 @@
   </data>
   <data name="saveastxt.Text" xml:space="preserve">
     <value>Plain text document</value>
-  </data>
-  <data name="saveasother.Text" xml:space="preserve">
-    <value>Other formats</value>
   </data>
   <data name="closebuttonmenu.Text" xml:space="preserve">
     <value>Close</value>
@@ -377,7 +374,7 @@
     <value>Measurement units</value>
   </data>
   <data name="sysradio.Content" xml:space="preserve">
-    <value>System theme</value>
+    <value>Use system setting</value>
   </data>
   <data name="lightradio.Content" xml:space="preserve">
     <value>Light</value>
@@ -486,5 +483,605 @@
   </data>
   <data name="cut.Text" xml:space="preserve">
     <value>Cut</value>
+  </data>
+  <data name="vw_zoomin.Text" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="vw_zoomout.Text" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
+  <data name="vw_autohidetoolbar.Text" xml:space="preserve">
+    <value>Automatically hide toolbar</value>
+  </data>
+  <data name="vw_wordwrap.Text" xml:space="preserve">
+    <value>Word wrap</value>
+  </data>
+  <data name="vw_nowrap.Text" xml:space="preserve">
+    <value>No wrap</value>
+  </data>
+  <data name="vw_wrapwindow.Text" xml:space="preserve">
+    <value>Wrap to window</value>
+  </data>
+  <data name="vw_wrapruler.Text" xml:space="preserve">
+    <value>Wrap to ruler</value>
+  </data>
+  <data name="vw_units.Text" xml:space="preserve">
+    <value>Measurement units</value>
+  </data>
+  <data name="vw_inches.Text" xml:space="preserve">
+    <value>Inches</value>
+  </data>
+  <data name="vw_cm.Text" xml:space="preserve">
+    <value>Centimeters</value>
+  </data>
+  <data name="vw_points.Text" xml:space="preserve">
+    <value>Points</value>
+  </data>
+  <data name="vw_picas.Text" xml:space="preserve">
+    <value>Picas</value>
+  </data>
+  <data name="showtoolbar.Text" xml:space="preserve">
+    <value>Show toolbar</value>
+  </data>
+  <data name="toolbaroptions.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Toolbar options</value>
+  </data>
+  <data name="alwaysshowtoolbar.Text" xml:space="preserve">
+    <value>Always show toolbar</value>
+  </data>
+  <data name="autohidetoolbar.Text" xml:space="preserve">
+    <value>Automatically hide toolbar</value>
+  </data>
+  <data name="addspacemenu.Text" xml:space="preserve">
+    <value>Add 10pt space after paragraphs</value>
+  </data>
+  <data name="spellNoSuggestions" xml:space="preserve">
+    <value>(No spelling suggestions)</value>
+  </data>
+  <data name="spellAddToDictionary" xml:space="preserve">
+    <value>Add to dictionary</value>
+  </data>
+  <data name="norecent" xml:space="preserve">
+    <value>No recent documents</value>
+  </data>
+  <data name="recentmissing" xml:space="preserve">
+    <value>The file could not be found. It may have been moved or deleted.</value>
+  </data>
+  <data name="vw_zoom.Text" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="vw_fit.Text" xml:space="preserve">
+    <value>Fit to window</value>
+  </data>
+  <data name="vw_fullscreen.Text" xml:space="preserve">
+    <value>Full screen</value>
+  </data>
+  <data name="hidetoolbar.Text" xml:space="preserve">
+    <value>Hide toolbar</value>
+  </data>
+  <data name="fittowindowbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Fit to window</value>
+  </data>
+  <data name="papersourcelabel.Text" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="papersource_auto" xml:space="preserve">
+    <value>Automatically select</value>
+  </data>
+  <data name="papersource_manual" xml:space="preserve">
+    <value>Manual feed</value>
+  </data>
+  <data name="papersource_tray1" xml:space="preserve">
+    <value>Tray 1</value>
+  </data>
+  <data name="papersource_tray2" xml:space="preserve">
+    <value>Tray 2</value>
+  </data>
+  <data name="papersource_tray3" xml:space="preserve">
+    <value>Tray 3</value>
+  </data>
+  <data name="papersource_envelope" xml:space="preserve">
+    <value>Envelope feed</value>
+  </data>
+  <data name="createNew.Content" xml:space="preserve">
+    <value>Create new</value>
+  </data>
+  <data name="createFile.Content" xml:space="preserve">
+    <value>Create from file</value>
+  </data>
+  <data name="objecttypelabel.Text" xml:space="preserve">
+    <value>Object type:</value>
+  </data>
+  <data name="objectfilelabel.Text" xml:space="preserve">
+    <value>File:</value>
+  </data>
+  <data name="objectbrowse.Content" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="displayasicon.Content" xml:space="preserve">
+    <value>Display as icon</value>
+  </data>
+  <data name="objectresult.Text" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="objtype_bitmap" xml:space="preserve">
+    <value>Bitmap Image</value>
+  </data>
+  <data name="objtype_package" xml:space="preserve">
+    <value>Package</value>
+  </data>
+  <data name="objtype_paint" xml:space="preserve">
+    <value>Paint Picture</value>
+  </data>
+  <data name="objtype_table" xml:space="preserve">
+    <value>Table</value>
+  </data>
+  <data name="objresult_new" xml:space="preserve">
+    <value>Inserts a new {0} object into your document.</value>
+  </data>
+  <data name="objresult_paint" xml:space="preserve">
+    <value>The picture opens in Paint. Save it there to update the document, double-click it to edit it again.</value>
+  </data>
+  <data name="objresult_package" xml:space="preserve">
+    <value>You will choose the file to package. It is displayed as an icon, double-click it to open the file.</value>
+  </data>
+  <data name="objresult_fileicon" xml:space="preserve">
+    <value>Inserts a picture of the file's icon into your document. Double-click it to open the file.</value>
+  </data>
+  <data name="objresult_file" xml:space="preserve">
+    <value>Inserts the contents of the file into your document. Pictures can be edited in Paint by double-clicking them; other files are inserted as an icon.</value>
+  </data>
+  <data name="resize_title" xml:space="preserve">
+    <value>Resize</value>
+  </data>
+  <data name="resize_scale" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="resize_horizontal" xml:space="preserve">
+    <value>Horizontal (%):</value>
+  </data>
+  <data name="resize_vertical" xml:space="preserve">
+    <value>Vertical (%):</value>
+  </data>
+  <data name="resize_lock" xml:space="preserve">
+    <value>Lock aspect ratio</value>
+  </data>
+  <data name="resize_cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="pp_printbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="pp_printbutton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="pp_printgroup.Text" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="pp_zoomgroup.Text" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="pp_onepage.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>One page</value>
+  </data>
+  <data name="pp_onepage.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>One page</value>
+  </data>
+  <data name="pp_twopages.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Two pages</value>
+  </data>
+  <data name="pp_twopages.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Two pages</value>
+  </data>
+  <data name="pp_displaygroup.Text" xml:space="preserve">
+    <value>Display</value>
+  </data>
+  <data name="pp_prevpage.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="pp_prevpage.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="pp_nextpage.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="pp_nextpage.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="pp_pagesgroup.Text" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="pp_closebutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Close preview</value>
+  </data>
+  <data name="pp_closebutton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Close preview</value>
+  </data>
+  <data name="pp_closegroup.Text" xml:space="preserve">
+    <value>Close preview</value>
+  </data>
+  <data name="pp_zoom100.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>100%</value>
+  </data>
+  <data name="menu_cut.Text" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="menu_docstree.Text" xml:space="preserve">
+    <value>Docs tree</value>
+  </data>
+  <data name="zoomoutbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
+  <data name="zoominbutton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="ef_findtitle.Text" xml:space="preserve">
+    <value>Find</value>
+  </data>
+  <data name="ef_replacetitle.Text" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="ef_findbox.PlaceholderText" xml:space="preserve">
+    <value>Text to look for</value>
+  </data>
+  <data name="ef_replacebox.PlaceholderText" xml:space="preserve">
+    <value>New text</value>
+  </data>
+  <data name="ef_findbutton.Content" xml:space="preserve">
+    <value>Find</value>
+  </data>
+  <data name="ef_removehighlights.Content" xml:space="preserve">
+    <value>Remove highlights</value>
+  </data>
+  <data name="ef_replaceselected.Content" xml:space="preserve">
+    <value>Replace selected text</value>
+  </data>
+  <data name="ef_replaceall.Content" xml:space="preserve">
+    <value>Replace all occurrences</value>
+  </data>
+  <data name="tt_fontgrow.Content" xml:space="preserve">
+    <value>Grow font</value>
+  </data>
+  <data name="tt_fontshrink.Content" xml:space="preserve">
+    <value>Shrink font</value>
+  </data>
+  <data name="tt_bold.Content" xml:space="preserve">
+    <value>Bold</value>
+  </data>
+  <data name="tt_italic.Content" xml:space="preserve">
+    <value>Italic</value>
+  </data>
+  <data name="tt_underline.Content" xml:space="preserve">
+    <value>Underline</value>
+  </data>
+  <data name="tt_strike.Content" xml:space="preserve">
+    <value>Strikethrough</value>
+  </data>
+  <data name="tt_subscript.Content" xml:space="preserve">
+    <value>Subscript</value>
+  </data>
+  <data name="tt_superscript.Content" xml:space="preserve">
+    <value>Superscript</value>
+  </data>
+  <data name="tt_textcolor.Content" xml:space="preserve">
+    <value>Text color</value>
+  </data>
+  <data name="tt_highlight.Content" xml:space="preserve">
+    <value>Text highlight color</value>
+  </data>
+  <data name="color_red.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Red</value>
+  </data>
+  <data name="color_orange.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="color_yellow.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Yellow</value>
+  </data>
+  <data name="color_green.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="color_blue.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="color_lightblue.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Light Blue</value>
+  </data>
+  <data name="color_indigo.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Indigo</value>
+  </data>
+  <data name="color_violet.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Violet</value>
+  </data>
+  <data name="color_gray.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Gray</value>
+  </data>
+  <data name="color_beige.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Beige</value>
+  </data>
+  <data name="color_black.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Black</value>
+  </data>
+  <data name="color_white.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="fc_ok.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="fc_cancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="nocolor.Text" xml:space="preserve">
+    <value>No color</value>
+  </data>
+  <data name="tt_alignleft.Content" xml:space="preserve">
+    <value>Align left</value>
+  </data>
+  <data name="tt_aligncenter.Content" xml:space="preserve">
+    <value>Center</value>
+  </data>
+  <data name="tt_alignright.Content" xml:space="preserve">
+    <value>Align right</value>
+  </data>
+  <data name="tt_justify.Content" xml:space="preserve">
+    <value>Justify</value>
+  </data>
+  <data name="tt_paragraph.Content" xml:space="preserve">
+    <value>Paragraph</value>
+  </data>
+  <data name="tt_list.Content" xml:space="preserve">
+    <value>Start a list</value>
+  </data>
+  <data name="tt_linespacing.Content" xml:space="preserve">
+    <value>Line spacing</value>
+  </data>
+  <data name="tt_indentdec.Content" xml:space="preserve">
+    <value>Decrease indent</value>
+  </data>
+  <data name="tt_indentinc.Content" xml:space="preserve">
+    <value>Increase indent</value>
+  </data>
+  <data name="settings_onlysystem.Text" xml:space="preserve">
+    <value>Only system theme supported in the UWP version</value>
+  </data>
+  <data name="settings_advanced.Text" xml:space="preserve">
+    <value>Enable advanced features</value>
+  </data>
+  <data name="settings_advanceddesc.Text" xml:space="preserve">
+    <value>Documents tree view, multiple tabs</value>
+  </data>
+  <data name="doctree_pick.Text" xml:space="preserve">
+    <value>Pick source folder</value>
+  </data>
+  <data name="dlg_ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="dlg_cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="dlg_close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="dlg_openfailed" xml:space="preserve">
+    <value>File {0} couldn't be opened.</value>
+  </data>
+  <data name="dlg_unsaved_title" xml:space="preserve">
+    <value>Do you want to save your work?</value>
+  </data>
+  <data name="dlg_unsaved_content" xml:space="preserve">
+    <value>There are unsaved changes in “{0}”.</value>
+  </data>
+  <data name="dlg_save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="dlg_dontsave" xml:space="preserve">
+    <value>Don't save</value>
+  </data>
+  <data name="dlg_savefailed_title" xml:space="preserve">
+    <value>Save failed</value>
+  </data>
+  <data name="dlg_savefailed_content" xml:space="preserve">
+    <value>File {0} couldn't be saved.</value>
+  </data>
+  <data name="dlg_datetime_title" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="dlg_picturefailed" xml:space="preserve">
+    <value>The picture could not be inserted.</value>
+  </data>
+  <data name="dlg_fontsize_range" xml:space="preserve">
+    <value>The font size must be a number between {0} and {1}.</value>
+  </data>
+  <data name="saveasothersub.Text" xml:space="preserve">
+    <value>Other format</value>
+  </data>
+  <data name="fmtitem_rtf.Text" xml:space="preserve">
+    <value>Rich Text Format (RTF)</value>
+  </data>
+  <data name="fmtitem_docx.Text" xml:space="preserve">
+    <value>Office Open XML Document</value>
+  </data>
+  <data name="fmtitem_odt.Text" xml:space="preserve">
+    <value>OpenDocument Text</value>
+  </data>
+  <data name="fmtitem_txt.Text" xml:space="preserve">
+    <value>Text Document</value>
+  </data>
+  <data name="fmtitem_txtdos.Text" xml:space="preserve">
+    <value>Text Document - MS-DOS Format</value>
+  </data>
+  <data name="fmtitem_txtunicode.Text" xml:space="preserve">
+    <value>Unicode Text Document</value>
+  </data>
+  <data name="fmt_rtf" xml:space="preserve">
+    <value>Rich Text Format (RTF)</value>
+  </data>
+  <data name="fmt_docx" xml:space="preserve">
+    <value>Office Open XML Document</value>
+  </data>
+  <data name="fmt_odt" xml:space="preserve">
+    <value>OpenDocument Text</value>
+  </data>
+  <data name="fmt_txt" xml:space="preserve">
+    <value>Text Document</value>
+  </data>
+  <data name="fmt_txtdos" xml:space="preserve">
+    <value>Text Document - MS-DOS Format</value>
+  </data>
+  <data name="fmt_txtunicode" xml:space="preserve">
+    <value>Unicode Text Document</value>
+  </data>
+  <data name="fmt_txtutf8" xml:space="preserve">
+    <value>Text Document (UTF-8)</value>
+  </data>
+  <data name="newdocumentname" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="dlg_textwarning" xml:space="preserve">
+    <value>You are about to save the document in a Text-Only format, which will remove all formatting. Are you sure you want to do this?</value>
+  </data>
+  <data name="dlg_yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="dlg_no" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="pp_page" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="pp_pages" xml:space="preserve">
+    <value>Pages {0}-{1}</value>
+  </data>
+  <data name="dlg_textformat_title" xml:space="preserve">
+    <value>Save as type</value>
+  </data>
+  <data name="formatwarning.Message" xml:space="preserve">
+    <value>UltraPad does not support all of the features of this document's format. Some content might be missing or displayed improperly.</value>
+  </data>
+  <data name="colorname_ffffff" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="colorname_a5a5a5" xml:space="preserve">
+    <value>Light gray</value>
+  </data>
+  <data name="colorname_7f7f7f" xml:space="preserve">
+    <value>Gray</value>
+  </data>
+  <data name="colorname_666666" xml:space="preserve">
+    <value>Dark gray</value>
+  </data>
+  <data name="colorname_333333" xml:space="preserve">
+    <value>Charcoal</value>
+  </data>
+  <data name="colorname_000000" xml:space="preserve">
+    <value>Black</value>
+  </data>
+  <data name="colorname_ff0000" xml:space="preserve">
+    <value>Red</value>
+  </data>
+  <data name="colorname_ffc000" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="colorname_ffff00" xml:space="preserve">
+    <value>Yellow</value>
+  </data>
+  <data name="colorname_00b050" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="colorname_004dbb" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="colorname_9b00d3" xml:space="preserve">
+    <value>Purple</value>
+  </data>
+  <data name="colorname_c0504d" xml:space="preserve">
+    <value>Dark red</value>
+  </data>
+  <data name="colorname_f79646" xml:space="preserve">
+    <value>Light orange</value>
+  </data>
+  <data name="colorname_9bbb59" xml:space="preserve">
+    <value>Olive green</value>
+  </data>
+  <data name="colorname_4bacc6" xml:space="preserve">
+    <value>Aqua</value>
+  </data>
+  <data name="colorname_4f81bd" xml:space="preserve">
+    <value>Cornflower blue</value>
+  </data>
+  <data name="colorname_8064a2" xml:space="preserve">
+    <value>Lavender</value>
+  </data>
+  <data name="colorname_d16349" xml:space="preserve">
+    <value>Brick</value>
+  </data>
+  <data name="colorname_d19049" xml:space="preserve">
+    <value>Ochre</value>
+  </data>
+  <data name="colorname_ccb400" xml:space="preserve">
+    <value>Gold</value>
+  </data>
+  <data name="colorname_8fb08c" xml:space="preserve">
+    <value>Sage</value>
+  </data>
+  <data name="colorname_646b86" xml:space="preserve">
+    <value>Slate</value>
+  </data>
+  <data name="colorname_9e7c7c" xml:space="preserve">
+    <value>Rose brown</value>
+  </data>
+  <data name="colorname_dd8484" xml:space="preserve">
+    <value>Rose</value>
+  </data>
+  <data name="colorname_f3a447" xml:space="preserve">
+    <value>Tangerine</value>
+  </data>
+  <data name="colorname_dfce04" xml:space="preserve">
+    <value>Lemon</value>
+  </data>
+  <data name="colorname_a5b592" xml:space="preserve">
+    <value>Moss</value>
+  </data>
+  <data name="colorname_809ec2" xml:space="preserve">
+    <value>Steel blue</value>
+  </data>
+  <data name="colorname_9c85c0" xml:space="preserve">
+    <value>Lilac</value>
+  </data>
+  <data name="colorname_00ff00" xml:space="preserve">
+    <value>Bright green</value>
+  </data>
+  <data name="colorname_00ffff" xml:space="preserve">
+    <value>Turquoise</value>
+  </data>
+  <data name="colorname_ff00ff" xml:space="preserve">
+    <value>Pink</value>
+  </data>
+  <data name="colorname_0000ff" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="colorname_000080" xml:space="preserve">
+    <value>Dark blue</value>
+  </data>
+  <data name="colorname_008080" xml:space="preserve">
+    <value>Teal</value>
+  </data>
+  <data name="colorname_008000" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="colorname_800080" xml:space="preserve">
+    <value>Violet</value>
+  </data>
+  <data name="colorname_800000" xml:space="preserve">
+    <value>Dark red</value>
+  </data>
+  <data name="colorname_808000" xml:space="preserve">
+    <value>Dark yellow</value>
+  </data>
+  <data name="colorname_808080" xml:space="preserve">
+    <value>Gray 50%</value>
+  </data>
+  <data name="colorname_c0c0c0" xml:space="preserve">
+    <value>Gray 25%</value>
   </data>
 </root>

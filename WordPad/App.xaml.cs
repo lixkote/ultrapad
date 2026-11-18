@@ -26,6 +26,14 @@ namespace RectifyPad
         /// </summary>
         public App()
         {
+            try
+            {
+                string theme = ApplicationData.Current.LocalSettings.Values["theme"] as string
+                               ?? ApplicationData.Current.LocalSettings.Values["themeSetting"] as string;
+                if (theme == "Dark") RequestedTheme = ApplicationTheme.Dark;
+                else if (theme == "Light") RequestedTheme = ApplicationTheme.Light;
+            }
+            catch { }
             InitializeComponent();
             Suspending += OnSuspending;
             UnhandledException += OnUnhandledException;
@@ -131,6 +139,39 @@ namespace RectifyPad
             Window.Current.Activate();
         }
 
+        public static void ApplyAppTheme(string value)
+        {
+            try
+            {
+                ElementTheme theme = value == "Dark" ? ElementTheme.Dark : value == "Light" ? ElementTheme.Light : ElementTheme.Default;
+                RootTheme = theme;
+
+                bool dark = theme == ElementTheme.Dark || (theme == ElementTheme.Default && SystemUsesDarkTheme());
+                var titleBar = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TitleBar;
+                Windows.UI.Color fg = dark ? Windows.UI.Colors.White : Windows.UI.Colors.Black;
+                titleBar.ButtonForegroundColor = fg;
+                titleBar.ButtonHoverForegroundColor = fg;
+                titleBar.ButtonPressedForegroundColor = fg;
+                titleBar.ButtonHoverBackgroundColor = dark ? Windows.UI.Color.FromArgb(0x0F, 0xFF, 0xFF, 0xFF) : Windows.UI.Color.FromArgb(0x09, 0, 0, 0);
+                titleBar.ButtonPressedBackgroundColor = dark ? Windows.UI.Color.FromArgb(0x0A, 0xFF, 0xFF, 0xFF) : Windows.UI.Color.FromArgb(0x06, 0, 0, 0);
+                titleBar.ButtonInactiveForegroundColor = dark ? Windows.UI.Color.FromArgb(0x5D, 0xFF, 0xFF, 0xFF) : Windows.UI.Color.FromArgb(0x5C, 0, 0, 0);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("ApplyAppTheme: " + ex.Message);
+            }
+        }
+
+        public static bool SystemUsesDarkTheme()
+        {
+            try
+            {
+                Color bg = new UISettings().GetColorValue(UIColorType.Background);
+                return bg.R + bg.G + bg.B < 382;
+            }
+            catch { return Current.RequestedTheme == ApplicationTheme.Dark; }
+        }
+
         public static ElementTheme RootTheme
         {
             get
@@ -193,8 +234,6 @@ namespace RectifyPad
 
             deferral.Complete();
         }
-
-
 
         #region Error handling
         private static void OnUnobservedException(object sender, UnobservedTaskExceptionEventArgs e) => e.SetObserved();

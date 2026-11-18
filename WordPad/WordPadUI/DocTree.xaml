@@ -48,7 +48,7 @@
                     <ColumnDefinition Width="289*"/>
                 </Grid.ColumnDefinitions>
                 <FontIcon FontFamily="/Assets/Segoe Fluent Icons.ttf#Segoe Fluent Icons" FontSize="16" Glyph=""></FontIcon>
-                <TextBlock FontSize="12" FontFamily="Segoe UI"  Grid.Column="2" Text="Pick source folder" VerticalAlignment="Center"/>
+                <TextBlock FontSize="12" FontFamily="Segoe UI"  Grid.Column="2" x:Uid="doctree_pick" Text="Pick source folder" VerticalAlignment="Center"/>
             </Grid>
         </Button>
         <ListView SelectionMode="Single" ItemTemplate="{StaticResource FileListViewTemplate}" Grid.Row="2">

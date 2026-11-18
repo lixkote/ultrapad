@@ -4,23 +4,77 @@
     xmlns:local="using:WordPad.WordPadUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Custom="using:Microsoft.UI.Xaml.Controls"
     x:Class="WordPad.WordPadUI.ObjectInsertion"
     mc:Ignorable="d"
     Style="{StaticResource DefaultContentDialogStyle}"
-    Title="Insert an object"
+    Title="Insert object"
     x:Uid="InsertObjectDialog"
     PrimaryButtonText="OK"
     DefaultButton="Primary"
-    SecondaryButtonText="Cancel">
-    
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="ObjectInsertion_PrimaryButtonClick">
 
-    <StackPanel Orientation="Vertical">
-        <ListView SelectionMode="Single">
-            <ListViewItem x:Name="tableitem" x:Uid="tableitemtr">
-            </ListViewItem>
-        </ListView>
-        <RadioButton Visibility="Collapsed" Content="Create from file" x:Uid="createFile" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="8,7,0,0"/>
-        <RadioButton Visibility="Collapsed" Content="Create new" x:Uid="createNew" HorizontalAlignment="Left"/>
-    </StackPanel>
+
+    <Grid RowSpacing="16" MinWidth="460">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Spacing="4">
+                <RadioButton x:Name="CreateNewRadio" x:Uid="createNew" GroupName="insertobjectmode" Content="Create new" IsChecked="True" Checked="Mode_Checked" />
+                <RadioButton x:Name="CreateFromFileRadio" x:Uid="createFile" GroupName="insertobjectmode" Content="Create from file" Checked="Mode_Checked" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Spacing="8">
+                <StackPanel x:Name="ObjectTypePanel" Spacing="6">
+                    <TextBlock x:Uid="objecttypelabel" Text="Object type:" />
+                    <ListView x:Name="ObjectTypeList"
+                              Height="150"
+                              SelectionMode="Single"
+                              BorderThickness="1"
+                              CornerRadius="4"
+                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                              Background="{ThemeResource ControlFillColorDefaultBrush}"
+                              SelectionChanged="ObjectTypeList_SelectionChanged"
+                              DoubleTapped="ObjectTypeList_DoubleTapped" />
+                </StackPanel>
+
+                <StackPanel x:Name="FilePanel" Spacing="6" Visibility="Collapsed">
+                    <TextBlock x:Uid="objectfilelabel" Text="File:" />
+                    <TextBox x:Name="FilePathBox" IsReadOnly="True" PlaceholderText="..." />
+                    <Button x:Name="BrowseButton" x:Uid="objectbrowse" Content="Browse..." MinWidth="100" Click="BrowseButton_Click" />
+                </StackPanel>
+
+                <CheckBox x:Name="DisplayAsIconCheck" x:Uid="displayasicon" Content="Display as icon" Checked="DisplayAsIcon_Changed" Unchecked="DisplayAsIcon_Changed" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1"
+                Padding="12"
+                CornerRadius="{ThemeResource ControlCornerRadius}"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Grid ColumnSpacing="12" RowSpacing="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Uid="objectresult" Text="Result" Grid.ColumnSpan="2" FontWeight="SemiBold" />
+                <FontIcon x:Name="ResultIcon" Grid.Row="1" FontFamily="{StaticResource SegoeFluentIcons}" Glyph="&#xE8A5;" FontSize="32" VerticalAlignment="Top" />
+                <TextBlock x:Name="ResultText" Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" MaxWidth="380" HorizontalAlignment="Left" />
+            </Grid>
+        </Border>
+    </Grid>
 </ContentDialog>

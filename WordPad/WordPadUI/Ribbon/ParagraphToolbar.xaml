@@ -47,7 +47,7 @@
                      Grid.Row="1"
                      GroupName="Alignment" Click="AlignLeftButton_Click">
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Align left" />
+                    <ToolTip x:Uid="tt_alignleft" Content="Align left" />
                 </ToolTipService.ToolTip>
             </RadioButton>
 
@@ -62,7 +62,7 @@
                      Grid.Row="1"
                      GroupName="Alignment" Click="AlignCenterButton_Click" >
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Align center" />
+                    <ToolTip x:Uid="tt_aligncenter" Content="Center" />
                 </ToolTipService.ToolTip>
             </RadioButton>
 
@@ -77,7 +77,7 @@
                      Grid.Row="1"
                      GroupName="Alignment" Click="AlignRightButton_Click">
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Align right" />
+                    <ToolTip x:Uid="tt_alignright" Content="Align right" />
                 </ToolTipService.ToolTip>
             </RadioButton>
 
@@ -93,7 +93,7 @@
                      GroupName="Alignment"
                      Click="AlignJustifyButton_Click">
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Justified" />
+                    <ToolTip x:Uid="tt_justify" Content="Justify" />
                 </ToolTipService.ToolTip>
             </RadioButton>
 
@@ -106,15 +106,15 @@
                      Grid.Column="4"
                      Grid.Row="1" Padding="0" FontFamily="WordPad Fluent Icons" FontSize="20">
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Paragraph settings" />
+                    <ToolTip x:Uid="tt_paragraph" Content="Paragraph" />
                 </ToolTipService.ToolTip>
                 <Button.Content>
-                    <Image Width="16" Height="16" Source="{Binding Source={ThemeResource Paragraph}}" Margin="0,2,0,-2" />
+                    <Image Width="16" Height="16" Source="{ThemeResource Paragraph}" Margin="0,2,0,-2" />
                 </Button.Content>
             </Button>
             <muxc:ToggleSplitButton Template="{StaticResource PaintUIHorizontalToggleSplitButton}" x:Name="TextBulletingButton" Grid.Column="2" Grid.ColumnSpan="3" Width="77" Height="32" Padding="11,0,11,0"                       FontFamily="{StaticResource SegoeFluentIcons}" Content="" FontSize="20" Click="BulletButton_Click">
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="List" />
+                    <ToolTip x:Uid="tt_list" Content="Start a list" />
                 </ToolTipService.ToolTip>
                 <muxc:ToggleSplitButton.Flyout>
                     <Flyout Placement="Bottom">
@@ -185,7 +185,7 @@
                             <ColumnDefinition></ColumnDefinition>
                             <ColumnDefinition></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Image Width="16" Height="16" Source="{Binding Source={ThemeResource Spacing}}" />
+                        <Image Width="16" Height="16" Source="{ThemeResource Spacing}" />
                         <muxc:AnimatedIcon Grid.Column="1" AutomationProperties.AccessibilityView="Raw" Height="12" VerticalAlignment="Center" Width="12">
                             <muxc:AnimatedIcon.FallbackIconSource>
                                 <muxc:FontIconSource FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="8" Glyph="&#xE96E;" IsTextScaleFactorEnabled="False"/>
@@ -195,16 +195,16 @@
                     </Grid>
                 </Button.Content>
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Paragraph spacing" />
+                    <ToolTip x:Uid="tt_linespacing" Content="Line spacing" />
                 </ToolTipService.ToolTip>
                 <Button.Flyout>
-                    <MenuFlyout>
+                    <MenuFlyout Opening="SpacingFlyout_Opening">
                         <muxc:RadioMenuFlyoutItem GroupName="s" Tag="1.0" x:Name="spacingradio1" Text="1,0" IsChecked="True" Click="RadioMenuFlyoutItem_Click"/>
                         <muxc:RadioMenuFlyoutItem GroupName="s" Tag="1.15" x:Name="spacingradio2" Text="1,15" Click="RadioMenuFlyoutItem_Click_1"/>
                         <muxc:RadioMenuFlyoutItem GroupName="s" Tag="1.5" x:Name="spacingradio3" Text="1,5" Click="RadioMenuFlyoutItem_Click_2"/>
                         <muxc:RadioMenuFlyoutItem GroupName="s" Tag="2" x:Name="spacingradio4" Text="2" Click="RadioMenuFlyoutItem_Click_3"/>
                         <MenuFlyoutSeparator/>
-                        <ToggleMenuFlyoutItem x:Name="_10pt" Text="Add 10pt space after paragraphs" />
+                        <ToggleMenuFlyoutItem x:Name="_10pt" x:Uid="addspacemenu" Text="Add 10pt space after paragraphs" Click="AddSpace_Click" />
                     </MenuFlyout>
                 </Button.Flyout>
             </Button>
@@ -215,10 +215,10 @@
             Height="32"
             HorizontalAlignment="Center" Click="IndentationIncreaseLeft_Click">
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Increase indent (left)" />
+                    <ToolTip x:Uid="tt_indentdec" Content="Decrease indent" />
                 </ToolTipService.ToolTip>
                 <Button.Content>
-                    <Image Width="16" Height="16" Source="{Binding Source={ThemeResource MarginL}}" Margin="0,4,0,0" />
+                    <Image Width="16" Height="16" Source="{ThemeResource MarginL}" Margin="0,4,0,0" />
                 </Button.Content>
             </Button>
             <Button x:Name="IndentationIncreaseRight" Style="{StaticResource PaintUIButtonStyle}"
@@ -229,10 +229,10 @@
             Grid.Column="1"
             HorizontalAlignment="Center" Click="IndentationIncreaseRight_Click">
                 <Button.Content>
-                    <Image Width="16" Height="16" Source="{Binding Source={ThemeResource MarginR}}" Margin="0,4,0,0" />
+                    <Image Width="16" Height="16" Source="{ThemeResource MarginR}" Margin="0,4,0,0" />
                 </Button.Content>
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Increase indent (right)" />
+                    <ToolTip x:Uid="tt_indentinc" Content="Increase indent" />
                 </ToolTipService.ToolTip>
             </Button>
 

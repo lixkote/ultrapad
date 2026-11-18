@@ -13,7 +13,8 @@
     IsPrimaryButtonEnabled="False"
     DefaultButton="Secondary"
     SecondaryButtonText="OK"
-    CloseButtonText="Cancel">
+    CloseButtonText="Cancel"
+    SecondaryButtonClick="TabsDialog1_SecondaryButtonClick">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -27,8 +28,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock Margin="0,16,0,7" x:Uid="tabstopposition" Grid.Row="0" FontSize="14" Text="Tab stop position" Grid.ColumnSpan="2" FontFamily="Segoe UI Variable Display Semibold" FontWeight="Bold"/>
-        <TextBox x:Name="EnteringBox" TextChanged="EnteringBox_TextChanged" Grid.Row="1" Grid.ColumnSpan="3" Margin="0,10,0,0" />
-        <ListView x:Name="TabsPostitionsListView" Grid.Row="2" BorderThickness="1" CornerRadius="4" BorderBrush="{ThemeResource SystemChromeMediumColor}" Margin="0,10,0,0" Grid.ColumnSpan="3" Height="100">
+        <TextBox x:Name="EnteringBox" TextChanged="EnteringBox_TextChanged" KeyDown="EnteringBox_KeyDown" Grid.Row="1" Grid.ColumnSpan="3" Margin="0,10,0,0" />
+        <ListView x:Name="TabsPostitionsListView" SelectionMode="Single" SelectionChanged="TabsPostitionsListView_SelectionChanged" Grid.Row="2" BorderThickness="1" CornerRadius="4" BorderBrush="{ThemeResource SystemChromeMediumColor}" Margin="0,10,0,0" Grid.ColumnSpan="3" Height="100">
         </ListView>
         <Button x:Name="SetButton" x:Uid="tabsset" Click="SetButton_Click" IsEnabled="False" Grid.Row="3" Height="34" Width="90" Margin="0,10,0,0" Content="Set"></Button>
         <Button x:Name="ClearButton" x:Uid="tabsclear" Click="ClearButton_Click" IsEnabled="False" Grid.Row="3" Height="34" Width="90" Margin="5,10,0,0" Content="Clear" Grid.Column="1"></Button>
