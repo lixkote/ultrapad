@@ -25,7 +25,6 @@ using Windows.ApplicationModel.Resources.Core;
 using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.Graphics.Printing;
-using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;

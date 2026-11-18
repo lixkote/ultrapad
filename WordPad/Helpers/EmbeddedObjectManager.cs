@@ -342,21 +342,6 @@ namespace WordPad.Helpers
                 Debug.WriteLine("OpenInPaintAsync (default): " + ex.Message);
             }
 
-            try
-            {
-                var package = new Windows.Management.Deployment.PackageManager().FindPackagesForUser("", PaintPackageFamilyName).FirstOrDefault();
-                if (package != null)
-                {
-                    var apps = await package.GetAppListEntriesAsync();
-                    var app = apps.FirstOrDefault();
-                    if (app != null && await app.LaunchAsync()) return;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("OpenInPaintAsync (app list): " + ex.Message);
-            }
-
             await Launcher.LaunchFileAsync(file, new LauncherOptions { DisplayApplicationPicker = true });
         }
 

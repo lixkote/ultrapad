@@ -5,19 +5,18 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
-  xmlns:rescap3="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities/3"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   xmlns:a="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  IgnorableNamespaces="uap mp rescap desktop uap3 rescap3 a">
+  IgnorableNamespaces="uap mp rescap desktop uap3 a">
 
   <Identity
-    Name="UltraPad"
-    Publisher="CN=Lixkote"
+    Name="Lixkote.UltraPad"
+    Publisher="CN=5AAC97DF-DD5F-4C50-89F4-05CB44FB9D51"
     Version="11.2605.1.0" />
 
-  <mp:PhoneIdentity PhoneProductId="b36d39c6-c6c9-49b7-8519-9919bf164161" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="93cf517a-e6c6-4f97-9fe4-3f1cf055e6e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>UltraPad</DisplayName>
@@ -101,8 +100,6 @@
   <Capabilities>
 	  <Capability Name="internetClient" />
 	  <rescap:Capability Name="confirmAppClose"/>
-	  <rescap:Capability Name="packageQuery" />
-	  <rescap:Capability Name="broadFileSystemAccess" />
 	  <uap:Capability Name="removableStorage"/>
 	  <uap:Capability Name="videosLibrary"/>
 	  <uap:Capability Name="musicLibrary"/>

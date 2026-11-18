@@ -22,7 +22,6 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.Storage.Pickers;
 using Windows.ApplicationModel.Core;
-using Windows.Management.Deployment;
 
 // Szablon elementu Kontrolka użytkownika jest udokumentowany na stronie https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -83,18 +82,6 @@ namespace WordPad.WordPadUI.Ribbon
 
             // Show the ContentDialog
             await dialog.ShowThemedAsync();
-        }
-
-        static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
-        {
-            var pkgManager = new PackageManager();
-            var pkg = pkgManager.FindPackagesForUser("", packageFamilyName).FirstOrDefault();
-
-            if (pkg == null) return null;
-
-            var apps = await pkg.GetAppListEntriesAsync();
-            var firstApp = apps.FirstOrDefault();
-            return firstApp;
         }
 
         private async void InsertObjectButton_Click(object sender, RoutedEventArgs e)

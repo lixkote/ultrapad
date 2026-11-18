@@ -23,10 +23,11 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageDir Condition="'$(AppxPackageDir)' == ''">$(MSBuildProjectDirectory)\..\AppPackages\</AppxPackageDir>
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
   </PropertyGroup>
   <PropertyGroup Condition="'$(PackageCertificateThumbprint)' == '' And '$(PackageCertificateKeyFile)' == '' And Exists('$(MSBuildProjectDirectory)\WordPad_TemporaryKey.pfx')">
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -365,6 +366,7 @@
     <Content Include="Assets\wordpaddocument.targetsize-64.png" />
     <Content Include="Assets\wordpaddocument.targetsize-80.png" />
     <Content Include="Assets\wordpaddocument.targetsize-96.png" />
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="priconfig.default.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -463,9 +465,9 @@
     </PRIResource>
     <PRIResource Include="Strings\pl-PL\Resources.resw" />
     <PRIResource Include="Strings\qps-ploc\Resources.resw" />
-	<PRIResource Include="Strings\hu-HU\Resources.resw" />
+    <PRIResource Include="Strings\hu-HU\Resources.resw" />
     <PRIResource Include="Strings\pt-BR\Resources.resw" />
-	<PRIResource Include="Strings\tr-TR\Resources.resw" />
+    <PRIResource Include="Strings\tr-TR\Resources.resw" />
     <Content Include="Assets\Segoe Fluent Icons.ttf" />
   </ItemGroup>
   <ItemGroup>
