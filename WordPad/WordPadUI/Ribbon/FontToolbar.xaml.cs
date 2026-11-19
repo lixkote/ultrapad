@@ -81,8 +81,14 @@ namespace WordPad.WordPadUI.Ribbon
             FontColorMarker.FontFamily = (FontFamily)Application.Current.Resources["CustomIconFont"];
         }
 
+        private Throttle _selectionThrottle;
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            if (_selectionThrottle == null) _selectionThrottle = new Throttle(TimeSpan.FromMilliseconds(80), UpdateFromSelection);
+
+            // Loaded fires again every time the collapsed toolbar's flyout opens
+            Editor.SelectionChanged -= Editor_SelectionChanged;
             Editor.SelectionChanged += Editor_SelectionChanged;
         }
 
@@ -311,28 +317,30 @@ namespace WordPad.WordPadUI.Ribbon
             }
         }
 
-        private void Editor_SelectionChanged(object sender, RoutedEventArgs args)
+        private void Editor_SelectionChanged(object sender, RoutedEventArgs args) => _selectionThrottle?.Request();
+
+        private void UpdateFromSelection()
         {
-            TextBoldButton.IsChecked = Editor.Document.Selection.CharacterFormat.Bold == FormatEffect.On;
+            if (Editor == null) return;
+            ITextCharacterFormat format = Editor.Document.Selection.CharacterFormat;
 
-            TextItalicButton.IsChecked = Editor.Document.Selection.CharacterFormat.Italic == FormatEffect.On;
+            TextBoldButton.IsChecked = format.Bold == FormatEffect.On;
+            TextItalicButton.IsChecked = format.Italic == FormatEffect.On;
 
-            TextUnderlineButton.IsChecked = Editor.Document.Selection.CharacterFormat.Underline != UnderlineType.None &&
-                                        Editor.Document.Selection.CharacterFormat.Underline != UnderlineType.Undefined;
+            UnderlineType underline = format.Underline;
+            TextUnderlineButton.IsChecked = underline != UnderlineType.None && underline != UnderlineType.Undefined;
 
-            TextStrikethroughButton.IsChecked = Editor.Document.Selection.CharacterFormat.Strikethrough == FormatEffect.On;
+            TextStrikethroughButton.IsChecked = format.Strikethrough == FormatEffect.On;
+            TextSubscriptButton.IsChecked = format.Subscript == FormatEffect.On;
+            TextSuperscriptButton.IsChecked = format.Superscript == FormatEffect.On;
 
-            TextSubscriptButton.IsChecked = Editor.Document.Selection.CharacterFormat.Subscript == FormatEffect.On;
-
-            TextSuperscriptButton.IsChecked = Editor.Document.Selection.CharacterFormat.Superscript == FormatEffect.On;
-
-            if (Editor.Document.Selection.CharacterFormat.Size > 0)
-                // Font size is negative when selection contains multiple font sizes
-                fontSizeComboBox.Text = Editor.Document.Selection.CharacterFormat.Size.ToString();
+            // Font size is negative when selection contains multiple font sizes
+            float size = format.Size;
+            if (size > 0) fontSizeComboBox.Text = size.ToString();
 
             // Prevent accidental font changes when selection contains multiple styles
             updateFontFormat = false;
-            ShowFontName(Editor.Document.Selection.CharacterFormat.Name);
+            ShowFontName(format.Name);
             updateFontFormat = true;
         }
 

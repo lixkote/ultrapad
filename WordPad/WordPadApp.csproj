@@ -147,6 +147,8 @@
     <Compile Include="Helpers\DocumentPrintHelper.cs" />
     <Compile Include="Helpers\DocumentPrintHelperStateBag.cs" />
     <Compile Include="Helpers\EmbeddedObjectManager.cs" />
+    <Compile Include="Helpers\LegacyPictures.cs" />
+    <Compile Include="Helpers\Throttle.cs" />
     <Compile Include="Helpers\ImageInsertHelper.cs" />
     <Compile Include="Helpers\PageSettings.cs" />
     <Compile Include="Helpers\ParagraphHelper.cs" />

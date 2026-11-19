@@ -1084,4 +1084,31 @@
   <data name="colorname_c0c0c0" xml:space="preserve">
     <value>Gray 25%</value>
   </data>
+  <data name="ef_wholeword.Content" xml:space="preserve">
+    <value>Match whole word only</value>
+  </data>
+  <data name="ef_matchcase.Content" xml:space="preserve">
+    <value>Match case</value>
+  </data>
+  <data name="ef_findnext.Content" xml:space="preserve">
+    <value>Find next</value>
+  </data>
+  <data name="ef_replace.Content" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="ef_replaceallbutton.Content" xml:space="preserve">
+    <value>Replace all</value>
+  </data>
+  <data name="find_notfound" xml:space="preserve">
+    <value>Cannot find "{0}".</value>
+  </data>
+  <data name="find_wrapped" xml:space="preserve">
+    <value>Reached the end of the document and continued from the beginning.</value>
+  </data>
+  <data name="find_replaced" xml:space="preserve">
+    <value>{0} replacements made.</value>
+  </data>
+  <data name="link_hint" xml:space="preserve">
+    <value>Ctrl+click to follow link</value>
+  </data>
 </root>

@@ -1084,4 +1084,31 @@
   <data name="colorname_c0c0c0" xml:space="preserve">
     <value>Szary 25%</value>
   </data>
+  <data name="ef_wholeword.Content" xml:space="preserve">
+    <value>Uwzględniaj tylko całe wyrazy</value>
+  </data>
+  <data name="ef_matchcase.Content" xml:space="preserve">
+    <value>Uwzględniaj wielkość liter</value>
+  </data>
+  <data name="ef_findnext.Content" xml:space="preserve">
+    <value>Znajdź następny</value>
+  </data>
+  <data name="ef_replace.Content" xml:space="preserve">
+    <value>Zamień</value>
+  </data>
+  <data name="ef_replaceallbutton.Content" xml:space="preserve">
+    <value>Zamień wszystko</value>
+  </data>
+  <data name="find_notfound" xml:space="preserve">
+    <value>Nie można odnaleźć „{0}”.</value>
+  </data>
+  <data name="find_wrapped" xml:space="preserve">
+    <value>Osiągnięto koniec dokumentu, wyszukiwanie kontynuowano od początku.</value>
+  </data>
+  <data name="find_replaced" xml:space="preserve">
+    <value>Liczba zamian: {0}.</value>
+  </data>
+  <data name="link_hint" xml:space="preserve">
+    <value>Ctrl+kliknięcie, aby otworzyć link</value>
+  </data>
 </root>

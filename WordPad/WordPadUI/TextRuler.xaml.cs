@@ -346,9 +346,17 @@ namespace WordPad.WordPadUI
 
         #region Editor events
 
-        private void Editor_SelectionChanged(object sender, RoutedEventArgs e) => RefreshFromSelection();
+        private Throttle _refreshThrottle;
 
-        private void Editor_TextChanged(object sender, RoutedEventArgs e) => RefreshFromSelection();
+        private void RequestRefresh()
+        {
+            if (_refreshThrottle == null) _refreshThrottle = new Throttle(TimeSpan.FromMilliseconds(80), RefreshFromSelection);
+            _refreshThrottle.Request();
+        }
+
+        private void Editor_SelectionChanged(object sender, RoutedEventArgs e) => RequestRefresh();
+
+        private void Editor_TextChanged(object sender, RoutedEventArgs e) => RequestRefresh();
 
         private void Editor_LayoutUpdated(object sender, object e) => UpdatePagePosition();
 

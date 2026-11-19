@@ -38,10 +38,18 @@ namespace WordPad.WordPadUI.Ribbon
         }
         private ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
+        private Throttle _selectionThrottle;
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            Editor.SelectionChanged += editor_SelectionChanged;
+            if (_selectionThrottle == null) _selectionThrottle = new Throttle(TimeSpan.FromMilliseconds(80), UpdateFromSelection);
+
+            // Loaded fires again every time the collapsed toolbar's flyout opens
+            Editor.SelectionChanged -= Editor_SelectionChangedThrottled;
+            Editor.SelectionChanged += Editor_SelectionChangedThrottled;
         }
+
+        private void Editor_SelectionChangedThrottled(object sender, RoutedEventArgs e) => _selectionThrottle?.Request();
 
         public object ConvertString2Float(string value, Type targetType, object parameter, string language)
         {
@@ -291,21 +299,18 @@ namespace WordPad.WordPadUI.Ribbon
             Editor.Focus(FocusState.Keyboard);
         }
 
-        private void editor_SelectionChanged(object sender, RoutedEventArgs e)
+        private void editor_SelectionChanged(object sender, RoutedEventArgs e) => UpdateFromSelection();
+
+        private void UpdateFromSelection()
         {
-            AlignLeftButton.IsChecked = Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Left;
-            AlignCenterButton.IsChecked = Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Center;
-            AlignRightButton.IsChecked = Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Right;
-            AlignJustifyButton.IsChecked = Editor.Document.Selection.ParagraphFormat.Alignment == ParagraphAlignment.Justify;
-            TextBulletingButton.IsChecked = Editor.Document.Selection.ParagraphFormat.ListType != MarkerType.None;
-            if (Editor.Document.Selection.CharacterFormat.Size > 0)
-            {
-                //font size is negative when selection contains multiple font sizes
-                //FontSizeBox. = Editor.Document.Selection.CharacterFormat.Size;
-            }
-            //prevent accidental font changes when selection contains multiple styles
-            // Get a reference to the RichEditBox control
-            RichEditBox richEditBox = Editor;
+            if (Editor == null) return;
+            ITextParagraphFormat format = Editor.Document.Selection.ParagraphFormat;
+            ParagraphAlignment alignment = format.Alignment;
+            AlignLeftButton.IsChecked = alignment == ParagraphAlignment.Left;
+            AlignCenterButton.IsChecked = alignment == ParagraphAlignment.Center;
+            AlignRightButton.IsChecked = alignment == ParagraphAlignment.Right;
+            AlignJustifyButton.IsChecked = alignment == ParagraphAlignment.Justify;
+            TextBulletingButton.IsChecked = format.ListType != MarkerType.None;
         }
 
         private async void ParagraphButton_Click(object sender, RoutedEventArgs e)

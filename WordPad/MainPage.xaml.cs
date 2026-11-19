@@ -52,6 +52,7 @@ using WordPad.WordPadUI.Settings;
 using Application = Windows.UI.Xaml.Application;
 using CheckBox = Windows.UI.Xaml.Controls.CheckBox;
 using Color = Windows.UI.Color;
+using EditingToolbar = WordPad.WordPadUI.Ribbon.EditingToolbar;
 using Point = Windows.Foundation.Point;
 using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
@@ -68,6 +69,7 @@ namespace RectifyPad
     public sealed partial class MainPage : Page
     {
         private bool _isDirty = false;
+        private string _cleanRtf;
         private string _lastSavedText = "";
         private string _currentFilePath = null;
 
@@ -92,6 +94,7 @@ namespace RectifyPad
         private DocumentFileFormat _currentFormat = DocumentFileFormat.Rtf;
         private double _pageHeightDip = 1056;
         private bool _caretScrollQueued;
+        private bool _caretScrollWithoutFocus;
 
         private int _suppressDirty;
         private DateTime _ignoreTextChangedUntil = DateTime.MinValue;
@@ -237,6 +240,14 @@ namespace RectifyPad
             var toolbarAccelerator = new KeyboardAccelerator { Key = VirtualKey.F1, Modifiers = VirtualKeyModifiers.Control };
             toolbarAccelerator.Invoked += (s, a) => { SetToolbarAutoHide(!_toolbarAutoHide); a.Handled = true; };
             this.KeyboardAccelerators.Add(toolbarAccelerator);
+            // like in WordPad, the shortcuts only work while Find and Replace are available (the document isn't empty)
+            AddAccelerator(VirtualKey.F, VirtualKeyModifiers.Control, () => editribbontoolbar.ShowFind(EditorContentHost), () => editribbontoolbar.CanSearch);
+            AddAccelerator(VirtualKey.H, VirtualKeyModifiers.Control, () => editribbontoolbar.ShowReplace(EditorContentHost), () => editribbontoolbar.CanSearch);
+            AddAccelerator(VirtualKey.F3, VirtualKeyModifiers.None, () => FindAgain(false), () => editribbontoolbar.CanSearch);
+            AddAccelerator(VirtualKey.F3, VirtualKeyModifiers.Shift, () => FindAgain(true), () => editribbontoolbar.CanSearch);
+
+            // otherwise the page shows its shortcuts as a tooltip that can get stuck on screen
+            this.KeyboardAcceleratorPlacementMode = KeyboardAcceleratorPlacementMode.Hidden;
 
             BeginProgrammaticChange();
             SetLineSpacing(1, LineSpacingRule.Multiple); // Single spacing
@@ -244,11 +255,125 @@ namespace RectifyPad
             MarkClean();
         }
 
+        private void AddAccelerator(VirtualKey key, VirtualKeyModifiers modifiers, Action action, Func<bool> canRun)
+        {
+            var accelerator = new KeyboardAccelerator { Key = key, Modifiers = modifiers };
+            accelerator.Invoked += (s, a) =>
+            {
+                if (_printPreviewOpen || !canRun()) return;
+                a.Handled = true;
+                action();
+            };
+            this.KeyboardAccelerators.Add(accelerator);
+        }
+
+        private async void FindAgain(bool backward)
+        {
+            if (!EditingToolbar.HasSearchText)
+            {
+                editribbontoolbar.ShowFind(EditorContentHost);
+                return;
+            }
+
+            EditingToolbar.SearchResult result = EditingToolbar.FindNext(Editor, backward);
+            if (result != EditingToolbar.SearchResult.NotFound)
+            {
+                QueueCaretIntoView(true);
+                return;
+            }
+
+            try
+            {
+                await new ContentDialog
+                {
+                    Title = appTitleStr,
+                    Content = EditingToolbar.Describe(result),
+                    CloseButtonText = Loc.Get("dlg_ok", "OK"),
+                    DefaultButton = ContentDialogButton.Close
+                }.ShowThemedAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("FindAgain: " + ex.Message);
+            }
+        }
+
         #region Dirty tracking
 
         private void MarkClean()
         {
             _isDirty = false;
+            _cleanRtf = CurrentRtf();
+
+            // startup and loading still apply default formatting for a moment afterwards (toolbar
+            // settings, line spacing, layout), which looks like an edit; if the user hasn't touched
+            // anything by the time that's over, the result still counts as unchanged
+            _userTouched = false;
+            if (_settleTimer == null)
+            {
+                _settleTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1500) };
+                _settleTimer.Tick += (s, e) =>
+                {
+                    _settleTimer.Stop();
+                    if (_userTouched) return;
+                    _isDirty = false;
+                    _cleanRtf = CurrentRtf();
+                };
+                this.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler((s, e) => _userTouched = true), true);
+                this.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler((s, e) => _userTouched = true), true);
+            }
+            _settleTimer.Stop();
+            _settleTimer.Start();
+        }
+
+        private DispatcherTimer _settleTimer;
+        private bool _userTouched;
+
+        private bool IsDocumentEmpty()
+        {
+            try
+            {
+                Editor.Document.GetText(TextGetOptions.None, out string text);
+                return string.IsNullOrEmpty(text) || text == "\r";
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private string CurrentRtf()
+        {
+            try
+            {
+                Editor.Document.GetText(TextGetOptions.FormatRtf, out string rtf);
+                return rtf;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        // late TextChanged events (images, layout) can set the flag without a real edit,
+        // so the document is compared with what was loaded or saved before asking
+        private bool HasUnsavedChanges()
+        {
+            if (!_isDirty) return false;
+
+            // an untitled document with nothing in it has nothing worth saving, like in WordPad
+            if (_currentFile == null && IsDocumentEmpty())
+            {
+                _isDirty = false;
+                return false;
+            }
+
+            if (_cleanRtf != null && CurrentRtf() == _cleanRtf)
+            {
+                _isDirty = false;
+                return false;
+            }
+            return true;
         }
 
         private void BeginProgrammaticChange()
@@ -627,6 +752,8 @@ namespace RectifyPad
             }
         }
 
+        private Windows.UI.Xaml.Controls.ToolTip _showToolbarToolTip;
+
         private void UpdateShowToolbarButton()
         {
             bool open = _toolbarAutoHide && _toolbarOverlayOpen;
@@ -634,7 +761,14 @@ namespace RectifyPad
             ShowToolbarText.Opacity = open ? 0 : 1;
             HideToolbarText.Opacity = open ? 1 : 0;
             AutomationProperties.SetName(ShowToolbarButton, open ? HideToolbarText.Text : ShowToolbarText.Text);
-            ToolTipService.SetToolTip(ShowToolbarButton, (open ? HideToolbarText.Text : ShowToolbarText.Text) + " (Ctrl+F1)");
+            if (_showToolbarToolTip == null)
+            {
+                _showToolbarToolTip = new Windows.UI.Xaml.Controls.ToolTip();
+                ToolTipService.SetToolTip(ShowToolbarButton, _showToolbarToolTip);
+            }
+            // the button moves or hides right after this, so a tooltip left open would stay behind
+            _showToolbarToolTip.IsOpen = false;
+            _showToolbarToolTip.Content = (open ? HideToolbarText.Text : ShowToolbarText.Text) + " (Ctrl+F1)";
         }
 
         private static readonly TimeSpan ToolbarAnimationDuration = TimeSpan.FromMilliseconds(167);
@@ -881,18 +1015,188 @@ namespace RectifyPad
                 _lastRightClickPoint = point.Position;
                 _lastRightClickTime = DateTime.UtcNow;
             }
+
+            _selectingWithMouse = point.PointerDevice.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse && point.Properties.IsLeftButtonPressed;
+            if (_selectingWithMouse) _selectionBar?.Hide();
+            SetLinkHover(null, false);
         }
 
         private void Editor_PointerMovedAll(object sender, PointerRoutedEventArgs e)
         {
             _lastPointerWindowPos = e.GetCurrentPoint(null).Position;
+            UpdateLinkHover(e);
         }
 
         private void Editor_PointerReleasedAll(object sender, PointerRoutedEventArgs e)
         {
             _wheelSelecting = false;
             _wheelAnchor = -1;
+
+            if (_selectingWithMouse)
+            {
+                _selectingWithMouse = false;
+                ShowSelectionBar(e.GetCurrentPoint(Editor).Position);
+            }
         }
+
+        #region Selection toolbar
+
+        // The editor's own selection flyout uses "dismiss on pointer move away", which closes it as soon
+        // as the mouse moves towards it, and it takes the light theme of the page. This one stays open
+        // until the user clicks elsewhere or types, and follows the app theme.
+        private Microsoft.UI.Xaml.Controls.TextCommandBarFlyout _selectionBar;
+        private bool _selectingWithMouse;
+
+        private void SetupSelectionBar()
+        {
+            Editor.SelectionFlyout = null;
+
+            // keeps found text visible while the find box has the focus
+            if (Editor.SelectionHighlightColor is SolidColorBrush highlight)
+            {
+                Editor.SelectionHighlightColorWhenNotFocused = new SolidColorBrush(highlight.Color) { Opacity = 0.6 };
+            }
+            _selectionBar = new Microsoft.UI.Xaml.Controls.TextCommandBarFlyout();
+            _selectionBar.Opened += (s, e) => ApplyThemeToOpenPopups();
+        }
+
+        private void ShowSelectionBar(Point position)
+        {
+            if (_selectionBar == null || _printPreviewOpen) return;
+
+            // wait for the editor to finish the selection (double clicks select the word after the release)
+            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                try
+                {
+                    if (_selectingWithMouse || Editor.Document.Selection.Length == 0) return;
+                    if (_pictureAdorner != null && _pictureAdorner.SelectedObjectStart >= 0) return;
+
+                    _selectionBar.ShowAt(Editor, new Windows.UI.Xaml.Controls.Primitives.FlyoutShowOptions
+                    {
+                        Position = position,
+                        Placement = Windows.UI.Xaml.Controls.Primitives.FlyoutPlacementMode.TopEdgeAlignedLeft,
+                        ShowMode = Windows.UI.Xaml.Controls.Primitives.FlyoutShowMode.Transient
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ShowSelectionBar: " + ex.Message);
+                }
+            });
+        }
+
+        private void HideSelectionBarIfCollapsed()
+        {
+            if (_selectionBar != null && _selectionBar.IsOpen && Editor.Document.Selection.Length == 0) _selectionBar.Hide();
+        }
+
+        private static void ApplyThemeToOpenPopups()
+        {
+            if (!(Window.Current?.Content is FrameworkElement root)) return;
+            foreach (Windows.UI.Xaml.Controls.Primitives.Popup popup in VisualTreeHelper.GetOpenPopups(Window.Current))
+            {
+                if (popup.Child is FrameworkElement child && child.RequestedTheme != root.ActualTheme && IsCommandBarFlyout(child))
+                {
+                    child.RequestedTheme = root.ActualTheme;
+                }
+            }
+        }
+
+        private static bool IsCommandBarFlyout(DependencyObject element, int depth = 0)
+        {
+            if (element is Microsoft.UI.Xaml.Controls.Primitives.CommandBarFlyoutCommandBar) return true;
+            if (depth > 3) return false;
+            int count = VisualTreeHelper.GetChildrenCount(element);
+            for (int i = 0; i < count; i++)
+            {
+                if (IsCommandBarFlyout(VisualTreeHelper.GetChild(element, i), depth + 1)) return true;
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region Links
+
+        private Windows.UI.Xaml.Controls.ToolTip _linkToolTip;
+        private string _hoveredLink;
+        private bool _handCursor;
+
+        private void UpdateLinkHover(PointerRoutedEventArgs e)
+        {
+            Windows.UI.Input.PointerPoint point = e.GetCurrentPoint(Editor);
+            if (point.PointerDevice.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Mouse || point.Properties.IsLeftButtonPressed ||
+                point.Properties.IsRightButtonPressed || _printPreviewOpen || (_pictureAdorner?.IsDragging ?? false))
+            {
+                SetLinkHover(null, false);
+                return;
+            }
+
+            string link = null;
+            try
+            {
+                Point client = EditorCoordinates.ToClient(Editor, Editor, point.Position);
+                int position = Editor.Document.GetRangeFromPoint(client, PointOptions.ClientCoordinates).StartPosition;
+
+                // the nearest insertion point can be on either side of the character under the pointer
+                link = LinkAt(position, client) ?? (position > 0 ? LinkAt(position - 1, client) : null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("UpdateLinkHover: " + ex.Message);
+            }
+
+            bool ctrl = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+            SetLinkHover(link, ctrl);
+        }
+
+        private string LinkAt(int position, Point client)
+        {
+            ITextRange character = Editor.Document.GetRange(position, position + 1);
+            if (character.EndPosition <= character.StartPosition) return null;
+            character.GetRect(PointOptions.ClientCoordinates, out Rect rect, out _);
+            if (rect.Width <= 0 || client.X < rect.Left - 1 || client.X > rect.Right + 1 || client.Y < rect.Top || client.Y > rect.Bottom) return null;
+
+            string link = character.Link;
+            if (string.IsNullOrEmpty(link)) return null;
+            return link.Trim().Trim('"');
+        }
+
+        private void SetLinkHover(string link, bool ctrl)
+        {
+            if (link != _hoveredLink)
+            {
+                _hoveredLink = link;
+                if (_linkToolTip == null) _linkToolTip = new Windows.UI.Xaml.Controls.ToolTip();
+                _linkToolTip.IsOpen = false;
+
+                if (link != null)
+                {
+                    string hint = Loc.Get("link_hint", "Ctrl+click to follow link");
+                    _linkToolTip.Content = string.IsNullOrEmpty(link) ? hint : link + "\n" + hint;
+                    ToolTipService.SetToolTip(Editor, _linkToolTip);
+                }
+                else
+                {
+                    ToolTipService.SetToolTip(Editor, null);
+                }
+            }
+
+            bool hand = link != null && ctrl;
+            if (hand)
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
+                _handCursor = true;
+            }
+            else if (_handCursor)
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.IBeam, 0);
+                _handCursor = false;
+            }
+        }
+
+        #endregion
 
         private void Editor_PointerWheelChangedAll(object sender, PointerRoutedEventArgs e)
         {
@@ -1272,7 +1576,7 @@ namespace RectifyPad
             string token = (sender as FrameworkElement)?.Tag as string;
             if (string.IsNullOrEmpty(token)) return;
 
-            if (_isDirty)
+            if (HasUnsavedChanges())
             {
                 var proceed = await ShowUnsavedDialog();
                 if (proceed != true) return;
@@ -1337,12 +1641,14 @@ namespace RectifyPad
         private void ConnectRibbonToolbars()
         {
             editribbontoolbar.Editor = Editor;
+            editribbontoolbar.RevealSelection = () => QueueCaretIntoView(true);
             insertribbontoolbar.Editor = Editor;
             pararibbontoolbar.Editor = Editor;
             fontribbontoolbar.Editor = Editor;
 
             //collapsed variants also need to be 'connected'
             editribbontoolbarcol.Editor = Editor;
+            editribbontoolbarcol.RevealSelection = () => QueueCaretIntoView(true);
             insertribbontoolbarcol.Editor = Editor;
             pararibbontoolbarcol.Editor = Editor;
             pararibbontoolbarcol.MainPagea = this;
@@ -1366,70 +1672,6 @@ namespace RectifyPad
             }
         }
 
-        string FixRtf(string rtf)
-        {
-            var output = new StringBuilder();
-
-            int i = 0;
-
-            while (i < rtf.Length)
-            {
-                int pictIndex = rtf.IndexOf(@"\pict", i);
-
-                if (pictIndex == -1)
-                {
-                    output.Append(rtf.Substring(i));
-                    break;
-                }
-
-                // append wszystko przed obrazem
-                output.Append(rtf.Substring(i, pictIndex - i));
-
-                // znajdź początek bloku {
-                int start = rtf.LastIndexOf('{', pictIndex);
-
-                if (start == -1)
-                {
-                    i = pictIndex + 5;
-                    continue;
-                }
-
-                // znajdź koniec bloku licząc klamry
-                int depth = 0;
-                int end = start;
-
-                for (; end < rtf.Length; end++)
-                {
-                    if (rtf[end] == '{') depth++;
-                    else if (rtf[end] == '}') depth--;
-
-                    if (depth == 0)
-                    {
-                        end++;
-                        break;
-                    }
-                }
-
-                string pictBlock = rtf.Substring(start, end - start);
-
-                if (pictBlock.Contains(@"\wmetafile"))
-                {
-                    output.Append(@"{\pard\plain\fs20\b [Outdated WMF image format not supported in UltraPad]\par}");
-                }
-                else if (pictBlock.Contains(@"\emfblip"))
-                {
-                    output.Append(@"{\pard\plain\fs20\b [Outdated EMF image format not supported in UltraPad]\par}");
-                }
-                else
-                {
-                    output.Append(pictBlock);
-                }
-
-                i = end;
-            }
-
-            return output.ToString();
-        }
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -1452,6 +1694,16 @@ namespace RectifyPad
             _initialized = true;
         }
 
+        public async Task OpenFromActivationAsync(StorageFile file)
+        {
+            if (HasUnsavedChanges())
+            {
+                var proceed = await ShowUnsavedDialog();
+                if (proceed != true) return;
+            }
+            await OpenFileAsync(file, interactive: false);
+        }
+
         private async Task<bool> OpenFileAsync(StorageFile file, bool interactive)
         {
             if (file == null) return false;
@@ -1471,7 +1723,7 @@ namespace RectifyPad
                         rtf = await reader.ReadToEndAsync();
                     }
 
-                    rtf = FixRtf(rtf);
+                    rtf = await LegacyPictures.ConvertAsync(rtf);
 
                     if (_isEditorDark) rtf = RecolorRtfColorTable(rtf, blackToWhite: true);
 
@@ -1480,7 +1732,7 @@ namespace RectifyPad
                 else if (ext == ".docx" || ext == ".odt")
                 {
                     format = ext == ".docx" ? DocumentFileFormat.Docx : DocumentFileFormat.Odt;
-                    string rtf = FixRtf(await DocumentFormats.LoadAsRtfAsync(file, format));
+                    string rtf = await LegacyPictures.ConvertAsync(await DocumentFormats.LoadAsRtfAsync(file, format));
                     if (_isEditorDark) rtf = RecolorRtfColorTable(rtf, blackToWhite: true);
                     Editor.Document.SetText(TextSetOptions.FormatRtf, rtf);
                 }
@@ -1531,7 +1783,7 @@ namespace RectifyPad
 
         private async void Open_Click(object sender, RoutedEventArgs e)
         {
-            if (_isDirty)
+            if (HasUnsavedChanges())
             {
                 var proceed = await ShowUnsavedDialog();
                 if (proceed != true) return;
@@ -1622,21 +1874,6 @@ namespace RectifyPad
         {
             Editor.AlignSelectedTo(RichEditHelpers.AlignMode.Left);
             editor_SelectionChanged(sender, e);
-        }
-
-        private void FindBoxRemoveHighlights()
-        {
-            ITextRange documentRange = Editor.Document.GetRange(0, TextConstants.MaxUnitCount);
-            SolidColorBrush defaultBackground = Editor.Background as SolidColorBrush;
-            SolidColorBrush defaultForeground = Editor.Foreground as SolidColorBrush;
-
-            documentRange.CharacterFormat.BackgroundColor = defaultBackground.Color;
-            documentRange.CharacterFormat.ForegroundColor = defaultForeground.Color;
-        }
-
-        private void RemoveHighlightButton_Click(object sender, RoutedEventArgs e)
-        {
-            FindBoxRemoveHighlights();
         }
 
         private void Undo_Click(object sender, RoutedEventArgs e)
@@ -1904,7 +2141,7 @@ namespace RectifyPad
             _currentFormat = format;
             _currentFilePath = file.Path;
             fileNameWithPath = file.Path;
-            _isDirty = false;
+            MarkClean();
 
             Editor.Document.GetText(TextGetOptions.None, out _lastSavedText);
 
@@ -1959,6 +2196,7 @@ namespace RectifyPad
         private void editor_SelectionChanged(object sender, RoutedEventArgs e)
         {
             QueueCaretIntoView();
+            HideSelectionBarIfCollapsed();
 
             if (Editor.Document.Selection.CharacterFormat.Size > 0)
             {
@@ -2312,7 +2550,7 @@ namespace RectifyPad
 
         private async void OnCloseRequest(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
         {
-            if (_isDirty == true)
+            if (HasUnsavedChanges())
             {
                 e.Handled = true;
 
@@ -2384,7 +2622,7 @@ namespace RectifyPad
 
         private async void NewDoc_Click(object sender, RoutedEventArgs e)
         {
-            if (_isDirty)
+            if (HasUnsavedChanges())
             {
                 var proceed = await ShowUnsavedDialog();
                 if (proceed != true)
@@ -2472,7 +2710,7 @@ namespace RectifyPad
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             baseRulerWidth = TextRuler.ActualWidth;
-            _isDirty = false;
+            MarkClean();
         }
 
         private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
@@ -2515,16 +2753,19 @@ namespace RectifyPad
             TextRuler.UpdatePagePosition();
         }
 
-        private void QueueCaretIntoView()
+        private void QueueCaretIntoView(bool withoutFocus = false)
         {
+            if (withoutFocus) _caretScrollWithoutFocus = true;
             if (_caretScrollQueued || _printPreviewOpen || (_pictureAdorner?.IsDragging ?? false)) return;
             _caretScrollQueued = true;
             _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
             {
                 _caretScrollQueued = false;
+                bool withoutFocusNow = _caretScrollWithoutFocus;
+                _caretScrollWithoutFocus = false;
                 try
                 {
-                    if (FocusManager.GetFocusedElement() != Editor) return;
+                    if (!withoutFocusNow && FocusManager.GetFocusedElement() != Editor) return;
                     ITextSelection sel = Editor.Document.Selection;
                     ITextRange caret = Editor.Document.GetRange(sel.EndPosition, sel.EndPosition);
                     caret.GetRect(PointOptions.ClientCoordinates, out Rect r, out _);
@@ -2620,6 +2861,7 @@ namespace RectifyPad
 
         private void Editor_Loaded(object sender, RoutedEventArgs e)
         {
+            if (_selectionBar == null) SetupSelectionBar();
             var format = Editor.Document.GetDefaultParagraphFormat();
             format.ListStart = 1;
             Editor.Document.SetDefaultParagraphFormat(format);

@@ -29,7 +29,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <muxc:DropDownButton MinWidth="132" x:Name="ReplaceButton" Style="{StaticResource PaintUIButtonStyle}"
-                Grid.Row="1" Click="ReplaceButton_Click" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="4,0,8,0">
+                Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="4,0,8,0">
                 <muxc:DropDownButton.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -41,38 +41,29 @@
                     </Grid>
                 </muxc:DropDownButton.Content>
                 <muxc:DropDownButton.Flyout>
-                    <Flyout Placement="Bottom">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock
-                        Margin="0,0,0,5"
-                        FontSize="12"
-                        FontWeight="SemiBold"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        x:Uid="ef_findtitle" Text="Find" />
-
-                            <TextBox
-                        x:Name="findBox"
-                        Width="330"
-                        x:Uid="ef_findbox" PlaceholderText="Text to look for" />
-                            <StackPanel Orientation="Horizontal">
-                                <Button x:Uid="ef_findbutton" Margin="0,10,0,0" Click="FindButton_Click">Find</Button>
-                                <Button x:Uid="ef_removehighlights" Margin="5,10,0,0" Click="RemoveHighlightButton_Click">Remove highlights</Button>
+                    <Flyout x:Name="ReplaceFlyout" Placement="Bottom" Opening="ReplaceFlyout_Opening" Opened="ReplaceFlyout_Opened">
+                        <StackPanel Width="320" Spacing="8">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Style="{StaticResource CaptionTextBlockStyle}"
+                                       x:Uid="ef_replacetitle" Text="Replace" />
+                            <TextBox x:Name="replaceFindBox" x:Uid="ef_findbox" PlaceholderText="Text to look for" KeyDown="ReplaceFindBox_KeyDown" />
+                            <TextBox x:Name="replaceBox" x:Uid="ef_replacebox" PlaceholderText="New text" KeyDown="ReplaceBox_KeyDown" />
+                            <StackPanel>
+                                <CheckBox x:Name="ReplaceWholeWord" x:Uid="ef_wholeword" Content="Match whole word only" MinHeight="28" />
+                                <CheckBox x:Name="ReplaceMatchCase" x:Uid="ef_matchcase" Content="Match case" MinHeight="28" />
                             </StackPanel>
-
-                            <TextBlock
-                        Margin="0,10,0,5"
-                        FontSize="12"
-                        FontWeight="SemiBold"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        x:Uid="ef_replacetitle" Text="Replace" />
-                            <TextBox
-                        x:Name="replaceBox"
-                        Width="330"
-                        x:Uid="ef_replacebox" PlaceholderText="New text" />
-                            <StackPanel Orientation="Horizontal">
-                                <Button x:Uid="ef_replaceselected" Margin="0,10,0,0" Click="ReplaceSelected_Click">Replace selected text</Button>
-                                <Button x:Uid="ef_replaceall" Margin="5,10,0,0" Click="ReplaceAll_Click">Replace all occurrences</Button>
-                            </StackPanel>
+                            <TextBlock x:Name="ReplaceStatus" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" Visibility="Collapsed" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" HorizontalAlignment="Stretch" x:Uid="ef_findnext" Content="Find next" Click="ReplaceFindNext_Click" />
+                                <Button Grid.Column="1" HorizontalAlignment="Stretch" x:Uid="ef_replace" Content="Replace" Click="ReplaceSelected_Click"
+                                        Style="{StaticResource AccentButtonStyle}" />
+                                <Button Grid.Column="2" HorizontalAlignment="Stretch" x:Uid="ef_replaceallbutton" Content="Replace all" Click="ReplaceAll_Click" />
+                            </Grid>
                         </StackPanel>
                     </Flyout>
                 </muxc:DropDownButton.Flyout>
@@ -81,7 +72,7 @@
 
 
             <muxc:DropDownButton MinWidth="132" x:Name="FindButton" Style="{StaticResource PaintUIButtonStyle}"
-    Grid.Row="0" HorizontalAlignment="Stretch" Click="FindButton_Click"  VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="4,0,8,0">
+    Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="4,0,8,0">
                 <muxc:DropDownButton.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -93,23 +84,19 @@
                     </Grid>
                 </muxc:DropDownButton.Content>
                 <muxc:DropDownButton.Flyout>
-                    <Flyout Placement="Bottom">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock
-                        Margin="0,0,0,5"
-                        FontSize="12"
-                        FontWeight="SemiBold"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        x:Uid="ef_findtitle" Text="Find" />
-
-                            <TextBox
-                        x:Name="replacefindBox"
-                        Width="330"
-                        x:Uid="ef_findbox" PlaceholderText="Text to look for" />
-                            <StackPanel Orientation="Horizontal">
-                                <Button x:Uid="ef_findbutton" Margin="0,10,0,0" Click="FindButton_Click">Find</Button>
-                                <Button x:Uid="ef_removehighlights" Margin="5,10,0,0" Click="RemoveHighlightButton_Click">Remove highlights</Button>
+                    <Flyout x:Name="FindFlyout" Placement="Bottom" Opening="FindFlyout_Opening" Opened="FindFlyout_Opened">
+                        <StackPanel Width="320" Spacing="8">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Style="{StaticResource CaptionTextBlockStyle}"
+                                       x:Uid="ef_findtitle" Text="Find" />
+                            <TextBox x:Name="findBox" x:Uid="ef_findbox" PlaceholderText="Text to look for" KeyDown="FindBox_KeyDown" />
+                            <StackPanel>
+                                <CheckBox x:Name="FindWholeWord" x:Uid="ef_wholeword" Content="Match whole word only" MinHeight="28" />
+                                <CheckBox x:Name="FindMatchCase" x:Uid="ef_matchcase" Content="Match case" MinHeight="28" />
                             </StackPanel>
+                            <TextBlock x:Name="FindStatus" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" Visibility="Collapsed" />
+                            <Button HorizontalAlignment="Right" MinWidth="120" x:Uid="ef_findnext" Content="Find next" Click="FindNext_Click"
+                                    Style="{StaticResource AccentButtonStyle}" />
                         </StackPanel>
                     </Flyout>
                 </muxc:DropDownButton.Flyout>

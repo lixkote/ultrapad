@@ -102,12 +102,17 @@ namespace RectifyPad
                     // parameter
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
-                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-                ApplicationView.GetForCurrentView().TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                ApplicationView.GetForCurrentView().TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                PrepareTitleBar();
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
+        }
+
+        private static void PrepareTitleBar()
+        {
+            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+            ApplicationView.GetForCurrentView().TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            ApplicationView.GetForCurrentView().TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
         }
 
         protected override void OnActivated(IActivatedEventArgs args)
@@ -123,19 +128,30 @@ namespace RectifyPad
                 Window.Current.Content = rootFrame;
             }
 
-            rootFrame.Navigate(typeof(MainPage));
+            // a page that is already open keeps its document
+            if (rootFrame.Content == null) rootFrame.Navigate(typeof(MainPage));
+            PrepareTitleBar();
             Window.Current.Activate();
         }
 
-        protected override void OnFileActivated(FileActivatedEventArgs args)
+        protected override async void OnFileActivated(FileActivatedEventArgs args)
         {
-            // Get the file that was opened
-            var file = args.Files[0] as StorageFile;
+            var file = args.Files.Count > 0 ? args.Files[0] as StorageFile : null;
 
-            // Create a new frame and navigate to your main page
+            // every file normally opens in its own window (SupportsMultipleInstances); if Windows
+            // still hands it to this one, the open page asks about its own changes first
+            if (Window.Current.Content is Frame current && current.Content is MainPage page)
+            {
+                Window.Current.Activate();
+                if (file != null) await page.OpenFromActivationAsync(file);
+                return;
+            }
+
             var frame = new Frame();
+            frame.NavigationFailed += OnNavigationFailed;
             frame.Navigate(typeof(MainPage), file);
             Window.Current.Content = frame;
+            PrepareTitleBar();
             Window.Current.Activate();
         }
 
