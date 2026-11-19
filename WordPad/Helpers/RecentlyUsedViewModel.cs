@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace RectifyPad.Helpers
+namespace UltraPad.Helpers
 {
     public class RecentlyUsedClass
     {

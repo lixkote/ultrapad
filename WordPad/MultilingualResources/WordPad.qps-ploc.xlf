@@ -123,8 +123,8 @@
           <target state="new">Orientation</target>
         </trans-unit>
         <trans-unit id="packageversiontext.Text" translate="yes" xml:space="preserve">
-          <source>RectifyPad 11.2311.1</source>
-          <target state="new">RectifyPad 11.2311.1</target>
+          <source>UltraPad 11.2311.1</source>
+          <target state="new">UltraPad 11.2311.1</target>
         </trans-unit>
         <trans-unit id="pagesetupdialog.SecondaryButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>

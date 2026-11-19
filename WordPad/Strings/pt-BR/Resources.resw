@@ -458,7 +458,7 @@
     <value>Margens (pontos)</value>
   </data>
   <data name="githubtext.Text" xml:space="preserve">
-    <value>Para saber como contribuir com o Rectify11 e o UltraPad,  &lt;LineBreak/&gt;confira os projetos na página do &lt;Hyperlink NavigateUri="https://github.com/Rectify11" TextDecorations="None"&gt; GitHub&lt;/Hyperlink&gt;</value>
+    <value>Para saber como contribuir com o UltraPad,  &lt;LineBreak/&gt;confira o projeto na página do &lt;Hyperlink NavigateUri="https://github.com/Lixkote/UltraPad" TextDecorations="None"&gt; GitHub&lt;/Hyperlink&gt;</value>
   </data>
   <data name="MenuResizePicture.Text" xml:space="preserve">
     <value>Redimensionar imagem</value>
@@ -486,5 +486,11 @@
   </data>
   <data name="cut.Text" xml:space="preserve">
     <value>Recortar</value>
+  </data>
+  <data name="licenseterms.Text" xml:space="preserve">
+    <value>Termos de licença</value>
+  </data>
+  <data name="privacypolicy.Text" xml:space="preserve">
+    <value>Política de privacidade</value>
   </data>
 </root>

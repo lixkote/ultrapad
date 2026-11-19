@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using WordPad.Classes;
 
-namespace RectifyPad
+namespace UltraPad
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -50,18 +50,6 @@ namespace RectifyPad
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            // CoreApplication.EnablePrelaunch was introduced in Windows 10 version 1607
-            bool canEnablePrelaunch = Windows.Foundation.Metadata.ApiInformation.IsMethodPresent("Windows.ApplicationModel.Core.CoreApplication", "EnablePrelaunch");
-
-            // NOTE: Only enable this code if you are targeting a version of Windows 10 prior to version 1607,
-            // and you want to opt out of prelaunch.
-            // In Windows 10 version 1511, all UWP apps were candidates for prelaunch.
-            // Starting in Windows 10 version 1607, the app must opt in to be prelaunched.
-            //if ( !canEnablePrelaunch && e.PrelaunchActivated == true)
-            //{
-            //    return;
-            //}
-
             Frame rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
@@ -84,11 +72,9 @@ namespace RectifyPad
 
             if (e.PrelaunchActivated == false)
             {
-                // On Windows 10 version 1607 or later, this code signals that this app wants to participate in prelaunch
-                if (canEnablePrelaunch)
-                {
-                    TryEnablePrelaunch();
-                }
+                // No CoreApplication.EnablePrelaunch here: every launch starts its own process
+                // (SupportsMultipleInstances), and for such apps the call fails with
+                // 0x80070490 "Element not found", which crashed UltraPad on start.
 
                 // TODO: This is not a prelaunch activation. Perform operations which
                 // assume that the user explicitly launched the app such as updating
@@ -138,8 +124,8 @@ namespace RectifyPad
         {
             var file = args.Files.Count > 0 ? args.Files[0] as StorageFile : null;
 
-            // every file normally opens in its own window (SupportsMultipleInstances); if Windows
-            // still hands it to this one, the open page asks about its own changes first
+            // with SupportsMultipleInstances every file gets its own window; if Windows still hands one to
+            // this window, it replaces the document after asking about unsaved changes
             if (Window.Current.Content is Frame current && current.Content is MainPage page)
             {
                 Window.Current.Activate();
@@ -214,16 +200,6 @@ namespace RectifyPad
                 throw new InvalidOperationException("Generic parameter 'TEnum' must be an enum.");
             }
             return (TEnum)Enum.Parse(typeof(TEnum), text);
-        }
-
-        /// <summary>
-        /// This method should be called only when the caller
-        /// determines that we're running on a system that
-        /// supports CoreApplication.EnablePrelaunch.
-        /// </summary>
-        private void TryEnablePrelaunch()
-        {
-            Windows.ApplicationModel.Core.CoreApplication.EnablePrelaunch(true);
         }
 
         /// <summary>

@@ -1111,4 +1111,10 @@
   <data name="link_hint" xml:space="preserve">
     <value>Ctrl+kliknięcie, aby otworzyć link</value>
   </data>
+  <data name="licenseterms.Text" xml:space="preserve">
+    <value>Postanowienia licencyjne</value>
+  </data>
+  <data name="privacypolicy.Text" xml:space="preserve">
+    <value>Zasady ochrony prywatności</value>
+  </data>
 </root>

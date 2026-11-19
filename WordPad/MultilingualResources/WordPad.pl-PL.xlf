@@ -8,7 +8,7 @@
       <group id="WORDPAD/STRINGS/EN-US/RESOURCES.RESW" datatype="resx">
         <trans-unit id="aboutapp.Text" translate="yes" xml:space="preserve">
           <source>About this app</source>
-          <target state="translated">Informacje o programie RectifyPad</target>
+          <target state="translated">Informacje o programie UltraPad</target>
         </trans-unit>
         <trans-unit id="addspace.Content" translate="yes" xml:space="preserve">
           <source>Add 10pt space after paragraphs</source>

@@ -336,4 +336,10 @@
   <data name="cut.Text" xml:space="preserve">
     <value>Vágott</value>
   </data>
+  <data name="licenseterms.Text" xml:space="preserve">
+    <value>Licencfeltételek</value>
+  </data>
+  <data name="privacypolicy.Text" xml:space="preserve">
+    <value>Adatvédelmi nyilatkozat</value>
+  </data>
 </root>

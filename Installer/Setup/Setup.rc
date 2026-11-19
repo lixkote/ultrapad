@@ -1,0 +1,38 @@
+#include <winres.h>
+#include "resource.h"
+// written from ..\..\Version.props by Setup.vcxproj
+#include "version.g.h"
+
+IDI_APPICON ICON "..\\Common\\UltraPad.ico"
+
+// written by Packer before this project is built (see Setup.vcxproj)
+IDR_PAYLOAD RCDATA "payload.bin"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION ULTRAPAD_VERSION_NUM
+ PRODUCTVERSION ULTRAPAD_VERSION_NUM
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Lixkote"
+            VALUE "FileDescription", "UltraPad Setup"
+            VALUE "FileVersion", ULTRAPAD_VERSION_STR
+            VALUE "InternalName", "UltraPad-Setup"
+            VALUE "LegalCopyright", "(C) 2026 Lixkote. GNU GPL v2."
+            VALUE "OriginalFilename", "UltraPad-Setup.exe"
+            VALUE "ProductName", "UltraPad"
+            VALUE "ProductVersion", ULTRAPAD_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

@@ -236,6 +236,12 @@ Background="Transparent" >
                             </TextBlock>
 
 
+                            <HyperlinkButton Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad/blob/main/LICENSE">
+                            <TextBlock x:Uid="licenseterms" Text="License terms"/>
+                        </HyperlinkButton>
+                            <HyperlinkButton Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad/blob/main/PRIVACY.md">
+                            <TextBlock x:Uid="privacypolicy" Text="Privacy policy"/>
+                        </HyperlinkButton>
                             <HyperlinkButton  Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad" >
                             <TextBlock x:Uid="srccode" Text="Source Code"/>
                         </HyperlinkButton>

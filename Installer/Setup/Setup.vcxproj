@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{F5B9444D-76EE-4AAF-AE2A-9FE77EC810D2}</ProjectGuid>
+    <RootNamespace>Setup</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <!-- the repository's Version.props; without it (installer built on its own) the file version is 0.0.0.0 -->
+  <Import Project="..\..\Version.props" Condition="Exists('..\..\Version.props')" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+    <WholeProgramOptimization Condition="'$(Configuration)'=='Release'">true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\Setup\</IntDir>
+    <TargetName>UltraPad-Setup</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- the stub must start on any PC, so no Visual C++ runtime DLLs -->
+      <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>cabinet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>"$(SolutionDir)bin\Packer\Release\Packer.exe" "$(ProjectDir)payload.bin" "$(SolutionDir)bin\$(Platform)\$(Configuration)\SetupUI" "$(SolutionDir)Payload=Payload"</Command>
+      <Message>Packing SetupUI and the UltraPad package</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\Archive.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Setup.rc">
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Common\UltraPad.ico" />
+    <None Include="payload.bin" />
+  </ItemGroup>
+  <Target Name="WriteVersionHeader" BeforeTargets="ResourceCompile">
+    <PropertyGroup>
+      <SetupVersion>$(UltraPadVersion)</SetupVersion>
+      <SetupVersion Condition="'$(SetupVersion)' == ''">0.0.0.0</SetupVersion>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntDir)" />
+    <WriteLinesToFile File="$(IntDir)version.g.h" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="#define ULTRAPAD_VERSION_NUM $(SetupVersion.Replace('.', ','));#define ULTRAPAD_VERSION_STR &quot;$(SetupVersion)&quot;" />
+  </Target>
+  <Target Name="CheckPayload" BeforeTargets="PreBuildEvent">
+    <ItemGroup>
+      <UltraPadPackage Include="$(SolutionDir)Payload\*.msixbundle;$(SolutionDir)Payload\*.appxbundle;$(SolutionDir)Payload\*.msix;$(SolutionDir)Payload\*.appx" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(SolutionDir)bin\$(Platform)\$(Configuration)\SetupUI\SetupUI.exe')" Text="SetupUI wasn't built (see its errors above), so there is nothing to pack into UltraPad-Setup.exe." />
+    <Error Condition="'@(UltraPadPackage)' == ''" Text="Put the UltraPad .msixbundle (with its .cer and the Dependencies folder) into Installer\Payload first. See Installer\README.md." />
+  </Target>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

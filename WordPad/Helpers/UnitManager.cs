@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using static WordPad.Helpers.SettingsManagerMain;
 
 ////////////////////////////////////////////////
-// Lixkote RectifyPad Project Unit Calculator //
+// Lixkote UltraPad Project Unit Calculator //
 ////////////////////////////////////////////////
 
 namespace WordPad.Helpers
@@ -14,7 +14,7 @@ namespace WordPad.Helpers
     internal class UnitManager
     {
         // In settings we keep all measurement values in twips (twentieth of a point), for consistency and precision purposes.
-        // Possible human readable units that RectifyPad supports are: Inches | Centimeters | Points | Picas.
+        // Possible human readable units that UltraPad supports are: Inches | Centimeters | Points | Picas.
 
         // Convert from HumanUnit to Twip
         public double ConvertToTwip(string HumanUnit, double SourceValue)

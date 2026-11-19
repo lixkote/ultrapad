@@ -487,4 +487,10 @@
   <data name="cut.Text" xml:space="preserve">
     <value>Kes</value>
   </data>
+  <data name="licenseterms.Text" xml:space="preserve">
+    <value>Lisans koşulları</value>
+  </data>
+  <data name="privacypolicy.Text" xml:space="preserve">
+    <value>Gizlilik ilkesi</value>
+  </data>
 </root>

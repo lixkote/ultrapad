@@ -61,7 +61,7 @@ using UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding;
 // UltraPad made by Lixkote
 // Main page c# source code
 
-namespace RectifyPad
+namespace UltraPad
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -2807,7 +2807,7 @@ namespace RectifyPad
 
         private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://github.com/Lixkote/RectifyPad"));
+            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://github.com/Lixkote/UltraPad"));
         }
 
         private void ShareButton_Click(object sender, RoutedEventArgs e)

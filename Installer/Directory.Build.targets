@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Visual Studio doesn't restore PackageReference for .vcxproj on its own. Restore before building when the
+    NuGet assets are missing, or older than the project file (after its packages or RuntimeIdentifiers changed).
+  -->
+  <PropertyGroup>
+    <_UltraPadAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</_UltraPadAssetsFile>
+    <_UltraPadAssetsStale>false</_UltraPadAssetsStale>
+    <_UltraPadAssetsStale Condition="!Exists('$(_UltraPadAssetsFile)')">true</_UltraPadAssetsStale>
+    <_UltraPadAssetsStale Condition="Exists('$(_UltraPadAssetsFile)') and $([System.IO.File]::GetLastWriteTimeUtc('$(MSBuildProjectFullPath)').Ticks) &gt; $([System.IO.File]::GetLastWriteTimeUtc('$(_UltraPadAssetsFile)').Ticks)">true</_UltraPadAssetsStale>
+  </PropertyGroup>
+  <Target Name="EnsureNuGetRestoreForVcxproj" BeforeTargets="PrepareForBuild" Condition="
+            '$(DesignTimeBuild)' != 'true'
+            and '$(RestoreInProgress)' != 'true'
+            and '$(MSBuildProjectExtension)' == '.vcxproj'
+            and '$(RestoreProjectStyle)' == 'PackageReference'
+            and '$(MSBuildProjectExtensionsPath)' != ''
+            and '$(_UltraPadAssetsStale)' == 'true'
+          ">
+    <Message Importance="high" Text="NuGet assets of $(MSBuildProjectName) are missing or out of date; running Restore" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Restore" Properties="RestoreInProgress=true;RestoreForce=true" BuildInParallel="false" />
+    <!-- the packages' build files are only picked up when the project is loaded again -->
+    <Error Text="NuGet packages of $(MSBuildProjectName) were restored just now. Build again (Ctrl+Shift+B); this happens only once." />
+  </Target>
+</Project>

@@ -14,8 +14,8 @@
 
   <Identity
     Name="Lixkote.UltraPad"
-    Publisher="CN=5AAC97DF-DD5F-4C50-89F4-05CB44FB9D51"
-    Version="11.2605.1.0" />
+    Publisher="CN=lixkote"
+    Version="11.2611.217.0" />
 
   <mp:PhoneIdentity PhoneProductId="93cf517a-e6c6-4f97-9fe4-3f1cf055e6e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -26,7 +26,7 @@
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />
   </Dependencies>
 
   <Resources>
@@ -57,7 +57,7 @@
 
       </uap:VisualElements>
 		<Extensions>
-			<uap5:Extension Category="windows.appExecutionAlias" EntryPoint="FluentPad.App">
+			<uap5:Extension Category="windows.appExecutionAlias" EntryPoint="UltraPad.App">
 				<uap5:AppExecutionAlias>
 					<uap5:ExecutionAlias Alias="wordpad.exe"/>
 					<uap5:ExecutionAlias Alias="write.exe"/>

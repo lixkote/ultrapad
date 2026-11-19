@@ -1,5 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Drawing;
-using RectifyPad;
+using UltraPad;
 using System;
 using Windows.Storage;
 using Windows.UI;
@@ -17,6 +17,21 @@ namespace WordPad.WordPadUI.Settings
         {
             this.InitializeComponent();
             WordWrapIcon.FontFamily = (FontFamily)Application.Current.Resources["CustomIconFont"];
+            ShowVersion();
+        }
+
+        // the version comes from the package, which gets it from Version.props when building
+        private void ShowVersion()
+        {
+            try
+            {
+                Windows.ApplicationModel.PackageVersion v = Windows.ApplicationModel.Package.Current.Id.Version;
+                PackageVersionText.Text = $"UltraPad {v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("ShowVersion: " + ex.Message);
+            }
         }
 
         protected override void OnNavigatedTo(Windows.UI.Xaml.Navigation.NavigationEventArgs e)
