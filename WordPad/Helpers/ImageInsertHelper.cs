@@ -100,6 +100,19 @@ namespace WordPad.Helpers
 
             try
             {
+                // The editor keeps the stream it is given and only reads it again when the document is
+                // saved. A clipboard stream stops working as soon as something else is copied, so a pasted
+                // picture was lost on save unless it was the last one. Keep a private copy instead.
+                source = await CopyToMemoryAsync(source);
+            }
+            catch (Exception ex)
+            {
+                LastError = "The picture could not be read: " + ex.Message;
+                return false;
+            }
+
+            try
+            {
                 source.Seek(0);
                 decoder = await BitmapDecoder.CreateAsync(source);
                 pixelWidth = decoder.OrientedPixelWidth;
@@ -179,6 +192,21 @@ namespace WordPad.Helpers
                 Debug.WriteLine("ImageInsertHelper.InsertAsync: " + LastError);
                 return false;
             }
+        }
+
+        private static async Task<IRandomAccessStream> CopyToMemoryAsync(IRandomAccessStream source)
+        {
+            var copy = new InMemoryRandomAccessStream();
+            source.Seek(0);
+            using (IInputStream input = source.GetInputStreamAt(0))
+            using (IOutputStream output = copy.GetOutputStreamAt(0))
+            {
+                await RandomAccessStream.CopyAsync(input, output);
+                await output.FlushAsync();
+            }
+            source.Dispose();
+            copy.Seek(0);
+            return copy;
         }
 
         private static bool Finish(RichEditBox editor, int start, bool selectPicture)

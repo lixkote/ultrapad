@@ -1117,4 +1117,10 @@
   <data name="privacypolicy.Text" xml:space="preserve">
     <value>Privacy policy</value>
   </data>
+  <data name="status_loading" xml:space="preserve">
+    <value>Loading document... {0}%</value>
+  </data>
+  <data name="status_loading_layout" xml:space="preserve">
+    <value>Preparing document...</value>
+  </data>
 </root>

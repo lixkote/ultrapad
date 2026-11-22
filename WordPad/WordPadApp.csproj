@@ -23,13 +23,11 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageDir Condition="'$(AppxPackageDir)' == ''">$(MSBuildProjectDirectory)\..\AppPackages\</AppxPackageDir>
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-    <PackageCertificateThumbprint>55BE67F89EA2AAF09F01A0AAC00BD012952DEEB2</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(PackageCertificateThumbprint)' == '' And '$(PackageCertificateKeyFile)' == '' And Exists('$(MSBuildProjectDirectory)\WordPad_TemporaryKey.pfx')">
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -362,6 +360,14 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Content Include="Assets\appdocument.targetsize-16.png" />
+    <Content Include="Assets\appdocument.targetsize-24.png" />
+    <Content Include="Assets\appdocument.targetsize-32.png" />
+    <Content Include="Assets\appdocument.targetsize-48.png" />
+    <Content Include="Assets\appdocument.targetsize-64.png" />
+    <Content Include="Assets\appdocument.targetsize-96.png" />
+    <Content Include="Assets\appdocument.targetsize-128.png" />
+    <Content Include="Assets\appdocument.targetsize-256.png" />
     <Content Include="Assets\wordpaddocument.targetsize-128.png" />
     <Content Include="Assets\wordpaddocument.targetsize-16.png" />
     <Content Include="Assets\wordpaddocument.targetsize-256.png" />
@@ -378,7 +384,6 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <None Include="WordPadApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

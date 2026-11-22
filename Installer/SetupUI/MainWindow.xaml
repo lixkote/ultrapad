@@ -51,6 +51,8 @@
 
                 <CheckBox x:Name="LaunchCheck" Margin="0,16,0,0" IsChecked="True" Visibility="Collapsed" />
 
+                <InfoBar x:Name="UninstallHintBar" Margin="0,12,0,0" Severity="Informational" IsClosable="False" IsOpen="False" />
+
                 <InfoBar x:Name="ErrorBar" Margin="0,16,0,0" Severity="Error" IsClosable="False" IsOpen="False">
                     <InfoBar.ActionButton>
                         <HyperlinkButton x:Name="LogButton" Click="LogButton_Click" />

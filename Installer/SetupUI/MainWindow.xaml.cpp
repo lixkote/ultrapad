@@ -35,7 +35,7 @@ namespace
     };
 
     constexpr int WindowWidth = 600;
-    constexpr int WindowHeight = 380;
+    constexpr int WindowHeight = 460;
     constexpr int ExitCancelled = 1602; // same code msiexec uses when the user cancels
 }
 
@@ -49,6 +49,7 @@ namespace winrt::SetupUI::implementation
         auto const& text = setup::Text();
         TitleText().Text(text.WindowTitle);
         LaunchCheck().Content(box_value(text.LaunchApp));
+        UninstallHintBar().Message(text.UninstallHint);
         LogButton().Content(box_value(text.OpenLog));
 
         SetupWindow();
@@ -185,6 +186,7 @@ namespace winrt::SetupUI::implementation
         ProgressPanel().Visibility(Visibility::Collapsed);
         LaunchCheck().Visibility(Visibility::Collapsed);
         ErrorBar().IsOpen(false);
+        UninstallHintBar().IsOpen(false);
         DoneBadge().Visibility(Visibility::Collapsed);
 
         SetButton(PrimaryButton(), primary);
@@ -202,6 +204,7 @@ namespace winrt::SetupUI::implementation
         BodyText().Visibility(Visibility::Collapsed);
         LaunchCheck().Visibility(Visibility::Collapsed);
         ErrorBar().IsOpen(false);
+        UninstallHintBar().IsOpen(false);
         DoneBadge().Visibility(Visibility::Collapsed);
 
         ProgressPanel().Visibility(Visibility::Visible);
@@ -241,7 +244,9 @@ namespace winrt::SetupUI::implementation
         BodyText().Visibility(Visibility::Visible);
         ProgressPanel().Visibility(Visibility::Collapsed);
         ErrorBar().IsOpen(false);
+        UninstallHintBar().IsOpen(false);
         LaunchCheck().Visibility(uninstalled ? Visibility::Collapsed : Visibility::Visible);
+        UninstallHintBar().IsOpen(!uninstalled);
         DoneBadge().Visibility(uninstalled ? Visibility::Collapsed : Visibility::Visible);
 
         SetButton(PrimaryButton(), text.Finish);
@@ -265,6 +270,7 @@ namespace winrt::SetupUI::implementation
         ErrorBar().Title(L"");
         ErrorBar().Message(message + L"\n" + setup::Format(text.ErrorCode, setup::HResultString(code)));
         ErrorBar().IsOpen(true);
+        UninstallHintBar().IsOpen(false);
 
         SetButton(PrimaryButton(), canRetry ? text.TryAgain : nullptr);
         SetButton(SecondaryButton(), nullptr);

@@ -14,7 +14,7 @@
 
   <Identity
     Name="Lixkote.UltraPad"
-    Publisher="CN=lixkote"
+    Publisher="CN=5AAC97DF-DD5F-4C50-89F4-05CB44FB9D51"
     Version="11.2611.217.0" />
 
   <mp:PhoneIdentity PhoneProductId="93cf517a-e6c6-4f97-9fe4-3f1cf055e6e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
@@ -81,7 +81,7 @@
 			</uap:Extension>
 			<uap:Extension Category="windows.fileTypeAssociation">
 				<uap:FileTypeAssociation Name="docx">
-					<uap:Logo>Assets\wordpaddocument.png</uap:Logo>
+					<uap:Logo>Assets\appdocument.png</uap:Logo>
 					<uap:SupportedFileTypes>
 						<uap:FileType>.docx</uap:FileType>
 					</uap:SupportedFileTypes>
@@ -89,7 +89,7 @@
 			</uap:Extension>
 			<uap:Extension Category="windows.fileTypeAssociation">
 				<uap:FileTypeAssociation Name="odt">
-					<uap:Logo>Assets\wordpaddocument.png</uap:Logo>
+					<uap:Logo>Assets\appdocument.png</uap:Logo>
 					<uap:SupportedFileTypes>
 						<uap:FileType>.odt</uap:FileType>
 					</uap:SupportedFileTypes>

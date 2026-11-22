@@ -185,6 +185,8 @@ namespace UltraPad
             // Run the startup functions
             InitializeComponent();
             _untitledTitle = AppTitle.Text;
+            AppTitle.RegisterPropertyChangedCallback(TextBlock.TextProperty, (s, dp) => UpdateWindowTitle());
+            UpdateWindowTitle();
             settingsManager.InitializeDefaults();
             LoadThemeFromSettings();
             ConnectRibbonToolbars();
@@ -298,12 +300,28 @@ namespace UltraPad
             }
         }
 
+        // taskbar previews and Alt+Tab show "<title> - UltraPad", like "MyDocument.rtf - WordPad"
+        private void UpdateWindowTitle()
+        {
+            try
+            {
+                string title = AppTitle.Text ?? "";
+                string suffix = " - " + appTitleStr;
+                if (title.EndsWith(suffix, StringComparison.Ordinal)) title = title.Substring(0, title.Length - suffix.Length);
+                ApplicationView.GetForCurrentView().Title = title == appTitleStr ? "" : title;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("UpdateWindowTitle: " + ex.Message);
+            }
+        }
+
         #region Dirty tracking
 
         private void MarkClean()
         {
             _isDirty = false;
-            _cleanRtf = CurrentRtf();
+            _cleanRtf = SnapshotRtf();
 
             // startup and loading still apply default formatting for a moment afterwards (toolbar
             // settings, line spacing, layout), which looks like an edit; if the user hasn't touched
@@ -317,7 +335,7 @@ namespace UltraPad
                     _settleTimer.Stop();
                     if (_userTouched) return;
                     _isDirty = false;
-                    _cleanRtf = CurrentRtf();
+                    _cleanRtf = SnapshotRtf();
                 };
                 this.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler((s, e) => _userTouched = true), true);
                 this.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler((s, e) => _userTouched = true), true);
@@ -340,6 +358,62 @@ namespace UltraPad
             {
                 return false;
             }
+        }
+
+        // big documents (tens of MB, many pictures) take seconds to serialize to RTF, which froze
+        // the window (and the mouse wheel) every time a snapshot was taken; for those only the
+        // dirty flag is used, like WordPad does
+        private const long LargeDocumentBytes = 8L * 1024 * 1024;
+        private bool _largeDocument;
+
+        private const ulong LoadingProgressBytes = 2UL * 1024 * 1024;
+        private bool _loadingShown;
+
+        // loading progress in the status bar for big files, like WordPad shows while opening
+        private void ShowLoading(int percent)
+        {
+            percent = Math.Max(0, Math.Min(100, percent));
+            if (!_loadingShown)
+            {
+                _loadingShown = true;
+                LoadingPanel.Visibility = Visibility.Visible;
+                ApplyStatusBarVisibility();
+            }
+            LoadingProgress.IsIndeterminate = false;
+            LoadingProgress.Value = percent;
+            LoadingText.Text = Loc.Format("status_loading", "Loading document... {0}%", percent);
+        }
+
+        // putting the text into the editor is one call that can't report progress, so the bar
+        // switches to the moving style and the UI gets a moment to draw that before it starts
+        private async Task ShowLoadingFinalStepAsync()
+        {
+            ShowLoading(75);
+            LoadingProgress.IsIndeterminate = true;
+            LoadingText.Text = Loc.Get("status_loading_layout", "Preparing document...");
+            await Task.Delay(30);
+        }
+
+        private void HideLoading()
+        {
+            if (!_loadingShown) return;
+            _loadingShown = false;
+            LoadingProgress.IsIndeterminate = false;
+            LoadingPanel.Visibility = Visibility.Collapsed;
+            ApplyStatusBarVisibility();
+        }
+
+        private string SnapshotRtf()
+        {
+            if (_largeDocument) return null;
+            var watch = Stopwatch.StartNew();
+            string rtf = CurrentRtf();
+            if (watch.ElapsedMilliseconds > 250 || (rtf != null && rtf.Length > LargeDocumentBytes))
+            {
+                _largeDocument = true;
+                return null;
+            }
+            return rtf;
         }
 
         private string CurrentRtf()
@@ -368,7 +442,7 @@ namespace UltraPad
                 return false;
             }
 
-            if (_cleanRtf != null && CurrentRtf() == _cleanRtf)
+            if (_cleanRtf != null && !_largeDocument && CurrentRtf() == _cleanRtf)
             {
                 _isDirty = false;
                 return false;
@@ -481,6 +555,9 @@ namespace UltraPad
             {
                 EndProgrammaticChange();
                 _isDirty = wasDirty;
+
+                // the editor color is a display setting, so an unchanged document stays unchanged
+                if (!wasDirty) _cleanRtf = SnapshotRtf();
             }
         }
 
@@ -569,7 +646,7 @@ namespace UltraPad
 
         private void ApplyStatusBarVisibility()
         {
-            StatusBarBorder.Visibility = StatusbarToggle.IsChecked && PrintPreviewRibbon.Visibility != Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
+            StatusBarBorder.Visibility = (_loadingShown || StatusbarToggle.IsChecked) && PrintPreviewRibbon.Visibility != Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void UpdateViewMenuChecks()
@@ -636,7 +713,13 @@ namespace UltraPad
             }
 
             Editor.TextWrapping = wrap == WrapMode.NoWrap ? TextWrapping.NoWrap : TextWrapping.Wrap;
-            Editor.Padding = new Thickness(left, top, right, bottom);
+
+            // the editor's 1 px border sits inside its width, so without this the text area came out
+            // narrower than page width minus margins (WordPad: A4 with 3.18 cm margins = 14.65 cm)
+            Thickness border = Editor.BorderThickness;
+            Editor.Padding = new Thickness(
+                Math.Max(0, left - border.Left), Math.Max(0, top - border.Top),
+                Math.Max(0, right - border.Right), Math.Max(0, bottom - border.Bottom));
             _pageHeightDip = pageHeight;
             Editor.Width = width;
             Editor.Height = double.NaN;
@@ -1047,8 +1130,24 @@ namespace UltraPad
         private Microsoft.UI.Xaml.Controls.TextCommandBarFlyout _selectionBar;
         private bool _selectingWithMouse;
 
+        // The editor sits in a container with its own (light or dark) theme, and menus opened from it
+        // take that theme. Menus are part of the app's interface, so they follow the app theme instead.
+        private void ApplyAppThemeToEditorMenus()
+        {
+            var style = new Windows.UI.Xaml.Style(typeof(MenuFlyoutPresenter));
+            if (Application.Current.Resources.TryGetValue("DefaultMenuFlyoutPresenterStyle", out object basedOn) && basedOn is Windows.UI.Xaml.Style baseStyle)
+            {
+                style.BasedOn = baseStyle;
+            }
+            style.Setters.Add(new Setter(FrameworkElement.RequestedThemeProperty, this.ActualTheme));
+            EditorContextMenu.MenuFlyoutPresenterStyle = style;
+        }
+
         private void SetupSelectionBar()
         {
+            ApplyAppThemeToEditorMenus();
+            this.ActualThemeChanged += (s, e) => ApplyAppThemeToEditorMenus();
+
             Editor.SelectionFlyout = null;
 
             // keeps found text visible while the find box has the focus
@@ -1710,6 +1809,13 @@ namespace UltraPad
             string ext = file.FileType.ToLowerInvariant();
 
             DocumentFileFormat format = DocumentFileFormat.Rtf;
+
+            ulong fileSize = 0;
+            try { fileSize = (await file.GetBasicPropertiesAsync()).Size; } catch { }
+            _largeDocument = fileSize > LargeDocumentBytes;
+            bool showProgress = fileSize > LoadingProgressBytes;
+            if (showProgress) ShowLoading(0);
+
             BeginProgrammaticChange();
             try
             {
@@ -1720,20 +1826,43 @@ namespace UltraPad
                     using (var stream = await file.OpenStreamForReadAsync())
                     using (var reader = new StreamReader(stream))
                     {
-                        rtf = await reader.ReadToEndAsync();
+                        if (showProgress)
+                        {
+                            // read in pieces so the status bar can show how far it got
+                            long length = Math.Max(1, stream.Length);
+                            var builder = new StringBuilder((int)Math.Min(int.MaxValue, length));
+                            char[] buffer = new char[1024 * 1024];
+                            int read;
+                            while ((read = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                            {
+                                builder.Append(buffer, 0, read);
+                                ShowLoading((int)(Math.Min(1.0, stream.Position / (double)length) * 60));
+                            }
+                            rtf = builder.ToString();
+                        }
+                        else
+                        {
+                            rtf = await reader.ReadToEndAsync();
+                        }
                     }
 
+                    if (showProgress) ShowLoading(65);
                     rtf = await LegacyPictures.ConvertAsync(rtf);
 
                     if (_isEditorDark) rtf = RecolorRtfColorTable(rtf, blackToWhite: true);
 
+                    if (showProgress) await ShowLoadingFinalStepAsync();
                     Editor.Document.SetText(TextSetOptions.FormatRtf, rtf);
                 }
                 else if (ext == ".docx" || ext == ".odt")
                 {
                     format = ext == ".docx" ? DocumentFileFormat.Docx : DocumentFileFormat.Odt;
-                    string rtf = await LegacyPictures.ConvertAsync(await DocumentFormats.LoadAsRtfAsync(file, format));
+                    if (showProgress) ShowLoading(10);
+                    string loadedRtf = await DocumentFormats.LoadAsRtfAsync(file, format);
+                    if (showProgress) ShowLoading(60);
+                    string rtf = await LegacyPictures.ConvertAsync(loadedRtf);
                     if (_isEditorDark) rtf = RecolorRtfColorTable(rtf, blackToWhite: true);
+                    if (showProgress) await ShowLoadingFinalStepAsync();
                     Editor.Document.SetText(TextSetOptions.FormatRtf, rtf);
                 }
                 else
@@ -1744,6 +1873,10 @@ namespace UltraPad
                 }
 
                 EmbeddedObjectManager.For(Editor).Clear();
+
+                // text without an explicit color (and all plain text) is drawn black; the color table
+                // change above only covers explicitly black text, so recolor the runs like the setting does
+                if (_isEditorDark) RecolorRange(null, Black, White);
 
                 try { Editor.TextDocument.ClearUndoRedoHistory(); } catch { }
                 Editor.Document.Selection.SetRange(0, 0);
@@ -1762,6 +1895,7 @@ namespace UltraPad
             finally
             {
                 EndProgrammaticChange();
+                if (showProgress) HideLoading();
             }
 
             _currentFile = file;
@@ -2629,6 +2763,7 @@ namespace UltraPad
                     return;
             }
 
+            _largeDocument = false;
             BeginProgrammaticChange();
             try
             {
@@ -2711,6 +2846,57 @@ namespace UltraPad
         {
             baseRulerWidth = TextRuler.ActualWidth;
             MarkClean();
+            KeepScrollBarsExpanded();
+        }
+
+        // the new Paint keeps its scroll bars expanded (track, arrows, full thumb) all the time
+        // instead of shrinking them to a thin line when the mouse leaves; same here
+        private readonly List<Windows.UI.Xaml.Controls.Primitives.ScrollBar> _pinnedScrollBars = new List<Windows.UI.Xaml.Controls.Primitives.ScrollBar>();
+
+        private void KeepScrollBarsExpanded()
+        {
+            if (_pinnedScrollBars.Count > 0) return;
+            CollectOwnScrollBars(RichTextScrollView, _pinnedScrollBars);
+            foreach (var bar in _pinnedScrollBars)
+            {
+                PinScrollBar(bar);
+                bar.RegisterPropertyChangedCallback(Windows.UI.Xaml.Controls.Primitives.ScrollBar.IndicatorModeProperty, (s, dp) => PinScrollBar((Windows.UI.Xaml.Controls.Primitives.ScrollBar)s));
+                bar.Loaded += (s, e) => PinScrollBar((Windows.UI.Xaml.Controls.Primitives.ScrollBar)s);
+
+                if (VisualTreeHelper.GetChildrenCount(bar) > 0 && VisualTreeHelper.GetChild(bar, 0) is FrameworkElement root)
+                {
+                    foreach (VisualStateGroup group in VisualStateManager.GetVisualStateGroups(root))
+                    {
+                        if (group.Name != "ConsciousStates") continue;
+                        group.CurrentStateChanged += (s, e) =>
+                        {
+                            if (e.NewState == null || !e.NewState.Name.StartsWith("Collapsed", StringComparison.Ordinal)) return;
+                            foreach (var b in _pinnedScrollBars) VisualStateManager.GoToState(b, "ExpandedWithoutAnimation", false);
+                        };
+                    }
+                }
+            }
+        }
+
+        private static void PinScrollBar(Windows.UI.Xaml.Controls.Primitives.ScrollBar bar)
+        {
+            if (bar.IndicatorMode != Windows.UI.Xaml.Controls.Primitives.ScrollingIndicatorMode.MouseIndicator)
+                bar.IndicatorMode = Windows.UI.Xaml.Controls.Primitives.ScrollingIndicatorMode.MouseIndicator;
+            VisualStateManager.GoToState(bar, "MouseIndicator", false);
+            VisualStateManager.GoToState(bar, "ExpandedWithoutAnimation", false);
+        }
+
+        // only the page scroll viewer's own bars, not the hidden ones inside the editor
+        private static void CollectOwnScrollBars(DependencyObject parent, List<Windows.UI.Xaml.Controls.Primitives.ScrollBar> result)
+        {
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+                if (child is Windows.UI.Xaml.Controls.Primitives.ScrollBar bar) { result.Add(bar); continue; }
+                if (child is ScrollViewer) continue;
+                CollectOwnScrollBars(child, result);
+            }
         }
 
         private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)

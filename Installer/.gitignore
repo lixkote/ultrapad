@@ -1,0 +1,7 @@
+bin/
+obj/
+*.user
+.vs/
+Setup/payload.bin
+Payload/*
+!Payload/README.txt

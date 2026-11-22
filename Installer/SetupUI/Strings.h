@@ -43,6 +43,7 @@ namespace setup
         wchar_t const* UninstalledTitle;
         wchar_t const* UninstalledText;
         wchar_t const* LaunchApp;
+        wchar_t const* UninstallHint;
 
         wchar_t const* InstallFailed;
         wchar_t const* UninstallFailed;
@@ -57,7 +58,7 @@ namespace setup
         L"UltraPad Setup",
 
         L"Install UltraPad",
-        L"UltraPad %1 will be installed for your account.",
+        L"UltraPad %1 will be installed for the current Windows user.",
         L"Update UltraPad",
         L"UltraPad %1 is installed. Setup will update it to version %2. Your documents and settings are kept.",
         L"UltraPad is already installed",
@@ -93,6 +94,7 @@ namespace setup
         L"UltraPad was uninstalled",
         L"UltraPad and its file associations were removed from this PC.",
         L"Launch UltraPad",
+        L"To uninstall UltraPad later, right-click it in the Start menu and choose Uninstall, or remove it in Settings > Apps > Installed apps. You don't need any registry cleaners or uninstall tools for it; they can damage Windows.",
 
         L"UltraPad couldn't be installed",
         L"UltraPad couldn't be uninstalled",
@@ -107,7 +109,7 @@ namespace setup
         L"Instalator UltraPad",
 
         L"Zainstaluj UltraPad",
-        L"UltraPad %1 zostanie zainstalowany dla Twojego konta.",
+        L"UltraPad %1 zostanie zainstalowany dla bieżącego użytkownika systemu Windows.",
         L"Zaktualizuj UltraPad",
         L"Zainstalowano UltraPad %1. Instalator zaktualizuje go do wersji %2. Dokumenty i ustawienia zostaną zachowane.",
         L"UltraPad jest już zainstalowany",
@@ -143,6 +145,7 @@ namespace setup
         L"UltraPad został odinstalowany",
         L"UltraPad i jego skojarzenia plików zostały usunięte z tego komputera.",
         L"Uruchom UltraPad",
+        L"Aby później odinstalować UltraPad, kliknij go prawym przyciskiem myszy w menu Start i wybierz Odinstaluj albo usuń go w Ustawienia > Aplikacje > Zainstalowane aplikacje. Nie potrzebujesz do tego żadnych programów do czyszczenia rejestru ani deinstalatorów, mogą one uszkodzić system Windows.",
 
         L"Nie udało się zainstalować UltraPad",
         L"Nie udało się odinstalować UltraPad",

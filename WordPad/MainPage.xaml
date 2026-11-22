@@ -1134,6 +1134,23 @@ VerticalAlignment="Top"
                 Grid.Row="5"
                 Grid.ColumnSpan="3">
             <Grid>
+                <StackPanel x:Name="LoadingPanel"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Margin="12,0,0,0"
+                            Spacing="10"
+                            Visibility="Collapsed">
+                    <muxc:ProgressBar x:Name="LoadingProgress"
+                                      Width="160"
+                                      VerticalAlignment="Center"
+                                      Minimum="0"
+                                      Maximum="100" />
+                    <TextBlock x:Name="LoadingText"
+                               VerticalAlignment="Center"
+                               FontSize="12"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
                 <StackPanel x:Name="ZoomStack" Orientation="Horizontal"
             HorizontalAlignment="Right">
 
