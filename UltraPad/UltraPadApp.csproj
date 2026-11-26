@@ -471,11 +471,7 @@
     <Content Include="Assets\MenuParagraph.scale-100.png" />
     <Content Include="Assets\MenuParagraph.scale-125.png" />
     <Content Include="Assets\MenuParagraph.scale-150.png" />
-    <Content Include="Assets\MenuParagraph.scale-175.png" />
     <Content Include="Assets\MenuParagraph.scale-200.png" />
-    <Content Include="Assets\MenuParagraph.scale-225.png" />
-    <Content Include="Assets\MenuParagraph.scale-250.png" />
-    <Content Include="Assets\MenuParagraph.scale-300.png" />
     <Content Include="Assets\MenuParagraph.scale-400.png" />
   </ItemGroup>
   <ItemGroup>

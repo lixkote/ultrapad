@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <!--
-      The UltraPad version, like Paint's: 11.YYMM.Build.0, e.g. 11.2609.441.0
-      (11 = major, YYMM = year and month, then the build number, last part always 0; each part 0-65535).
-      This is the only place to change it. Building copies it into UltraPad\Package.appxmanifest
-      (shown in Settings > About) and into the file properties of Installer\UltraPad-Setup.exe.
-    -->
     <UltraPadVersion>11.2611.226.0</UltraPadVersion>
   </PropertyGroup>
 </Project>
