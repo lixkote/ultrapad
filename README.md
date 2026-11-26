@@ -1,13 +1,13 @@
 # UltraPad
 
-The UltraPad app is a modern free-software unofficial replacement for Windows WordPad. 
+The UltraPad app is a modern free-software unofficial replacement for the classic rich text editor that used to ship with Windows. 
 It is free and open source, aims to provide the same functionality as its predecessor, with a fresh and updated look, and some new useful features here and there.
 
 ![UltraPad Screenshot in light mode](https://raw.githubusercontent.com/lixkote/ultrapad/refs/heads/main/Previews/lightp.png)
 ![UltraPad Screenshot in dark mode](https://raw.githubusercontent.com/lixkote/ultrapad/refs/heads/main/Previews/darkp.png)
 
 ## Features
-- Most WordPad features, such as rich text editing and inserting various multimedia items reimplemented
+- Most features of the classic Windows editor, such as rich text editing and inserting various multimedia items reimplemented
 - Text margin ruler
 - As lightweight as possible
 - Modern Windows 11-style design, based on the new paint redesign.
@@ -25,7 +25,7 @@ To compile UltraPad, you will need the following prerequisites:
     git clone https://github.com/lixkote/UltraPad
     ```
 
-- Open [src\WordPad.sln](/src/WordPad.sln) in Visual Studio to build and run the UltraPad app.
+- Open [src\UltraPad.sln](/src/UltraPad.sln) in Visual Studio to build and run the UltraPad app.
 - Now you can press the compile button and the app should be ran in debug mode.
 
 ## Donate

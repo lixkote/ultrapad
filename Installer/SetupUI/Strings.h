@@ -67,7 +67,7 @@ namespace setup
         L"Version %1 is installed, which is newer than the version in this setup (%2).",
         L"UltraPad from Microsoft Store is installed",
         L"It gets its updates from Microsoft Store, so there is nothing to install. You can uninstall it here if you want to switch to this version.",
-        L"A modern word processor with the classic WordPad feel. It can open and save RTF, DOCX, ODT and plain text documents.",
+        L"A modern word processor with a classic, familiar feel. It can open and save RTF, DOCX, ODT and plain text documents.",
 
         L"Install",
         L"Update",
@@ -118,7 +118,7 @@ namespace setup
         L"Zainstalowana jest wersja %1, nowsza niż wersja w tym instalatorze (%2).",
         L"Zainstalowano UltraPad ze sklepu Microsoft Store",
         L"Aktualizacje pobiera ze sklepu Microsoft Store, więc nie ma czego instalować. Jeśli chcesz przejść na tę wersję, możesz go tutaj odinstalować.",
-        L"Nowoczesny edytor tekstu w stylu klasycznego WordPada. Otwiera i zapisuje dokumenty RTF, DOCX, ODT i zwykły tekst.",
+        L"Nowoczesny edytor tekstu w klasycznym, znajomym stylu. Otwiera i zapisuje dokumenty RTF, DOCX, ODT i zwykły tekst.",
 
         L"Zainstaluj",
         L"Zaktualizuj",

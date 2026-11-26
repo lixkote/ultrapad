@@ -1,0 +1,532 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{4B764E73-397A-44FD-82A6-7B8C97967985}</ProjectGuid>
+    <OutputType>AppContainerExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UltraPad</RootNamespace>
+    <AssemblyName>UltraPad</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
+    <AppxPackageSigningEnabled Condition="'$(AppxPackageSigningEnabled)' == ''">False</AppxPackageSigningEnabled>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <AppxPackageDir Condition="'$(AppxPackageDir)' == ''">$(MSBuildProjectDirectory)\..\AppPackages\</AppxPackageDir>
+    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackageCertificateThumbprint)' == '' And '$(PackageCertificateKeyFile)' == '' And Exists('$(MSBuildProjectDirectory)\UltraPad_TemporaryKey.pfx')">
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <PackageCertificateKeyFile>UltraPad_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackageCertificateThumbprint)' != '' Or '$(PackageCertificateKeyFile)' != ''">
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <OutputPath>bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
+    <OutputPath>bin\ARM64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup Label="MultilingualAppToolkit">
+    <MultilingualAppToolkitVersion>4.0</MultilingualAppToolkitVersion>
+    <MultilingualFallbackLanguage>en-US</MultilingualFallbackLanguage>
+    <TranslationReport Condition="'$(Configuration)' == 'Release'">true</TranslationReport>
+    <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Classes\CUnit.cs" />
+    <Compile Include="Editor.cs" />
+    <Compile Include="Helpers\DocumentPrintHelper.cs" />
+    <Compile Include="Helpers\DocumentPrintHelperStateBag.cs" />
+    <Compile Include="Helpers\EmbeddedObjectManager.cs" />
+    <Compile Include="Helpers\LegacyPictures.cs" />
+    <Compile Include="Helpers\Throttle.cs" />
+    <Compile Include="Helpers\ImageInsertHelper.cs" />
+    <Compile Include="Helpers\PageSettings.cs" />
+    <Compile Include="Helpers\ParagraphHelper.cs" />
+    <Compile Include="Helpers\PictureHelper.cs" />
+    <Compile Include="Helpers\EditorCoordinates.cs" />
+    <Compile Include="Helpers\Loc.cs" />
+    <Compile Include="Helpers\DialogTheme.cs" />
+    <Compile Include="Helpers\DocumentFormats.cs" />
+    <Compile Include="Helpers\Formats\DocModel.cs" />
+    <Compile Include="Helpers\Formats\RtfReader.cs" />
+    <Compile Include="Helpers\Formats\RtfWriter.cs" />
+    <Compile Include="Helpers\Formats\DocxConverter.cs" />
+    <Compile Include="Helpers\Formats\OdtConverter.cs" />
+    <Compile Include="Helpers\DocumentPaginator.cs" />
+    <Compile Include="UltraPadUI\PrintPreviewController.cs" />
+    <Compile Include="UltraPadUI\PictureAdorner.cs" />
+    <Compile Include="Helpers\SpellCheckHelper.cs" />
+    <Compile Include="Helpers\RecentlyUsedHelper.cs" />
+    <Compile Include="Helpers\RecentlyUsedViewModel.cs" />
+    <Compile Include="Helpers\RichEditHelpers.cs" />
+    <Compile Include="Helpers\SettingsManagerMain.cs" />
+    <Compile Include="Helpers\UnitManager.cs" />
+    <Compile Include="Helpers\ZoomConverter.cs" />
+    <Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Classes\FontClass.cs" />
+    <Compile Include="UltraPadUI\NoImplement.xaml.cs">
+      <DependentUpon>NoImplement.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\Pageprop.xaml.cs">
+      <DependentUpon>Pageprop.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\Paragraph.xaml.cs">
+      <DependentUpon>Paragraph.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\ObjectInsert.xaml.cs">
+      <DependentUpon>ObjectInsert.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\Ribbon\EditingToolbar.xaml.cs">
+      <DependentUpon>EditingToolbar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\Ribbon\FontToolbar.xaml.cs">
+      <DependentUpon>FontToolbar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\Ribbon\InsertToolbar.xaml.cs">
+      <DependentUpon>InsertToolbar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\Ribbon\ParagraphToolbar.xaml.cs">
+      <DependentUpon>ParagraphToolbar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\Settings\SettingsPageManager.cs" />
+    <Compile Include="UltraPadUI\Settings\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\TabsDialog.xaml.cs">
+      <DependentUpon>TabsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\TextRuler.xaml.cs">
+      <DependentUpon>TextRuler.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UltraPadUI\DocTree.xaml.cs">
+      <DependentUpon>DocTree.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\LargeTile.scale-100.png" />
+    <Content Include="Assets\LargeTile.scale-125.png" />
+    <Content Include="Assets\LargeTile.scale-150.png" />
+    <Content Include="Assets\LargeTile.scale-200.png" />
+    <Content Include="Assets\LargeTile.scale-400.png" />
+    <Content Include="Assets\listnumbersimages\abc.png" />
+    <Content Include="Assets\listnumbersimages\ABCB.png" />
+    <Content Include="Assets\listnumbersimages\Dark\abc.png" />
+    <Content Include="Assets\listnumbersimages\Dark\ABCB.png" />
+    <Content Include="Assets\listnumbersimages\Dark\dot.png" />
+    <Content Include="Assets\listnumbersimages\Dark\iii.png" />
+    <Content Include="Assets\listnumbersimages\Dark\IIII.png" />
+    <Content Include="Assets\listnumbersimages\Dark\none.png" />
+    <Content Include="Assets\listnumbersimages\Dark\number.png" />
+    <Content Include="Assets\listnumbersimages\dot.png" />
+    <Content Include="Assets\listnumbersimages\iii.png" />
+    <Content Include="Assets\listnumbersimages\IIII.png" />
+    <Content Include="Assets\listnumbersimages\none.png" />
+    <Content Include="Assets\listnumbersimages\number.png" />
+    <Content Include="Assets\rpad16.png" />
+    <Content Include="Assets\SmallTile.scale-100.png" />
+    <Content Include="Assets\SmallTile.scale-125.png" />
+    <Content Include="Assets\SmallTile.scale-150.png" />
+    <Content Include="Assets\SmallTile.scale-150.png" />
+    <Content Include="Assets\SmallTile.scale-200.png" />
+    <Content Include="Assets\SmallTile.scale-400.png" />
+    <Content Include="Assets\splashw.scale-100.png" />
+    <Content Include="Assets\splashw.scale-125.png" />
+    <Content Include="Assets\splashw.scale-150.png" />
+    <Content Include="Assets\splashw.scale-200.png" />
+    <Content Include="Assets\splashw.scale-400.png" />
+    <Content Include="Assets\Square150x150Logo.scale-100.png" />
+    <Content Include="Assets\Square150x150Logo.scale-100.png" />
+    <Content Include="Assets\Square150x150Logo.scale-125.png" />
+    <Content Include="Assets\Square150x150Logo.scale-125.png" />
+    <Content Include="Assets\Square150x150Logo.scale-150.png" />
+    <Content Include="Assets\Square150x150Logo.scale-400.png" />
+    <Content Include="Assets\Square150x150Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-24.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-256.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-48.png" />
+    <Content Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-48.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-256.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-48.png" />
+    <Content Include="Assets\Square44x44Logo.scale-100.png" />
+    <Content Include="Assets\Square44x44Logo.scale-100.png" />
+    <Content Include="Assets\Square44x44Logo.scale-125.png" />
+    <Content Include="Assets\Square44x44Logo.scale-125.png" />
+    <Content Include="Assets\Square44x44Logo.scale-150.png" />
+    <Content Include="Assets\Square44x44Logo.scale-150.png" />
+    <Content Include="Assets\Square44x44Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-256.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-48.png" />
+    <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\StoreLogo.scale-125.png" />
+    <Content Include="Assets\StoreLogo.scale-150.png" />
+    <Content Include="Assets\StoreLogo.scale-150.png" />
+    <Content Include="Assets\StoreLogo.scale-200.png" />
+    <Content Include="Assets\StoreLogo.scale-200.png" />
+    <Content Include="Assets\StoreLogo.scale-400.png" />
+    <Content Include="Assets\StoreLogo.scale-400.png" />
+    <Content Include="Assets\tab_pos.png" />
+    <Content Include="Assets\theme-dark\BottomScript.svg" />
+    <Content Include="Assets\theme-dark\Copy.svg" />
+    <Content Include="Assets\theme-dark\Cut.svg" />
+    <Content Include="Assets\theme-dark\Date.svg" />
+    <Content Include="Assets\theme-dark\FontDecrease.svg" />
+    <Content Include="Assets\theme-dark\FontSizeIncrease.svg" />
+    <Content Include="Assets\theme-dark\Image.svg" />
+    <Content Include="Assets\theme-dark\Images.svg" />
+    <Content Include="Assets\theme-dark\List.svg" />
+    <Content Include="Assets\theme-dark\MarginL.svg" />
+    <Content Include="Assets\theme-dark\MarginR.svg" />
+    <Content Include="Assets\theme-dark\ObjectCube.svg" />
+    <Content Include="Assets\theme-dark\Objects.svg" />
+    <Content Include="Assets\theme-dark\PaintImage.svg" />
+    <Content Include="Assets\theme-dark\Paragraph.svg" />
+    <Content Include="Assets\theme-dark\Paste.svg" />
+    <Content Include="Assets\theme-dark\Print.svg" />
+    <Content Include="Assets\theme-dark\Replace.svg" />
+    <Content Include="Assets\theme-dark\SelectAll.svg" />
+    <Content Include="Assets\theme-dark\Spacing.svg" />
+    <Content Include="Assets\theme-dark\UpScript.svg" />
+    <Content Include="Assets\theme-dark\ZoomIn.svg" />
+    <Content Include="Assets\theme-dark\ZoomInDisabled.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\theme-dark\ZoomInDisabled.svg" />
+    <Content Include="Assets\theme-dark\ZoomOut.svg" />
+    <Content Include="Assets\theme-dark\ZoomOutDisabled.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\theme-dark\ZoomOutDisabled.svg" />
+    <Content Include="Assets\theme-light\BottomScript.svg" />
+    <Content Include="Assets\theme-light\Copy.svg" />
+    <Content Include="Assets\theme-light\Cut.svg" />
+    <Content Include="Assets\theme-light\Date.svg" />
+    <Content Include="Assets\theme-light\FontDecrease.svg" />
+    <Content Include="Assets\theme-light\FontSizeIncrease.svg" />
+    <Content Include="Assets\theme-light\Image.svg" />
+    <Content Include="Assets\theme-light\Images.svg" />
+    <Content Include="Assets\theme-light\List.svg" />
+    <Content Include="Assets\theme-light\MarginL.svg" />
+    <Content Include="Assets\theme-light\MarginR.svg" />
+    <Content Include="Assets\theme-light\ObjectCube.svg" />
+    <Content Include="Assets\theme-light\Objects.svg" />
+    <Content Include="Assets\theme-light\PaintImage.svg" />
+    <Content Include="Assets\theme-light\Paragraph.svg" />
+    <Content Include="Assets\theme-light\Paste.svg" />
+    <Content Include="Assets\theme-light\Print.svg" />
+    <Content Include="Assets\theme-light\Replace.svg" />
+    <Content Include="Assets\theme-light\SelectAll.svg" />
+    <Content Include="Assets\theme-light\Spacing.svg" />
+    <Content Include="Assets\theme-light\UpScript.svg" />
+    <Content Include="Assets\theme-light\ZoomIn.svg" />
+    <Content Include="Assets\theme-light\ZoomInDisabled.svg" />
+    <Content Include="Assets\theme-light\ZoomOut.svg" />
+    <Content Include="Assets\theme-light\ZoomOutDisabled.svg" />
+    <Content Include="Assets\theme-light\ZoomOutDisabled.svg" />
+    <Content Include="Assets\txtdocument.targetsize-16.png" />
+    <Content Include="Assets\txtdocument.targetsize-256.png" />
+    <Content Include="Assets\txtdocument.targetsize-32.png" />
+    <Content Include="Assets\txtdocument.targetsize-48.png" />
+    <Content Include="Assets\txtdocument.targetsize-64.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-100.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-125.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-150.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Content Include="Assets\appdocument.targetsize-16.png" />
+    <Content Include="Assets\appdocument.targetsize-24.png" />
+    <Content Include="Assets\appdocument.targetsize-32.png" />
+    <Content Include="Assets\appdocument.targetsize-48.png" />
+    <Content Include="Assets\appdocument.targetsize-64.png" />
+    <Content Include="Assets\appdocument.targetsize-96.png" />
+    <Content Include="Assets\appdocument.targetsize-128.png" />
+    <Content Include="Assets\appdocument.targetsize-256.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-128.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-16.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-256.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-32.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-48.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-64.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-80.png" />
+    <Content Include="Assets\ultrapaddocument.targetsize-96.png" />
+    <None Include="Package.StoreAssociation.xml" />
+    <Content Include="priconfig.default.xml" />
+    <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UltraPadUI\NoImplement.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\Pageprop.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\Paragraph.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UltraPadUI\ObjectInsert.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UltraPadUI\Ribbon\EditingToolbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\Ribbon\FontToolbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\Ribbon\InsertToolbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\Ribbon\ParagraphToolbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\Settings\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\TabsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\TextRuler.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UltraPadUI\DocTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml">
+      <Version>2.20.0</Version>
+    </PackageReference>
+    <PackageReference Include="FanKit.Transformers">
+      <Version>1.6.4</Version>
+    </PackageReference>
+    <PackageReference Include="Fluent.Icons">
+      <Version>1.1.110</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.2.14</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp">
+      <Version>7.1.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
+      <Version>7.1.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.UI.Xaml">
+      <Version>2.8.2</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\UltraPadIcons.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw">
+      <SubType>Designer</SubType>
+    </PRIResource>
+    <PRIResource Include="Strings\pl-PL\Resources.resw" />
+    <PRIResource Include="Strings\qps-ploc\Resources.resw" />
+    <PRIResource Include="Strings\hu-HU\Resources.resw" />
+    <PRIResource Include="Strings\pt-BR\Resources.resw" />
+    <PRIResource Include="Strings\tr-TR\Resources.resw" />
+    <Content Include="Assets\Segoe Fluent Icons.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <XliffResource Include="MultilingualResources\UltraPad.pl-PL.xlf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </XliffResource>
+    <XliffResource Include="MultilingualResources\UltraPad.qps-ploc.xlf" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.PriResources.targets" Label="MultilingualAppToolkit" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\v$(MultilingualAppToolkitVersion)\Microsoft.Multilingual.PriResources.targets')" />
+  <Target Name="MATPrerequisite" BeforeTargets="PrepareForBuild" Condition="!Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.PriResources.targets')" Label="MultilingualAppToolkit">
+    <Warning Text="$(MSBuildProjectFile) is Multilingual build enabled, but the Multilingual App Toolkit is unavailable during the build. If building with Visual Studio, please check to ensure that toolkit is properly installed." />
+  </Target>
+  <!-- The version is set in ..\Version.props and copied into the manifest before every build -->
+  <Import Project="..\Version.props" />
+  <UsingTask TaskName="SetManifestVersion" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Manifest ParameterType="System.String" Required="true" />
+      <Version ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        byte[] bytes = File.ReadAllBytes(Manifest);
+        bool bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+        string text = File.ReadAllText(Manifest);
+        string updated = Regex.Replace(text, "(<Identity\\b[^>]*?\\sVersion=\")[^\"]*(\")", m => m.Groups[1].Value + Version + m.Groups[2].Value);
+        if (updated != text)
+        {
+            File.WriteAllText(Manifest, updated, new UTF8Encoding(bom));
+            Log.LogMessage(MessageImportance.High, "Package.appxmanifest: version set to " + Version);
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="ApplyUltraPadVersion" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true' and '$(UltraPadVersion)' != ''">
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(UltraPadVersion)', '^\d{1,5}\.\d{1,5}\.\d{1,5}\.\d{1,5}$'))" Text="UltraPadVersion in Version.props must look like 11.2609.441.0, not '$(UltraPadVersion)'." />
+    <SetManifestVersion Manifest="$(MSBuildProjectDirectory)\Package.appxmanifest" Version="$(UltraPadVersion)" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

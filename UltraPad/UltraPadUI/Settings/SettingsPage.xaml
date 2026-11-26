@@ -1,0 +1,269 @@
+﻿<Page
+    x:Class="UltraPad.UltraPadUI.Settings.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UltraPad.UltraPadUI.Settings"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:system="using:System"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True">
+    <Page.Resources>
+        <Thickness x:Key="ContentUpAndDownNormalSpacing">0,12,0,12</Thickness>
+        <Thickness x:Key="ContentTopLargeSpacing">0,16,0,0</Thickness>
+        <Thickness x:Key="ContentLeftWideSpacing">36,0,0,0</Thickness>
+        <system:Double x:Key="GridWideSpacing">56</system:Double>
+        <Thickness x:Key="HyperlinkButtonMargin">-12,0,0,0</Thickness>
+        <Thickness x:Key="ContentLeftNormalSpacing">12,0,0,0</Thickness>
+        <Thickness x:Key="ContentBottomWideSpacing">0,0,0,24</Thickness>
+        <Thickness x:Key="PageWidePadding">56,24,56,0</Thickness>
+        <Thickness x:Key="ContentBottomNormalSpacing">0,0,0,8</Thickness>
+        <Thickness x:Key="ContentBottomNarrowSpacing">0,0,0,4</Thickness>
+        <Thickness x:Key="ContentBottomLargeSpacing">0,0,0,16</Thickness>
+        <Style x:Key="PageHeader" BasedOn="{StaticResource SubtitleTextBlockStyle}" TargetType="TextBlock">
+            <Setter Property="AutomationProperties.HeadingLevel" Value="Level1" />
+        </Style>
+        <Style x:Key="SectionHeader" BasedOn="{StaticResource BodyTextBlockStyle}" TargetType="TextBlock">
+            <Setter Property="AutomationProperties.HeadingLevel" Value="Level2" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="{StaticResource ContentBottomNarrowSpacing}" />
+        </Style>
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" x:Name="AppTitleBar"
+Background="Transparent" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="8" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="8" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Image Source="/Assets/rpad16.png"
+     Width="16"
+     Height="16"
+     Grid.Column="1" />
+        <TextBlock
+         x:Name="AppTitle"                       
+         x:Uid="apptitle"
+         Style="{StaticResource CaptionTextBlockStyle}"
+         VerticalAlignment="Center"
+         Grid.Column="3" Text="Document - UltraPad"/>
+    </Grid>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto" VerticalScrollMode="Enabled">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualStateGroup.States>
+                    <VisualState>
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="800" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="AboutSection.(Grid.Row)" Value="1" />
+                            <Setter Target="AboutSection.(Grid.Column)" Value="1" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup.States>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <ScrollViewer.Content>
+            <Grid Padding="56.1,24,56,0" ColumnSpacing="56">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="70" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="1000" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.Children>
+                    
+                    <TextBlock Grid.Row="0" x:Uid="settings" Style="{StaticResource PageHeader}" Text="Settings" Margin="0,2,0,24.2"   />
+                        <StackPanel Grid.Row="2" Margin="{StaticResource ContentBottomWideSpacing}">
+
+                            <TextBlock x:Uid="appearance" x:Name="appe" Style="{StaticResource SectionHeader}" Text="Appearance" Margin="0,10,0,10" />
+                        <muxc:Expander
+                        x:Name="Theme"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top"
+                        HorizontalContentAlignment="Stretch"
+                        IsExpanded="True">
+                            <muxc:Expander.Header>
+                                <Grid Padding="{StaticResource ContentUpAndDownNormalSpacing}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid x:Name="AppearanceIcon" Width="20" Height="20" VerticalAlignment="Center">
+                                        <Viewbox Width="20" Height="20">
+                                            <Path Width="16" Height="16" Fill="{ThemeResource TextFillColorPrimaryBrush}"
+                                                  Data="F1 M 12.5 0 Q 12.703 0 12.852 0.148 Q 13 0.297 13 0.5 V 9.039 Q 13 9.438 12.84 9.789 Q 12.68 10.141 12.41 10.41 Q 12.141 10.68 11.785 10.836 Q 11.43 10.992 11.039 11 Q 11 11 10.953 11 L 10.781 11.008 Q 10.742 11.008 10.695 11.008 Q 10.516 11.008 10.344 11.004 Q 10.172 11 10 11 V 14.039 Q 10 14.445 9.836 14.801 Q 9.672 15.156 9.398 15.422 Q 9.125 15.688 8.762 15.844 Q 8.398 16 8 16 Q 7.586 16 7.223 15.84 Q 6.859 15.68 6.59 15.41 Q 6.32 15.141 6.16 14.777 Q 6 14.414 6 14 V 11 H 4.961 Q 4.57 11 4.215 10.84 Q 3.859 10.68 3.59 10.41 Q 3.32 10.141 3.16 9.785 Q 3 9.43 3 9.039 V 0.5 Q 3 0.297 3.148 0.148 Q 3.297 0 3.5 0 Z M 4 1 V 7 H 12 V 1 H 11 V 3.5 Q 11 3.703 10.852 3.852 Q 10.703 4 10.5 4 Q 10.297 4 10.148 3.852 Q 10 3.703 10 3.5 V 1 H 9 V 2.5 Q 9 2.703 8.852 2.852 Q 8.703 3 8.5 3 Q 8.297 3 8.148 2.852 Q 8 2.703 8 2.5 V 1 Z M 12 8 H 4 V 9 Q 4 9.422 4.289 9.711 Q 4.578 10 5 10 H 6.5 Q 6.703 10 6.852 10.148 Q 7 10.297 7 10.5 V 14 Q 7 14.211 7.078 14.395 Q 7.156 14.578 7.289 14.711 Q 7.422 14.844 7.605 14.922 Q 7.789 15 8 15 Q 8.211 15 8.391 14.922 Q 8.57 14.844 8.707 14.707 Q 8.844 14.57 8.922 14.391 Q 9 14.211 9 14 V 10.5 Q 9 10.18 9.223 10.086 Q 9.445 9.992 9.781 9.992 Q 9.984 9.992 10.203 10.004 Q 10.422 10.016 10.648 10.016 Q 10.953 10.016 11.23 9.961 Q 11.508 9.906 11.703 9.711 Q 12 9.414 12 9 Z" />
+                                        </Viewbox>
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Margin="{StaticResource ContentLeftNormalSpacing}" VerticalAlignment="Center">
+                                        <TextBlock Style="{ThemeResource BodyTextBlockStyle}" x:Uid="apptheme" Text="App theme" />
+                                            <TextBlock Visibility="Collapsed" Style="{ThemeResource CaptionTextBlockStyle}" x:Uid="selappthem" FontWeight="SemiLight" Text="Select which app theme to display" TextWrapping="WrapWholeWords" />
+                                        <TextBlock Visibility="Collapsed" Style="{ThemeResource CaptionTextBlockStyle}" FontWeight="SemiLight" x:Uid="settings_onlysystem" Text="Only system theme supported in the UWP version" TextWrapping="WrapWholeWords"/>
+                                    </StackPanel>
+                                </Grid>
+                            </muxc:Expander.Header>
+                            <StackPanel x:Name="radiocontainer" Margin="{StaticResource ContentLeftWideSpacing}">
+                                <RadioButton x:Name="LightRadio" x:Uid="lightradio" GroupName="t" Margin="0,0,0,8" Content="Light" Tag="Light" Checked="RadioButton_Checked"/>
+                                <RadioButton x:Name="DarkRadio" x:Uid="darkradio" GroupName="t" Margin="0,0,0,8" Content="Dark" Tag="Dark" Checked="RadioButton_Checked"/>
+                                <RadioButton x:Name="SysRadio" x:Uid="sysradio" GroupName="t" Margin="0" Content="System theme" Tag="System" Checked="RadioButton_Checked"/>
+                            </StackPanel>
+                        </muxc:Expander>
+                            <Grid CornerRadius="4" Background="{ThemeResource ExpanderHeaderBackground}" BorderThickness="1" BorderBrush="{ThemeResource ExpanderHeaderBorderBrush}" MinHeight="60" Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="49"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="156"/>
+                                </Grid.ColumnDefinitions>
+                                <FontIcon x:Name="EditorDarkIcon" VerticalAlignment="Center" Glyph="" Height="20"  />
+                                <StackPanel Grid.Column="1"  VerticalAlignment="Center" Grid.ColumnSpan="2">
+                                    <TextBlock Style="{ThemeResource BodyTextBlockStyle}" x:Uid="darkeditor" Margin="0,3,0,0" Text="Editor dark mode" />
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" x:Uid="darkeditortext" FontWeight="SemiLight" Text="Printing is not possible with this setting turned on." Margin="0,3,0,3" TextWrapping="WrapWholeWords" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="EditorDarkModeToggle" Toggled="EditorDarkModeToggle_Toggled" Grid.Column="3" Height="40" Width="154"></ToggleSwitch>
+                            </Grid>
+                            <Grid Visibility="Collapsed" CornerRadius="4" Background="{ThemeResource ExpanderHeaderBackground}" BorderThickness="1" BorderBrush="{ThemeResource ExpanderHeaderBorderBrush}" Height="60" Margin="0,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="49"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="156"/>
+                            </Grid.ColumnDefinitions>
+                                <FontIcon x:Name="AdvFeatureIcon" VerticalAlignment="Center" Glyph="" Height="20"  />
+                            <StackPanel Grid.Column="1"  VerticalAlignment="Center" Grid.ColumnSpan="2">
+                                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" x:Uid="settings_advanced" Text="Enable advanced features" />
+                                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" FontWeight="SemiLight" x:Uid="settings_advanceddesc" Text="Documents tree view, multiple tabs" TextWrapping="WrapWholeWords" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="AdvFeatureToggle" Toggled="AdvFeatureToggle_Toggled" Grid.Column="3" Height="40" Width="154"></ToggleSwitch>
+                        </Grid>
+                        <TextBlock Style="{StaticResource SectionHeader}" x:Uid="words" Text="Words" Margin="0,10,0,10" />
+                        <muxc:Expander
+                            x:Name="Theme_Copy"
+                            HorizontalContentAlignment="Stretch"
+                        VerticalAlignment="Top"
+                            IsExpanded="True" HorizontalAlignment="Stretch">
+                            <muxc:Expander.Header>
+                                <Grid Padding="{StaticResource ContentUpAndDownNormalSpacing}">
+                                    <d:Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </d:Grid.ColumnDefinitions>
+                                    <FontIcon x:Name="WordWrapIcon" Glyph="" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                                    <StackPanel Grid.Column="1" Margin="35,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Style="{ThemeResource BodyTextBlockStyle}" x:Uid="wordwrap" />
+                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" x:Uid="wordwraptext" FontWeight="SemiLight" Text="Select a line wrap option to change the way text is displayed on the screen. This will not affect the appearance of the document when printed." TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                </Grid>
+                            </muxc:Expander.Header>
+                            <muxc:RadioButtons x:Name="wrapradiocontainer" Margin="{StaticResource ContentLeftWideSpacing}">
+                                <RadioButton x:Name="NoWrap" x:Uid="nowrap" GroupName="w" Tag="nowrap" Content="No wrap" Checked="WrapRadioButton_Checked"/>
+                                <RadioButton x:Name="WrapWindow" x:Uid="wrapwindow" GroupName="w" Tag="wrapwindow" Content="Wrap to window" Checked="WrapRadioButton_Checked"/>
+                                <RadioButton x:Name="WrapRuler" x:Uid="wrapruler" GroupName="w" Tag="wrapruler" Content="Wrap to ruler" Checked="WrapRadioButton_Checked"/>
+                            </muxc:RadioButtons>
+                        </muxc:Expander>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Measurement" x:Uid="measurement" Margin="0,10,0,10" />
+                        <muxc:Expander
+                            x:Name="Theme_Copy1"
+                            HorizontalContentAlignment="Stretch"
+                        VerticalAlignment="Top"
+                            IsExpanded="True" HorizontalAlignment="Stretch">
+                            <muxc:Expander.Header>
+                                <Grid Padding="{StaticResource ContentUpAndDownNormalSpacing}">
+                                    <d:Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </d:Grid.ColumnDefinitions>
+                                    <FontIcon x:Name="AppearanceIcon2" Glyph="" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                                    <StackPanel Grid.Column="1" Margin="35,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="Measurement units"  x:Uid="measurementunits"/>
+                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" FontWeight="SemiLight" x:Uid="measurementunitstext" Text="Select the measurement units for the ruler and page setup." TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                </Grid>
+                            </muxc:Expander.Header>
+                            <muxc:RadioButtons x:Name="unitradiocontainer" Margin="{StaticResource ContentLeftWideSpacing}">
+                                <RadioButton x:Name="inchesr" x:Uid="inches" GroupName="u" Content="Inches" Tag="inches" Checked="UnitRadioButton_Checked"/>
+                                <RadioButton x:Name="centir" x:Uid="centimeters" GroupName="u" Content="Centimeters" Tag="cm" Checked="UnitRadioButton_Checked"/>
+                                <RadioButton x:Name="poinr" x:Uid="points" GroupName="u" Content="Points" Tag="points" Checked="UnitRadioButton_Checked"/>
+                                <RadioButton x:Name="cicr" x:Uid="picas" GroupName="u" Content="Picas" Tag="picas" Checked="UnitRadioButton_Checked"/>
+                            </muxc:RadioButtons>
+                        </muxc:Expander>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Spell" x:Uid="spell" Margin="0,10,0,10" />
+                        <Grid CornerRadius="4" Background="{ThemeResource ExpanderHeaderBackground}" BorderThickness="1" BorderBrush="{ThemeResource ExpanderHeaderBorderBrush}" Height="60">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="49"/>
+                                <ColumnDefinition Width="77"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="156"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon x:Name="SpellCheckIcon" VerticalAlignment="Center" Glyph="" Height="20"  />
+                            <StackPanel Grid.Column="1"  VerticalAlignment="Center" Grid.ColumnSpan="2">
+                                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" x:Uid="spellcheckset" Text="Spell check" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="SpellCheckToggle" Toggled="SpellCheckToggle_Toggled" Grid.Column="3" Height="40" Width="154" HorizontalAlignment="Left"></ToggleSwitch>
+                        </Grid>
+                        <Grid CornerRadius="4" Background="{ThemeResource ExpanderHeaderBackground}" BorderThickness="1" BorderBrush="{ThemeResource ExpanderHeaderBorderBrush}" MinHeight="60" Margin="0,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="49"/>
+                                <ColumnDefinition Width="77"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="156"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon x:Name="AurocorrectIcon" FontFamily="/Assets/Segoe Fluent Icons.ttf#Segoe Fluent Icons" VerticalAlignment="Center" Glyph="" Height="20"  />
+                            <StackPanel Grid.Column="1"  VerticalAlignment="Center" Grid.ColumnSpan="2">
+                                    <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Margin="0,3,0,0" x:Uid="autocorrect" Text="Aurocorrect" />
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" x:Uid="autocorrecttext" Margin="0,3,0,3" FontWeight="SemiLight" Text="Typos are automatically corrected when spell check is turned on" TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="AutocorrectToggle" Toggled="AutocorrectToggle_Toggled" Grid.Column="3" Height="40" Width="154"></ToggleSwitch>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" x:Name="AboutSection" Grid.Row="2" Margin="{StaticResource ContentBottomWideSpacing}">
+                        <TextBlock Style="{StaticResource SectionHeader}" x:Uid="aboutapp" Text="About UltraPad"/>
+                        <TextBlock x:Name="PackageVersionText" IsTextSelectionEnabled="True" Text="UltraPad 11.2605.1.0"/>
+                        <TextBlock x:Uid="copyrighttext" x:Name="CopyrightText" Margin="{StaticResource ContentBottomWideSpacing}" Text="© 2026 Lixkote. All rights reserved."/>
+
+                            <TextBlock x:Name="betatext" Visibility="Collapsed"  Foreground="{ThemeResource SystemErrorTextColor}" IsTextSelectionEnabled="True" Text="Debug build - errors can, and will happen!" Margin="0,0,0,10">
+                            </TextBlock>
+
+
+                            <HyperlinkButton Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad/blob/main/LICENSE">
+                            <TextBlock x:Uid="licenseterms" Text="License terms"/>
+                        </HyperlinkButton>
+                            <HyperlinkButton Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad/blob/main/PRIVACY.md">
+                            <TextBlock x:Uid="privacypolicy" Text="Privacy policy"/>
+                        </HyperlinkButton>
+                            <HyperlinkButton  Margin="{StaticResource HyperlinkButtonMargin}" NavigateUri="https://github.com/Lixkote/UltraPad" >
+                            <TextBlock x:Uid="srccode" Text="Source Code"/>
+                        </HyperlinkButton>
+
+
+                        <!-- both buttons get the width of the one with the longest text (one Auto column) -->
+                        <Grid HorizontalAlignment="Left">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Button x:Uid="feedback" x:Name="feedback" Grid.Row="0" Content="Send feedback" Click="feedback_Click" Margin="0,16,0,16" HorizontalAlignment="Stretch" />
+                            <Button x:Name="donatebutton_new" x:Uid="donatebutton" Grid.Row="1" Content="Donate" Click="donatebutton_Click" Margin="0,0,0,10" HorizontalAlignment="Stretch" />
+                        </Grid>
+                        </StackPanel>
+                    <Button Style="{StaticResource MenuButton}" x:Name="BackButton" Click="BackButton_Click" Content="&#xE0A6;" Margin="-55,0,0,0" VerticalAlignment="Top" Height="35" Width="44" Background="{x:Null}" BorderBrush="{x:Null}" FocusVisualSecondaryBrush="{x:Null}"                                                FontFamily="{StaticResource SegoeFluentIcons}" FontSize="16"/>
+                </Grid.Children>
+            </Grid>
+        </ScrollViewer.Content>
+    </ScrollViewer>
+    </Grid>
+</Page>

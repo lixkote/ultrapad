@@ -17,7 +17,7 @@ What it does:
 Requirements: Visual Studio 2022 or 2026 with *Desktop development with C++* and *WinUI application development*. NuGet restores the Windows App SDK on the first build.
 
 1. Create the sideloading package of UltraPad: *Publish > Create App Packages > Sideloading*.
-2. Copy the `.msixbundle`, the `.cer` and the `Dependencies` folder from `WordPad\AppPackages\WordPad_<version>_Test\` into `Installer\Payload\`. See `Payload\README.txt` for details.
+2. Copy the `.msixbundle`, the `.cer` and the `Dependencies` folder from `UltraPad\AppPackages\UltraPad_<version>_Test\` into `Installer\Payload\`. See `Payload\README.txt` for details.
 3. Open `Installer\UltraPadSetup.sln`, select **Release | x64** and build the solution.
 4. The installer is `Installer\bin\x64\Release\UltraPad-Setup.exe`. It is the only file you need to publish.
 

@@ -1,0 +1,457 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="pl-PL" original="ULTRAPAD/STRINGS/EN-US/RESOURCES.RESW" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="1.0.0.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="ULTRAPAD/STRINGS/EN-US/RESOURCES.RESW" datatype="resx">
+        <trans-unit id="aboutapp.Text" translate="yes" xml:space="preserve">
+          <source>About this app</source>
+          <target state="translated">Informacje o programie UltraPad</target>
+        </trans-unit>
+        <trans-unit id="addspace.Content" translate="yes" xml:space="preserve">
+          <source>Add 10pt space after paragraphs</source>
+          <target state="translated">Dodaj 10-punktową spację po akapitach</target>
+        </trans-unit>
+        <trans-unit id="align.Text" translate="yes" xml:space="preserve">
+          <source>Align</source>
+          <target state="translated">Wyrównaj</target>
+        </trans-unit>
+        <trans-unit id="alignm.Text" translate="yes" xml:space="preserve">
+          <source>Alignment:</source>
+          <target state="translated">Wyrównanie:</target>
+        </trans-unit>
+        <trans-unit id="appearance.Text" translate="yes" xml:space="preserve">
+          <source>Appearance</source>
+          <target state="translated">Wygląd</target>
+        </trans-unit>
+        <trans-unit id="apptheme.Text" translate="yes" xml:space="preserve">
+          <source>App theme</source>
+          <target state="translated">Motyw aplikacji</target>
+        </trans-unit>
+        <trans-unit id="apptitle.Text" translate="yes" xml:space="preserve">
+          <source>Document - UltraPad</source>
+          <target state="translated">Dokument - UltraPad</target>
+        </trans-unit>
+        <trans-unit id="bottr.Text" translate="yes" xml:space="preserve">
+          <source>Bottom:</source>
+          <target state="translated">Dolny:</target>
+        </trans-unit>
+        <trans-unit id="copy.Text" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="translated">Kopiuj</target>
+        </trans-unit>
+        <trans-unit id="copyrighttext.Text" translate="yes" xml:space="preserve">
+          <source>© 2026 Lixkote. All rights reserved.</source>
+          <target state="translated">© 2026 Lixkote. Wszelkie prawa zastrzeżone.</target>
+        </trans-unit>
+        <trans-unit id="EditingFindBox.Text" translate="yes" xml:space="preserve">
+          <source>Find</source>
+          <target state="translated">Znajdź</target>
+        </trans-unit>
+        <trans-unit id="EditingReplaceBox.Text" translate="yes" xml:space="preserve">
+          <source>Replace All</source>
+          <target state="translated">Zamień</target>
+        </trans-unit>
+        <trans-unit id="EditingSelAllBox.Text" translate="yes" xml:space="preserve">
+          <source>Select All</source>
+          <target state="translated">Zaznacz wszystko</target>
+        </trans-unit>
+        <trans-unit id="EditingText.Text" translate="yes" xml:space="preserve">
+          <source>Editing</source>
+          <target state="translated">Edytowanie</target>
+        </trans-unit>
+        <trans-unit id="feedback.Content" translate="yes" xml:space="preserve">
+          <source>Send feedback</source>
+          <target state="translated">Wyślij opinię</target>
+        </trans-unit>
+        <trans-unit id="filemenuitem.Title" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">Plik</target>
+        </trans-unit>
+        <trans-unit id="fli.Text" translate="yes" xml:space="preserve">
+          <source>First line:</source>
+          <target state="translated">Pierwszy wiersz:</target>
+        </trans-unit>
+        <trans-unit id="FontToolbarTitle.Text" translate="yes" xml:space="preserve">
+          <source>Font</source>
+          <target state="translated">Czcionka</target>
+        </trans-unit>
+        <trans-unit id="insertbox.Text" translate="yes" xml:space="preserve">
+          <source>Insert</source>
+          <target state="translated">Wstaw</target>
+        </trans-unit>
+        <trans-unit id="InsertObjectDialog.Title" translate="yes" xml:space="preserve">
+          <source>Insert an object</source>
+          <target state="translated">Wstaw obiekt</target>
+        </trans-unit>
+        <trans-unit id="lefti.Text" translate="yes" xml:space="preserve">
+          <source>Left:</source>
+          <target state="translated">Z lewej:</target>
+        </trans-unit>
+        <trans-unit id="lefttr.Text" translate="yes" xml:space="preserve">
+          <source>Left:</source>
+          <target state="translated">Z lewej:</target>
+        </trans-unit>
+        <trans-unit id="linespacing.Text" translate="yes" xml:space="preserve">
+          <source>Line spacing:</source>
+          <target state="translated">Interlinia:</target>
+        </trans-unit>
+        <trans-unit id="marginsnametr.Text" translate="yes" xml:space="preserve">
+          <source>Margins (unitplaceholder)</source>
+          <target state="translated">Marginesy (unitplaceholder)</target>
+        </trans-unit>
+        <trans-unit id="new.Text" translate="yes" xml:space="preserve">
+          <source>New</source>
+          <target state="translated">Nowy</target>
+        </trans-unit>
+        <trans-unit id="openmenuitem.Text" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated">Otwórz</target>
+        </trans-unit>
+        <trans-unit id="orientation.Text" translate="yes" xml:space="preserve">
+          <source>Orientation</source>
+          <target state="translated">Orientacja</target>
+        </trans-unit>
+        <trans-unit id="packageversiontext.Text" translate="yes" xml:space="preserve">
+          <source>UltraPad 11.2311.1</source>
+          <target state="translated">UltraPad 11.2311.1</target>
+        </trans-unit>
+        <trans-unit id="pagesetupdialog.SecondaryButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">Anuluj</target>
+        </trans-unit>
+        <trans-unit id="pagesetupdialog.Title" translate="yes" xml:space="preserve">
+          <source>Page Setup</source>
+          <target state="translated">Ustawienia strony</target>
+        </trans-unit>
+        <trans-unit id="paintpicture.Content" translate="yes" xml:space="preserve">
+          <source>Paint a picture</source>
+          <target state="translated">Rysunek programu Paint</target>
+        </trans-unit>
+        <trans-unit id="paper.Text" translate="yes" xml:space="preserve">
+          <source>Paper</source>
+          <target state="translated">Papier</target>
+        </trans-unit>
+        <trans-unit id="paradialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <target state="translated">Anuluj</target>
+        </trans-unit>
+        <trans-unit id="paradialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Tabs...</source>
+          <target state="translated">Tabulatory...</target>
+        </trans-unit>
+        <trans-unit id="paradialog.SecondaryButtonText" translate="yes" xml:space="preserve">
+          <source>OK</source>
+          <target state="translated">OK</target>
+        </trans-unit>
+        <trans-unit id="paradialog.Title" translate="yes" xml:space="preserve">
+          <source>Paragraph</source>
+          <target state="translated">Akapit</target>
+        </trans-unit>
+        <trans-unit id="paste.Text" translate="yes" xml:space="preserve">
+          <source>Paste</source>
+          <target state="translated">Wklej</target>
+        </trans-unit>
+        <trans-unit id="pgset.Text" translate="yes" xml:space="preserve">
+          <source>Page Setup</source>
+          <target state="translated">Ustawienia strony</target>
+        </trans-unit>
+        <trans-unit id="printmfsi.Text" translate="yes" xml:space="preserve">
+          <source>Print</source>
+          <target state="translated">Drukuj</target>
+        </trans-unit>
+        <trans-unit id="printpageTR.Content" translate="yes" xml:space="preserve">
+          <source>Print Page Numbers</source>
+          <target state="translated">Drukuj numery stron</target>
+        </trans-unit>
+        <trans-unit id="recentmenuitem.Text" translate="yes" xml:space="preserve">
+          <source>Recent</source>
+          <target state="translated">Ostatnie</target>
+        </trans-unit>
+        <trans-unit id="righti.Text" translate="yes" xml:space="preserve">
+          <source>Right:</source>
+          <target state="translated">Z prawej:</target>
+        </trans-unit>
+        <trans-unit id="righttr.Text" translate="yes" xml:space="preserve">
+          <source>Right:</source>
+          <target state="translated">Z prawej:</target>
+        </trans-unit>
+        <trans-unit id="ruler.Text" translate="yes" xml:space="preserve">
+          <source>Ruler</source>
+          <target state="translated">Linijka</target>
+        </trans-unit>
+        <trans-unit id="saveasmenuitem.Text" translate="yes" xml:space="preserve">
+          <source>Save as</source>
+          <target state="translated">Zapisz jako</target>
+        </trans-unit>
+        <trans-unit id="savemenuitem.Text" translate="yes" xml:space="preserve">
+          <source>Save</source>
+          <target state="translated">Zapisz</target>
+        </trans-unit>
+        <trans-unit id="selappthem.Text" translate="yes" xml:space="preserve">
+          <source>Select which app theme to display</source>
+          <target state="translated">Wybierz motyw aplikacji do wyświetlenia</target>
+        </trans-unit>
+        <trans-unit id="settings.Text" translate="yes" xml:space="preserve">
+          <source>Settings</source>
+          <target state="translated">Ustawienia</target>
+        </trans-unit>
+        <trans-unit id="size.Text" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="translated">Wielkość</target>
+        </trans-unit>
+        <trans-unit id="spacing.Text" translate="yes" xml:space="preserve">
+          <source>Spacing</source>
+          <target state="translated">Odstęp</target>
+        </trans-unit>
+        <trans-unit id="srccode.Text" translate="yes" xml:space="preserve">
+          <source>Source Code</source>
+          <target state="translated">Kod źródłowy</target>
+        </trans-unit>
+        <trans-unit id="statusbar.Text" translate="yes" xml:space="preserve">
+          <source>Status bar</source>
+          <target state="translated">Pasek stanu</target>
+        </trans-unit>
+        <trans-unit id="tableitemtr.Content" translate="yes" xml:space="preserve">
+          <source>Insert a table</source>
+          <target state="translated">Wstaw tabelę</target>
+        </trans-unit>
+        <trans-unit id="TooltipDateTime.Content" translate="yes" xml:space="preserve">
+          <source>Date and time</source>
+          <target state="translated">Data i godzina</target>
+        </trans-unit>
+        <trans-unit id="TooltipObject.Content" translate="yes" xml:space="preserve">
+          <source>Insert object</source>
+          <target state="translated">Wstaw obiekt</target>
+        </trans-unit>
+        <trans-unit id="TooltipPaint.Content" translate="yes" xml:space="preserve">
+          <source>Paint drawing</source>
+          <target state="translated">Rysunek programu Paint</target>
+        </trans-unit>
+        <trans-unit id="TooltipPicture.Content" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Obraz</target>
+        </trans-unit>
+        <trans-unit id="toptr.Text" translate="yes" xml:space="preserve">
+          <source>Top:</source>
+          <target state="translated">Górny:</target>
+        </trans-unit>
+        <trans-unit id="view.Title" translate="yes" xml:space="preserve">
+          <source>View</source>
+          <target state="translated">Widok</target>
+        </trans-unit>
+        <trans-unit id="edit.Title" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">Edytuj</target>
+        </trans-unit>
+        <trans-unit id="TitlePara.Text" translate="yes" xml:space="preserve">
+          <source>Paragraph</source>
+          <target state="translated">Akapit</target>
+        </trans-unit>
+        <trans-unit id="landscape.Content" translate="yes" xml:space="preserve">
+          <source>Landscape</source>
+          <target state="translated">Pozioma</target>
+        </trans-unit>
+        <trans-unit id="portrait.Content" translate="yes" xml:space="preserve">
+          <source>Portrait</source>
+          <target state="translated">Pionowa</target>
+        </trans-unit>
+        <trans-unit id="printpreview.Text" translate="yes" xml:space="preserve">
+          <source>Print preview</source>
+          <target state="translated">Podgląd wydruku</target>
+        </trans-unit>
+        <trans-unit id="qprint.Text" translate="yes" xml:space="preserve">
+          <source>Quick print</source>
+          <target state="translated">Szybkie drukowanie</target>
+        </trans-unit>
+        <trans-unit id="redobuttontoolbar.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Redo</source>
+          <target state="translated">Ponów (Ctrl+Y) </target>
+        </trans-unit>
+        <trans-unit id="saveasdocx.Text" translate="yes" xml:space="preserve">
+          <source>Office Open XML document</source>
+          <target state="translated">Dokument Office Open XML</target>
+        </trans-unit>
+        <trans-unit id="saveasrtf.Text" translate="yes" xml:space="preserve">
+          <source>Rich Text document</source>
+          <target state="translated">Dokument sformatowany</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Save the document in the Rich Text Format</note>
+        </trans-unit>
+        <trans-unit id="savebutton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Save (Ctrl+S)</source>
+          <target state="translated">Zapisz (Ctrl+S)</target>
+        </trans-unit>
+        <trans-unit id="sharebuttonmenu.Text" translate="yes" xml:space="preserve">
+          <source>Share</source>
+          <target state="translated">Udostępnij</target>
+        </trans-unit>
+        <trans-unit id="sharebuttontoolbar.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Share</source>
+          <target state="translated">Udostępnij</target>
+        </trans-unit>
+        <trans-unit id="toolbarsetbutton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Settings</source>
+          <target state="translated">Otwórz ustawienia</target>
+        </trans-unit>
+        <trans-unit id="undobuttontoolbar.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Undo</source>
+          <target state="translated">Cofnij (Ctrl+Z)</target>
+        </trans-unit>
+        <trans-unit id="saveasodt.Text" translate="yes" xml:space="preserve">
+          <source>OpenDocument text</source>
+          <target state="translated">Tekst w formacie OpenDocument</target>
+        </trans-unit>
+        <trans-unit id="saveastxt.Text" translate="yes" xml:space="preserve">
+          <source>Plain text document</source>
+          <target state="translated">Dokument tekstowy</target>
+        </trans-unit>
+        <trans-unit id="saveasother.Text" translate="yes" xml:space="preserve">
+          <source>Other formats</source>
+          <target state="translated">Inne formaty</target>
+        </trans-unit>
+        <trans-unit id="closebuttonmenu.Text" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <target state="translated">Zakończ</target>
+        </trans-unit>
+        <trans-unit id="autocorrect.Text" translate="yes" xml:space="preserve">
+          <source>Autocorrect</source>
+          <target state="translated">Autokorekta</target>
+        </trans-unit>
+        <trans-unit id="autocorrecttext.Text" translate="yes" xml:space="preserve">
+          <source>Typos are automatically corrected when spell check is turned on</source>
+          <target state="translated">Literówki są poprawiane automatycznie po włączeniu sprawdzania pisowni</target>
+        </trans-unit>
+        <trans-unit id="spellcheckset.Text" translate="yes" xml:space="preserve">
+          <source>Spell check</source>
+          <target state="translated">Pisownia</target>
+        </trans-unit>
+        <trans-unit id="darkeditor.Text" translate="yes" xml:space="preserve">
+          <source>Editor dark mode</source>
+          <target state="translated">Motyw ciemny edytora</target>
+        </trans-unit>
+        <trans-unit id="darkeditortext.Text" translate="yes" xml:space="preserve">
+          <source>Experimental feature - Enables dark mode in the editor section. Printing is not possible with this setting turned on.</source>
+          <target state="translated">Funkcja eksperymentalna - włącza motyw ciemny w oknie edytora. Drukowanie z tą opcją nie jest możliwe.</target>
+        </trans-unit>
+        <trans-unit id="spell.Text" translate="yes" xml:space="preserve">
+          <source>Spell</source>
+          <target state="translated">Pisownia</target>
+        </trans-unit>
+        <trans-unit id="measurement.Text" translate="yes" xml:space="preserve">
+          <source>Measurement</source>
+          <target state="translated">Jednostki miary</target>
+        </trans-unit>
+        <trans-unit id="words.Text" translate="yes" xml:space="preserve">
+          <source>Words</source>
+          <target state="translated">Formatowanie tekstu</target>
+        </trans-unit>
+        <trans-unit id="measurementunits.Text" translate="yes" xml:space="preserve">
+          <source>Measurement units</source>
+          <target state="translated">Jednostki miary</target>
+        </trans-unit>
+        <trans-unit id="sysradio.Content" translate="yes" xml:space="preserve">
+          <source>System theme</source>
+          <target state="translated">Ustawienie systemowe</target>
+        </trans-unit>
+        <trans-unit id="lightradio.Content" translate="yes" xml:space="preserve">
+          <source>Light</source>
+          <target state="translated">Jasny</target>
+        </trans-unit>
+        <trans-unit id="darkradio.Content" translate="yes" xml:space="preserve">
+          <source>Dark</source>
+          <target state="translated">Ciemny</target>
+        </trans-unit>
+        <trans-unit id="measurementunitstext.Text" translate="yes" xml:space="preserve">
+          <source>Select the measurement units for the ruler and page setup.</source>
+          <target state="translated">Wybierz jednostki miary dla linijki i ustawień strony.</target>
+        </trans-unit>
+        <trans-unit id="inches.Content" translate="yes" xml:space="preserve">
+          <source>Inches</source>
+          <target state="translated">Cale</target>
+        </trans-unit>
+        <trans-unit id="centimeters.Content" translate="yes" xml:space="preserve">
+          <source>Centimeters</source>
+          <target state="translated">Centymetry</target>
+        </trans-unit>
+        <trans-unit id="points.Content" translate="yes" xml:space="preserve">
+          <source>Points</source>
+          <target state="translated">Punkty</target>
+        </trans-unit>
+        <trans-unit id="picas.Content" translate="yes" xml:space="preserve">
+          <source>Picas</source>
+          <target state="translated">Cycera</target>
+        </trans-unit>
+        <trans-unit id="wrapruler.Content" translate="yes" xml:space="preserve">
+          <source>Wrap to ruler</source>
+          <target state="translated">Zawijaj według linijki</target>
+        </trans-unit>
+        <trans-unit id="nowrap.Content" translate="yes" xml:space="preserve">
+          <source>No wrap</source>
+          <target state="translated">Bez zawijania</target>
+        </trans-unit>
+        <trans-unit id="wrapwindow.Content" translate="yes" xml:space="preserve">
+          <source>Wrap to window</source>
+          <target state="translated">Zawijaj według okna</target>
+        </trans-unit>
+        <trans-unit id="wordwrap" translate="yes" xml:space="preserve">
+          <source>Word wrap</source>
+          <target state="translated">Zawijanie wierszy</target>
+        </trans-unit>
+        <trans-unit id="wordwraptext.Text" translate="yes" xml:space="preserve">
+          <source>Select a line wrap option to change the way text is displayed on the screen. This will not affect the appearance of the document when printed.</source>
+          <target state="translated">Wybierz opcję zawijania wierszy, aby zmienić sposób wyświetlania tekstu na ekranie. Nie wpłynie to na wygląd dokumentu po wydrukowaniu.</target>
+        </trans-unit>
+        <trans-unit id="notimplement1.Text" translate="yes" xml:space="preserve">
+          <source>This feature is not yet available.</source>
+          <target state="translated">Ta funkcja nie jest jeszcze dostępna.</target>
+        </trans-unit>
+        <trans-unit id="notimplement2.Text" translate="yes" xml:space="preserve">
+          <source>If you want, you can help to implement it by doing a pull request on GitHub.</source>
+          <target state="translated">Jeśli chcesz, możesz pomóc w jej zaimplementowaniu, wykonując pull request na GitHubie.</target>
+        </trans-unit>
+        <trans-unit id="notimplementdialog.Title" translate="yes" xml:space="preserve">
+          <source>🚫 Sorry, we cannot do that yet</source>
+          <target state="translated">🚫 Przepraszamy, jeszcze nie możemy tego zrobić</target>
+        </trans-unit>
+        <trans-unit id="tabsclear.Content" translate="yes" xml:space="preserve">
+          <source>Clear</source>
+          <target state="translated">Wyczyść</target>
+        </trans-unit>
+        <trans-unit id="tabsclearall.Content" translate="yes" xml:space="preserve">
+          <source>Clear all</source>
+          <target state="translated">Wyczyść wszystko</target>
+        </trans-unit>
+        <trans-unit id="tabsdialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <target state="translated">Zamknij</target>
+        </trans-unit>
+        <trans-unit id="tabsdialog.Title" translate="yes" xml:space="preserve">
+          <source>Tabs</source>
+          <target state="translated">Tabulatory</target>
+        </trans-unit>
+        <trans-unit id="tabsset.Content" translate="yes" xml:space="preserve">
+          <source>Set</source>
+          <target state="translated">Ustaw</target>
+        </trans-unit>
+        <trans-unit id="tabstopposition.Text" translate="yes" xml:space="preserve">
+          <source>Tab stop position</source>
+          <target state="translated">Pozycja tabulatora</target>
+        </trans-unit>
+		  <trans-unit id="githubtext.Text" translate="yes" xml:space="preserve">
+          <source>To learn how you can contribute to UltraPad,  &lt;LineBreak/&gt;check out the project on its <bpt id="1">&lt;Hyperlink NavigateUri="https://github.com/lixkote/UltraPad" TextDecorations="None"&gt;</bpt> GitHub<ept id="1">&lt;/Hyperlink&gt;</ept> page</source>
+          <target state="new">To learn how you can contribute UltraPad,  &lt;LineBreak/&gt;check out the project on its <bpt id="1">&lt;Hyperlink NavigateUri="https://github.com/lixkote/UltraPad" TextDecorations="None"&gt;</bpt> GitHub<ept id="1">&lt;/Hyperlink&gt;</ept> page</target>
+        </trans-unit>
+        <trans-unit id="automatical.Text" translate="yes" xml:space="preserve">
+          <source>Automatical</source>
+          <target state="new">Automatical</target>
+        </trans-unit>
+        <trans-unit id="morecolors.Text" translate="yes" xml:space="preserve">
+          <source>More colors...</source>
+          <target state="new">More colors...</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>
