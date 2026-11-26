@@ -198,8 +198,6 @@ namespace UltraPad
             InitializeZoomBox();
 
             // ParagraphMenuIcon.FontFamily = (Windows.UI.Xaml.Media.FontFamily)Application.Current.Resources["CustomIconFont"];
-            MenuParagraphIcon.FontFamily = (Windows.UI.Xaml.Media.FontFamily)Application.Current.Resources["CustomIconFont"];
-            ParagraphIconHost.FontFamily = (Windows.UI.Xaml.Media.FontFamily)Application.Current.Resources["CustomIconFont"];
 
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += OnCloseRequest;
             ribbongrid.DataContext = this;
@@ -235,7 +233,11 @@ namespace UltraPad
             RichTextScrollView.RegisterPropertyChangedCallback(Windows.UI.Xaml.Controls.ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, (s, dp) => UpdateEditorMinHeight());
             this.ActualThemeChanged += (s, e) => ApplyAppThemeToScrollBars();
             EditorContextMenu.Closed += EditorContextMenu_Closed;
-            EditorContextMenu.Opened += (s, e) => ApplyThemeToOpenPopups();
+            EditorContextMenu.Opened += (s, e) =>
+            {
+                ApplyThemeToOpenPopups();
+                RefreshParagraphMenuIcon();
+            };
 
             EditorContentHost.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ContentArea_PointerPressed), true);
             RulerBorder.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ContentArea_PointerPressed), true);
@@ -765,9 +767,59 @@ namespace UltraPad
         // both show up once the text goes past the bottom of the window.
         private double _minHeightZoom = -1;
 
-        private void UpdateEditorMinHeight()
+        private void UpdateEditorMinHeight() => UpdateEditorMinHeight(RichTextScrollView.ZoomFactor);
+
+        // Zooming out needs a taller page (in unzoomed units) to still reach the bottom of the window.
+        // Setting it before the zoom animation starts keeps the page from coming up short and then
+        // jumping during the animation; zooming in shrinks it only once the animation has finished.
+        private void PrepareEditorMinHeightForZoom(double targetZoom)
         {
-            double zoom = RichTextScrollView.ZoomFactor > 0 ? RichTextScrollView.ZoomFactor : 1;
+            if (targetZoom <= 0 || Math.Abs(targetZoom - RichTextScrollView.ZoomFactor) < 0.001) return;
+            SuppressScrollBarDuringZoom();
+            if (targetZoom < RichTextScrollView.ZoomFactor) UpdateEditorMinHeight(targetZoom);
+        }
+
+        // While a zoom animates, the page is briefly taller or shorter than the window (its height is
+        // only fitted once the zoom settles), which made the scroll bar flash in and out. A document
+        // that fits the window keeps the bar hidden until the zoom is done; a longer one has the bar
+        // the whole time anyway.
+        private bool _zoomBarSuppressed;
+
+        private void SuppressScrollBarDuringZoom()
+        {
+            if (_zoomBarSuppressed) return;
+            if (RichTextScrollView.ComputedVerticalScrollBarVisibility == Windows.UI.Xaml.Visibility.Visible) return;
+            if (Editor.ActualHeight > Editor.MinHeight + 0.5) return;
+            _zoomBarSuppressed = true;
+            RichTextScrollView.VerticalScrollBarVisibility = Windows.UI.Xaml.Controls.ScrollBarVisibility.Hidden;
+        }
+
+        private void EndScrollBarSuppression()
+        {
+            if (!_zoomBarSuppressed) return;
+            // after the layout pass that applies the new page height
+            _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
+            {
+                _zoomBarSuppressed = false;
+                RichTextScrollView.VerticalScrollBarVisibility = Windows.UI.Xaml.Controls.ScrollBarVisibility.Auto;
+            });
+        }
+
+        private void GrowEditorMinHeightForZoom(double zoom)
+        {
+            if (zoom <= 0) return;
+            double available = EditorContainer.ActualHeight;
+            if (available <= 0) return;
+            if (RichTextScrollView.ComputedHorizontalScrollBarVisibility == Visibility.Visible) available -= 16;
+            double min = Math.Max(48, Math.Floor(available / zoom) - 1);
+            if (min <= Editor.MinHeight + 0.5) return;
+            Editor.MinHeight = min;
+            EditorMandatoryPrintingGrid.MinHeight = min;
+        }
+
+        private void UpdateEditorMinHeight(double zoom)
+        {
+            if (zoom <= 0) zoom = 1;
             double available = EditorContainer.ActualHeight;
             if (available <= 0) return;
             if (RichTextScrollView.ComputedHorizontalScrollBarVisibility == Visibility.Visible) available -= 16;
@@ -781,7 +833,24 @@ namespace UltraPad
 
         private void RichTextScrollView_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
         {
-            if (Math.Abs(RichTextScrollView.ZoomFactor - _minHeightZoom) > 0.001) UpdateEditorMinHeight();
+            // only once a zoom has settled; changing the page size during the animation made it jump
+            if (e.IsIntermediate)
+            {
+                // zooming with Ctrl + wheel or a pinch goes straight through the scroll viewer
+                if (Math.Abs(RichTextScrollView.ZoomFactor - _minHeightZoom) > 0.001)
+                {
+                    SuppressScrollBarDuringZoom();
+                    // while zooming out the page grows along, so it keeps reaching the bottom of the
+                    // window instead of showing as a small block in the middle; it only shrinks once
+                    // the zoom has settled (shrinking during the animation made it jump)
+                    GrowEditorMinHeightForZoom(RichTextScrollView.ZoomFactor);
+                }
+            }
+            else
+            {
+                if (Math.Abs(RichTextScrollView.ZoomFactor - _minHeightZoom) > 0.001) UpdateEditorMinHeight();
+                EndScrollBarSuppression();
+            }
             TextRuler.UpdatePagePosition();
             if (_wheelSelecting) UpdateWheelSelection();
         }
@@ -1077,6 +1146,7 @@ namespace UltraPad
             try
             {
                 ZoomSlider.Value = Math.Round(zoom, 2);
+                PrepareEditorMinHeightForZoom(ZoomSlider.Value);
                 RichTextScrollView.ChangeView(0, 0, (float)ZoomSlider.Value);
             }
             finally
@@ -1783,6 +1853,26 @@ namespace UltraPad
 
         #endregion
 
+        // This page stays cached while Settings is open, outside the window's visual tree. A theme
+        // changed meanwhile only reached part of it, so back here some of the ribbon kept the old
+        // colors (until a popup happened to redraw it). Switching the page to the other theme and
+        // back to inheriting makes every theme resource on it update.
+        private void RefreshThemeResources()
+        {
+            try
+            {
+                Windows.UI.Xaml.ElementTheme current = this.ActualTheme;
+                this.RequestedTheme = current == Windows.UI.Xaml.ElementTheme.Dark
+                    ? Windows.UI.Xaml.ElementTheme.Light
+                    : Windows.UI.Xaml.ElementTheme.Dark;
+                this.RequestedTheme = Windows.UI.Xaml.ElementTheme.Default;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("RefreshThemeResources: " + ex.Message);
+            }
+        }
+
         private void LoadThemeFromSettings()
         {
             var values = Windows.Storage.ApplicationData.Current.LocalSettings.Values;
@@ -1838,6 +1928,7 @@ namespace UltraPad
             else if (_initialized)
             {
                 LoadThemeFromSettings();
+                RefreshThemeResources();
                 ApplyEditorSettings();
                 ApplyPageLayout();
                 UpdateViewMenuChecks();
@@ -2874,6 +2965,7 @@ namespace UltraPad
         private void AnimateZoomSecond(double fromValue, double toValue)
         {
             if (RichTextScrollView == null) return;
+            PrepareEditorMinHeightForZoom(ZoomSlider.Value);
             RichTextScrollView.ChangeView(null, null, (float)ZoomSlider.Value);
             if (PageSettings.Wrap == WrapMode.WrapToWindow) ApplyPageLayout();
         }
@@ -2891,6 +2983,36 @@ namespace UltraPad
         private async void MenuPaste_Click(object sender, RoutedEventArgs e)
         {
             await PasteAsync();
+        }
+
+        // A one-color bitmap icon takes the text color once, when it is created, and keeps it when the
+        // theme changes (it stayed white in the light theme), so it is created again each time the
+        // menu has opened with its final theme.
+        private void RefreshParagraphMenuIcon()
+        {
+            try
+            {
+                // its color is set here too: the menu's hover look was worked out for the theme it
+                // first opened with, which made the icon black on the dark menu on hover
+                bool dark = (Window.Current?.Content as FrameworkElement)?.ActualTheme == Windows.UI.Xaml.ElementTheme.Dark;
+                MenuParagraph.Icon = new Windows.UI.Xaml.Controls.BitmapIcon
+                {
+                    UriSource = new Uri("ms-appx:///Assets/MenuParagraph.png"),
+                    ShowAsMonochrome = true,
+                    Foreground = new Windows.UI.Xaml.Media.SolidColorBrush(dark
+                        ? Windows.UI.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF)
+                        : Windows.UI.Color.FromArgb(0xE4, 0x00, 0x00, 0x00))
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("RefreshParagraphMenuIcon: " + ex.Message);
+            }
+        }
+
+        private void ContextListStylesGrid_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            UltraPad.UltraPadUI.Ribbon.ParagraphToolbar.HighlightCurrentListStyle(sender as Windows.UI.Xaml.Controls.Panel, Editor);
         }
 
         private void MenuParagraph_Click(object sender, RoutedEventArgs e)

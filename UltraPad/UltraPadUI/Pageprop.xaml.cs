@@ -16,10 +16,40 @@ namespace UltraPad.UltraPadUI
         public Pageprop()
         {
             InitializeComponent();
+            FillSampleText();
             _unit = PageSettings.Unit;
             LoadUI();
             _loading = false;
             UpdatePreview();
+        }
+
+        // Sample text for the page preview, made the same way as the one in Windows' Page Setup
+        // (comdlg32 hides its authors' credit in it): a sentence woven together letter by letter with
+        // itself backwards, so in the tiny preview it looks like text but can't be read.
+        // (Take every other letter, starting with the first.)
+        private static readonly string[][] SampleBlock =
+        {
+            new[] { "U!lutirnaeP aadm edieSv e)l:o p" },
+            new[] { "yelde sboyl cl ioxokto" },
+            new[] { " tyea" },
+            new[] { " wi nd eGkdoaońls ku,o yP o,lsa" },
+            new[] { "inhdt.  dIafe ry onua cc auno yr efaId  .tdhniasl,o Py o,uk slńoaodkGe dn iw " },
+            new[] { "aeyt otkoxoi lc lyobs edleyp o:l)e " },
+            new[] { "vSeide mdaa Peanritul!U" },
+        };
+
+        private void FillSampleText()
+        {
+            var text = new System.Text.StringBuilder();
+            for (int block = 0; block < 12; block++)
+            {
+                foreach (string[] line in SampleBlock)
+                {
+                    foreach (string part in line) text.Append(part);
+                    text.Append(' ');
+                }
+            }
+            exampletext.Text = text.ToString().TrimEnd();
         }
 
         private void LoadUI()

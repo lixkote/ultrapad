@@ -145,10 +145,12 @@ namespace UltraPad
         {
             try
             {
-                ElementTheme theme = value == "Dark" ? ElementTheme.Dark : value == "Light" ? ElementTheme.Light : ElementTheme.Default;
-                RootTheme = theme;
-
-                bool dark = theme == ElementTheme.Dark || (theme == ElementTheme.Default && SystemUsesDarkTheme());
+                // "Use system setting" can't be ElementTheme.Default: that falls back to the theme the app
+                // was started with (Light or Dark if that was chosen then), not to Windows. So the system
+                // theme is read and set explicitly, and followed when Windows switches it.
+                bool dark = value == "Dark" || (value != "Light" && SystemUsesDarkTheme());
+                RootTheme = dark ? ElementTheme.Dark : ElementTheme.Light;
+                WatchSystemTheme();
                 var titleBar = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TitleBar;
                 Windows.UI.Color fg = dark ? Windows.UI.Colors.White : Windows.UI.Colors.Black;
                 titleBar.ButtonForegroundColor = fg;
@@ -162,6 +164,41 @@ namespace UltraPad
             {
                 System.Diagnostics.Debug.WriteLine("ApplyAppTheme: " + ex.Message);
             }
+        }
+
+        private static Windows.UI.ViewManagement.UISettings _themeSettings;
+        private static readonly System.Collections.Generic.List<Windows.UI.Core.CoreDispatcher> _themeWindows = new System.Collections.Generic.List<Windows.UI.Core.CoreDispatcher>();
+
+        // every window (UltraPad can have several) follows Windows switching between light and dark
+        // while the app theme is set to the system setting
+        private static void WatchSystemTheme()
+        {
+            Windows.UI.Core.CoreDispatcher dispatcher = Window.Current?.Dispatcher;
+            lock (_themeWindows)
+            {
+                if (dispatcher != null && !_themeWindows.Contains(dispatcher)) _themeWindows.Add(dispatcher);
+                if (_themeSettings != null) return;
+                _themeSettings = new Windows.UI.ViewManagement.UISettings();
+            }
+            _themeSettings.ColorValuesChanged += (sender, args) =>
+            {
+                Windows.UI.Core.CoreDispatcher[] windows;
+                lock (_themeWindows) windows = _themeWindows.ToArray();
+                foreach (Windows.UI.Core.CoreDispatcher window in windows)
+                {
+                    try
+                    {
+                    _ = window.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        string setting = ApplicationData.Current.LocalSettings.Values["theme"] as string
+                                         ?? ApplicationData.Current.LocalSettings.Values["themeSetting"] as string
+                                         ?? "System";
+                        if (setting != "Dark" && setting != "Light") ApplyAppTheme(setting);
+                    });
+                    }
+                    catch { } // that window has been closed
+                }
+            };
         }
 
         public static bool SystemUsesDarkTheme()

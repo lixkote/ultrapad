@@ -31,6 +31,124 @@ namespace UltraPad.UltraPadUI.Ribbon
     public sealed partial class ParagraphToolbar : UserControl
     {
         public RichEditBox Editor { get; set; }
+
+        private void ListStylesGrid_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            HighlightCurrentListStyle(sender as Windows.UI.Xaml.Controls.Panel, Editor);
+        }
+
+        // Like WordPad, the list style of the paragraph with the cursor is framed in the accent color
+        // when the list styles open (here and in the editor's context menu). The frame is a separate
+        // border over the button, so the button's own hover look can't replace it; on hover it only
+        // gets a little lighter, like in WordPad.
+        private const string SelectionFrameName = "ListStyleSelectionFrame";
+
+        public static void HighlightCurrentListStyle(Windows.UI.Xaml.Controls.Panel grid, Windows.UI.Xaml.Controls.RichEditBox editor)
+        {
+            if (grid == null || editor == null) return;
+            Windows.UI.Text.MarkerType current;
+            try { current = editor.Document.Selection.ParagraphFormat.ListType; }
+            catch { return; }
+
+            // the accent shades Windows 11 uses for accent elements: lighter on dark, darker on light
+            bool dark = grid.ActualTheme == Windows.UI.Xaml.ElementTheme.Dark;
+            Windows.UI.Color accent = dark ? Windows.UI.Color.FromArgb(255, 96, 205, 255) : Windows.UI.Color.FromArgb(255, 0, 95, 184);
+            string accentKey = dark ? "SystemAccentColorLight2" : "SystemAccentColorDark1";
+            if (Windows.UI.Xaml.Application.Current.Resources.TryGetValue(accentKey, out object color) && color is Windows.UI.Color systemAccent)
+            {
+                accent = systemAccent;
+            }
+
+            Windows.UI.Xaml.Controls.Border frame = null;
+            Windows.UI.Xaml.Controls.Button selected = null;
+            foreach (Windows.UI.Xaml.UIElement child in grid.Children)
+            {
+                if (child is Windows.UI.Xaml.Controls.Border border && border.Name == SelectionFrameName) frame = border;
+                if (!(child is Windows.UI.Xaml.Controls.Button button)) continue;
+
+                // an earlier version framed the button itself
+                button.ClearValue(Windows.UI.Xaml.Controls.Control.BorderBrushProperty);
+                button.ClearValue(Windows.UI.Xaml.Controls.Control.BorderThicknessProperty);
+                button.ClearValue(Windows.UI.Xaml.Controls.Control.PaddingProperty);
+
+                Windows.UI.Text.MarkerType? type = ListTypeOfButton(button.Name);
+                if (type != null && type.Value == current) selected = button;
+            }
+
+            if (frame == null)
+            {
+                frame = new Windows.UI.Xaml.Controls.Border
+                {
+                    Name = SelectionFrameName,
+                    BorderThickness = new Windows.UI.Xaml.Thickness(2),
+                    IsHitTestVisible = false
+                };
+                grid.Children.Add(frame);
+            }
+
+            if (selected == null)
+            {
+                frame.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                return;
+            }
+
+            Windows.UI.Xaml.Media.SolidColorBrush normalBrush = new Windows.UI.Xaml.Media.SolidColorBrush(accent);
+            Windows.UI.Xaml.Media.SolidColorBrush hoverBrush = new Windows.UI.Xaml.Media.SolidColorBrush(Lighten(accent, 0.3));
+
+            frame.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            frame.BorderBrush = normalBrush;
+            frame.Width = selected.Width;
+            frame.Height = selected.Height;
+            frame.Margin = selected.Margin;
+            frame.CornerRadius = selected.CornerRadius;
+            frame.HorizontalAlignment = selected.HorizontalAlignment;
+            frame.VerticalAlignment = selected.VerticalAlignment;
+            Windows.UI.Xaml.Controls.Grid.SetRow(frame, Windows.UI.Xaml.Controls.Grid.GetRow(selected));
+            Windows.UI.Xaml.Controls.Grid.SetColumn(frame, Windows.UI.Xaml.Controls.Grid.GetColumn(selected));
+
+            // the hover handlers are added once per button and look up the frame's current button
+            foreach (Windows.UI.Xaml.UIElement child in grid.Children)
+            {
+                if (!(child is Windows.UI.Xaml.Controls.Button button) || button.Tag as string == "framehooked") continue;
+                button.Tag = "framehooked";
+                button.PointerEntered += (s, e) => SetFrameHover(grid, button, true);
+                button.PointerExited += (s, e) => SetFrameHover(grid, button, false);
+                button.PointerCanceled += (s, e) => SetFrameHover(grid, button, false);
+            }
+            frame.Tag = new object[] { selected, normalBrush, hoverBrush };
+        }
+
+        private static void SetFrameHover(Windows.UI.Xaml.Controls.Panel grid, Windows.UI.Xaml.Controls.Button button, bool hover)
+        {
+            foreach (Windows.UI.Xaml.UIElement child in grid.Children)
+            {
+                if (!(child is Windows.UI.Xaml.Controls.Border frame) || frame.Name != SelectionFrameName) continue;
+                if (!(frame.Tag is object[] state) || state.Length != 3 || !ReferenceEquals(state[0], button)) return;
+                frame.BorderBrush = (Windows.UI.Xaml.Media.Brush)(hover ? state[2] : state[1]);
+                return;
+            }
+        }
+
+        private static Windows.UI.Color Lighten(Windows.UI.Color color, double amount)
+        {
+            byte Mix(byte c) => (byte)Math.Round(c + (255 - c) * amount);
+            return Windows.UI.Color.FromArgb(color.A, Mix(color.R), Mix(color.G), Mix(color.B));
+        }
+
+        private static Windows.UI.Text.MarkerType? ListTypeOfButton(string name)
+        {
+            switch (name)
+            {
+                case "NoneNumeral": return Windows.UI.Text.MarkerType.None;
+                case "DottedNumeral": return Windows.UI.Text.MarkerType.Bullet;
+                case "NumberNumeral": return Windows.UI.Text.MarkerType.Arabic;
+                case "LetterSmallNumeral": return Windows.UI.Text.MarkerType.LowercaseEnglishLetter;
+                case "LetterBigNumeral": return Windows.UI.Text.MarkerType.UppercaseEnglishLetter;
+                case "SmalliNumeral": return Windows.UI.Text.MarkerType.LowercaseRoman;
+                case "BigINumeral": return Windows.UI.Text.MarkerType.UppercaseRoman;
+                default: return null;
+            }
+        }
         public MainPage MainPagea { get; set; }  
         public ParagraphToolbar()
         {

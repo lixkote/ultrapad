@@ -10,6 +10,27 @@
     d:DesignHeight="120"
     d:DesignWidth="140">
 
+    <!-- disabled buttons stay flat (no background or border), also when this toolbar sits in the
+         flyout of the collapsed ribbon, where the overrides in MainPage's resources don't reach -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="Transparent" />
+                    <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="Transparent" />
+                    <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="HighContrast">
+                    <StaticResource x:Key="ButtonBackgroundDisabled" ResourceKey="SystemColorButtonFaceColorBrush" />
+                    <StaticResource x:Key="ButtonBorderBrushDisabled" ResourceKey="SystemColorGrayTextColorBrush" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid x:Name="EditionGrid" BorderBrush="{ThemeResource RibbonColumnBorder}"
     BorderThickness="0,0,0,0">
 
@@ -42,7 +63,17 @@
                 </muxc:DropDownButton.Content>
                 <muxc:DropDownButton.Flyout>
                     <Flyout x:Name="ReplaceFlyout" Placement="Bottom" Opening="ReplaceFlyout_Opening" Opened="ReplaceFlyout_Opened">
-                        <StackPanel Width="320" Spacing="8">
+                        <!-- the flyout grows with the button texts (longer in other languages, e.g. Polish);
+                             the three buttons share one width: that of the longest text -->
+                        <Flyout.FlyoutPresenterStyle>
+                            <Style TargetType="FlyoutPresenter">
+                                <Setter Property="MaxWidth" Value="640" />
+                                <!-- a presenter style replaces the default one, so the rounded corners of
+                                     the other flyouts have to be set again -->
+                                <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
+                            </Style>
+                        </Flyout.FlyoutPresenterStyle>
+                        <StackPanel MinWidth="320" Spacing="8">
                             <TextBlock FontSize="12" FontWeight="SemiBold" Style="{StaticResource CaptionTextBlockStyle}"
                                        x:Uid="ef_replacetitle" Text="Replace" />
                             <TextBox x:Name="replaceFindBox" x:Uid="ef_findbox" PlaceholderText="Text to look for" KeyDown="ReplaceFindBox_KeyDown" />
@@ -51,7 +82,7 @@
                                 <CheckBox x:Name="ReplaceWholeWord" x:Uid="ef_wholeword" Content="Match whole word only" MinHeight="28" />
                                 <CheckBox x:Name="ReplaceMatchCase" x:Uid="ef_matchcase" Content="Match case" MinHeight="28" />
                             </StackPanel>
-                            <TextBlock x:Name="ReplaceStatus" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
+                            <TextBlock x:Name="ReplaceStatus" MaxWidth="320" HorizontalAlignment="Left" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" Visibility="Collapsed" />
                             <Grid ColumnSpacing="8">
                                 <Grid.ColumnDefinitions>

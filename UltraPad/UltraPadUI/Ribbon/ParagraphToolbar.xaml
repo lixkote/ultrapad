@@ -118,10 +118,10 @@
                 </ToolTipService.ToolTip>
                 <muxc:ToggleSplitButton.Flyout>
                     <Flyout Placement="Bottom">
-                        <Grid>
+                        <Grid Loaded="ListStylesGrid_Loaded">
                             <Grid.Resources>
                                 <Style TargetType="Button">
-                                    <Setter Property="Padding" Value="4"/>
+                                    <Setter Property="Padding" Value="2"/>
                                     <Setter Property="MinWidth" Value="0"/>
                                     <Setter Property="MinHeight" Value="0"/>
                                     <Setter Property="Margin" Value="6"/>
@@ -140,38 +140,38 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Button x:Name="NoneNumeral" Grid.Row="0" Grid.Column="0" Click="NoneNumeral_Click" Width="64" Height="64">
-                                <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                    <Image Source="{ThemeResource ResourceKey=none}" Width="50" Height="50" />
+                                <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <Image Source="{ThemeResource ResourceKey=none}" Width="58" Height="58" />
                                 </Border>
                             </Button>
                             <Button x:Name="DottedNumeral" Grid.Row="0" Grid.Column="1" Click="DottedNumeral_Click" Width="64" Height="64">
-                                <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                    <Image Source="{ThemeResource ResourceKey=dot}" Width="50" Height="50" />
+                                <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <Image Source="{ThemeResource ResourceKey=dot}" Width="58" Height="58" />
                                 </Border>
                             </Button>
                             <Button x:Name="NumberNumeral" Grid.Row="0" Grid.Column="2" Click="NumberNumeral_Click" Height="64" Width="64">
-                                <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                    <Image Source="{ThemeResource ResourceKey=number}" Width="50" Height="50" />
+                                <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <Image Source="{ThemeResource ResourceKey=number}" Width="58" Height="58" />
                                 </Border>
                             </Button>
                             <Button x:Name="LetterSmallNumeral" Grid.Row="1" Grid.Column="0" Click="LetterSmallNumeral_Click" Height="64" Width="64">
-                                <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                    <Image Source="{ThemeResource ResourceKey=abc}" Width="50" Height="50" />
+                                <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <Image Source="{ThemeResource ResourceKey=abc}" Width="58" Height="58" />
                                 </Border>
                             </Button>
                             <Button x:Name="LetterBigNumeral"  Grid.Row="1" Grid.Column="1" Click="LetterBigNumeral_Click" Height="64" Width="64">
-                                <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                    <Image Source="{ThemeResource ResourceKey=ABCB}" Width="50" Height="50" />
+                                <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <Image Source="{ThemeResource ResourceKey=ABCB}" Width="58" Height="58" />
                                 </Border>
                             </Button>
                             <Button x:Name="SmalliNumeral" Grid.Row="1" Grid.Column="2" Click="SmalliNumeral_Click" Height="64" Width="64">
-                                <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                    <Image Source="{ThemeResource ResourceKey=iii}" Width="50" Height="50" />
+                                <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <Image Source="{ThemeResource ResourceKey=iii}" Width="58" Height="58" />
                                 </Border>
                             </Button>
                             <Button x:Name="BigINumeral" Grid.Row="2" Grid.Column="0" Click="BigINumeral_Click" Height="64" Width="64">
-                                <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                    <Image Source="{ThemeResource ResourceKey=IIII}" Width="50" Height="50" />
+                                <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <Image Source="{ThemeResource ResourceKey=IIII}" Width="58" Height="58" />
                                 </Border>
                             </Button>
                         </Grid>

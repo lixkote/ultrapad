@@ -910,17 +910,19 @@
                            Grid.Row="1" />
                     <Button AccessKey="GF"
                     Style="{StaticResource PaintUIButtonStyle}"
-                    Width="32"
+                    Width="34"
                     Height="48"
                     HorizontalAlignment="Center">
                         <Button.Content>
                             <StackPanel>
                                 <StackPanel.Children>
-                                    <FontIcon Width="24"
-                               Height="24" FontSize="24" Glyph=""
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Top"
-                                 Margin="0,0,0,2" />
+                                    <!-- Fluent System Icons (MIT), enlarged to 28 px like the group icons in Paint, lines
+                                         thinned to 1 px with their straight edges on whole pixels; part of the outline is
+                                         drawn in the accent blue -->
+                                    <Grid Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,2">
+                                        <Path Data="F0 M9.864,24.000 L9.055,24.000 L8.974,24.302 L8.909,24.315 L8.848,24.336 L8.791,24.365 L8.738,24.401 L8.689,24.443 L8.647,24.492 L8.611,24.545 L8.582,24.602 L8.561,24.663 L8.548,24.728 L8.543,24.796 L8.548,24.865 L8.561,24.930 L8.582,24.991 L8.611,25.048 L8.647,25.101 L8.689,25.149 L8.738,25.192 L8.791,25.228 L8.848,25.257 L8.909,25.278 L8.974,25.291 L9.055,25.000 L10.189,25.000 L10.197,25.297 L10.202,25.297 L10.207,25.297 L10.218,25.000 L11.945,25.000 L12.026,25.291 L12.091,25.278 L12.152,25.257 L12.210,25.228 L12.263,25.192 L12.311,25.150 L12.353,25.101 L12.389,25.048 L12.418,24.991 L12.439,24.930 L12.453,24.865 L12.457,24.797 L12.453,24.728 L12.439,24.663 L12.418,24.602 L12.389,24.545 L12.354,24.492 L12.311,24.444 L12.263,24.401 L12.210,24.365 L12.153,24.337 L12.091,24.315 L12.027,24.302 L11.946,24.000 L10.940,24.000 L12.629,20.042 L21.200,20.042 L22.885,24.000 L21.888,24.000 L21.807,24.302 L21.743,24.315 L21.681,24.336 L21.624,24.365 L21.571,24.401 L21.523,24.443 L21.480,24.492 L21.445,24.545 L21.416,24.602 L21.394,24.663 L21.381,24.728 L21.377,24.796 L21.381,24.865 L21.394,24.930 L21.416,24.991 L21.445,25.048 L21.480,25.101 L21.523,25.149 L21.571,25.192 L21.624,25.228 L21.681,25.257 L21.743,25.278 L21.807,25.291 L21.888,25.000 L23.608,25.000 L23.615,25.297 L23.618,25.297 L23.622,25.297 L23.635,25.000 L24.779,25.000 L24.860,25.291 L24.925,25.278 L24.986,25.257 L25.043,25.228 L25.096,25.192 L25.144,25.150 L25.187,25.101 L25.223,25.048 L25.251,24.991 L25.273,24.930 L25.286,24.865 L25.291,24.797 L25.286,24.728 L25.273,24.663 L25.252,24.602 L25.223,24.545 L25.187,24.492 L25.145,24.444 L25.096,24.401 L25.043,24.365 L24.986,24.337 L24.925,24.315 L24.860,24.302 L24.779,24.000 L23.960,24.000 L17.389,7.700 L17.364,7.645 L17.339,7.601 L17.310,7.561 L17.277,7.525 L17.241,7.491 L17.202,7.462 L17.160,7.436 L17.116,7.415 L17.070,7.398 L17.022,7.386 L16.972,7.378 L16.921,7.375 L16.870,7.378 L16.821,7.386 L16.773,7.398 L16.727,7.415 L16.682,7.436 L16.640,7.462 L16.601,7.491 L16.565,7.524 L16.532,7.561 L16.503,7.601 L16.478,7.644 L16.453,7.699 Z M13.026,19.042 L16.920,9.232 L20.804,19.042 Z" Fill="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Path Data="F0 M8.116,2.712 L8.065,2.719 L8.016,2.732 L7.969,2.750 L7.924,2.772 L7.882,2.798 L7.842,2.829 L7.806,2.863 L7.773,2.901 L7.744,2.943 L7.719,2.987 L7.695,3.044 L4.253,12.353 L4.250,12.361 L4.248,12.365 L4.247,12.369 L4.246,12.372 L4.244,12.375 L4.241,12.384 L2.742,16.440 L2.719,16.518 L2.709,16.583 L2.707,16.648 L2.714,16.712 L2.730,16.774 L2.753,16.834 L2.783,16.890 L2.821,16.942 L2.864,16.989 L2.914,17.030 L2.971,17.065 L3.033,17.093 L3.099,17.113 L3.164,17.123 L3.229,17.124 L3.293,17.117 L3.355,17.102 L3.415,17.079 L3.471,17.048 L3.523,17.011 L3.570,16.967 L3.612,16.917 L3.646,16.861 L3.680,16.787 L5.064,13.043 L11.270,13.043 L11.752,14.346 L12.304,12.956 L12.093,12.385 L12.090,12.377 L12.089,12.373 L12.087,12.369 L12.086,12.366 L12.085,12.362 L12.081,12.354 L8.640,3.044 L8.615,2.987 L8.591,2.943 L8.562,2.901 L8.529,2.863 L8.493,2.829 L8.453,2.798 L8.411,2.772 L8.366,2.750 L8.319,2.732 L8.270,2.719 L8.219,2.712 L8.167,2.709 Z M8.167,4.650 L10.900,12.043 L5.434,12.043 Z" Fill="{ThemeResource RibbonIconAccentBrush}" />
+                                    </Grid>
                                     <FontIcon FontSize="8" Glyph="" VerticalAlignment="Bottom" Margin="0,2,0,0" />
                                 </StackPanel.Children>
                             </StackPanel>
@@ -960,17 +962,19 @@
                            Grid.Row="1" />
                     <Button AccessKey="GA"
                     Style="{StaticResource PaintUIButtonStyle}"
-                    Width="32"
+                    Width="34"
                     Height="48"
                     HorizontalAlignment="Center">
                         <Button.Content>
                             <StackPanel>
                                 <StackPanel.Children>
-                                    <FontIcon x:Name="ParagraphIconHost" Width="24"
-                               Height="24" FontSize="24" Glyph=""
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Top"
-                                 Margin="0,0,0,2" />
+                                    <!-- Fluent System Icons (MIT), enlarged to 28 px like the group icons in Paint, lines
+                                         thinned to 1 px with their straight edges on whole pixels; part of the outline is
+                                         drawn in the accent blue -->
+                                    <Grid Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,2">
+                                        <Path Data="F0 M3.014,6.248 L2.957,6.277 L2.903,6.313 L2.855,6.355 L2.813,6.403 L2.777,6.457 L2.748,6.514 L2.727,6.575 L2.714,6.640 L2.709,6.708 L2.714,6.777 L2.727,6.841 L2.748,6.903 L2.777,6.960 L2.813,7.013 L2.855,7.061 L2.903,7.104 L2.957,7.140 L3.014,7.168 L3.075,7.190 L3.140,7.203 L3.221,7.000 L24.779,7.000 L24.860,7.203 L24.925,7.190 L24.986,7.168 L25.043,7.140 L25.097,7.104 L25.145,7.061 L25.187,7.013 L25.223,6.960 L25.252,6.903 L25.273,6.841 L25.286,6.777 L25.291,6.708 L25.286,6.640 L25.273,6.575 L25.252,6.514 L25.223,6.457 L25.187,6.403 L25.145,6.355 L25.097,6.313 L25.043,6.277 L24.986,6.248 L24.925,6.227 L24.860,6.214 L24.779,6.000 L3.221,6.000 L3.140,6.214 L3.075,6.227 Z M2.957,12.110 L2.903,12.146 L2.855,12.189 L2.813,12.237 L2.777,12.290 L2.748,12.347 L2.727,12.409 L2.714,12.473 L2.709,12.542 L2.714,12.610 L2.727,12.675 L2.748,12.736 L2.777,12.793 L2.813,12.847 L2.855,12.895 L2.903,12.937 L2.957,12.973 L3.014,13.002 L3.075,13.023 L3.140,13.036 L3.221,13.042 L12.870,13.042 L12.871,13.038 L12.904,12.878 L12.942,12.719 L12.983,12.561 L13.028,12.405 L13.077,12.251 L13.129,12.098 L13.151,12.042 L3.221,12.042 L3.140,12.047 L3.075,12.060 L3.014,12.082 Z M3.014,17.915 L2.957,17.944 L2.903,17.980 L2.855,18.022 L2.813,18.070 L2.777,18.123 L2.748,18.181 L2.727,18.242 L2.714,18.307 L2.709,18.375 L2.714,18.443 L2.727,18.508 L2.748,18.569 L2.777,18.627 L2.813,18.680 L2.855,18.728 L2.903,18.770 L2.957,18.806 L3.014,18.835 L3.075,18.856 L3.140,18.870 L3.221,19.000 L14.641,19.000 L14.629,18.863 L14.482,18.710 L14.341,18.552 L14.204,18.390 L14.073,18.223 L13.947,18.052 L13.827,17.876 L13.826,18.000 L3.221,18.000 L3.140,17.880 L3.075,17.894 Z" Fill="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Path Data="F0 M15.604,17.067 L15.664,17.067 L15.861,17.376 L16.061,17.584 L16.294,17.794 L16.540,17.988 L16.799,18.165 L17.071,18.325 L17.355,18.466 L17.648,18.587 L17.952,18.689 L18.265,18.769 L18.586,18.827 L18.915,18.863 L19.257,19.000 L20.000,19.000 L20.000,24.779 L20.214,24.860 L20.227,24.925 L20.248,24.986 L20.277,25.043 L20.313,25.097 L20.355,25.145 L20.403,25.187 L20.457,25.223 L20.514,25.252 L20.575,25.273 L20.640,25.286 L20.708,25.291 L20.777,25.286 L20.841,25.273 L20.903,25.252 L20.960,25.223 L21.013,25.187 L21.061,25.145 L21.104,25.097 L21.140,25.043 L21.168,24.986 L21.190,24.925 L21.203,24.860 L21.000,24.779 L21.000,11.000 L23.000,11.000 L23.000,24.779 L23.130,24.860 L23.144,24.925 L23.165,24.986 L23.194,25.043 L23.230,25.097 L23.272,25.145 L23.320,25.187 L23.373,25.223 L23.431,25.252 L23.492,25.273 L23.557,25.286 L23.625,25.291 L23.693,25.286 L23.758,25.273 L23.819,25.252 L23.877,25.223 L23.930,25.187 L23.978,25.145 L24.020,25.097 L24.056,25.043 L24.085,24.986 L24.106,24.925 L24.120,24.860 L24.000,24.779 L24.000,11.000 L24.779,11.000 L24.860,10.703 L24.925,10.690 L24.986,10.668 L25.043,10.640 L25.097,10.604 L25.145,10.561 L25.187,10.513 L25.223,10.460 L25.252,10.403 L25.273,10.341 L25.286,10.277 L25.291,10.208 L25.286,10.140 L25.273,10.075 L25.252,10.014 L25.223,9.957 L25.187,9.903 L25.145,9.855 L25.097,9.813 L25.043,9.777 L24.986,9.748 L24.925,9.727 L24.860,9.714 L24.779,10.000 L19.263,10.000 L18.628,9.751 L18.031,9.873 L17.466,10.069 L16.937,10.335 L16.450,10.664 L16.010,11.051 L15.622,11.492 L15.293,11.979 L15.028,12.508 L14.831,13.073 L14.709,13.669 L14.667,14.299 L14.675,14.566 L14.699,14.837 L14.738,15.102 L14.792,15.362 L14.861,15.617 L14.944,15.865 L15.040,16.107 L15.150,16.342 L15.272,16.570 L15.406,16.789 L15.553,17.001 Z M20.000,11.000 L20.000,18.000 L19.237,18.000 L18.764,17.843 L18.298,17.748 L17.855,17.594 L17.441,17.386 L17.060,17.129 L16.716,16.826 L16.413,16.482 L16.155,16.101 L15.948,15.687 L15.794,15.244 L15.698,14.777 L15.666,14.292 L15.698,13.806 L15.794,13.339 L15.948,12.897 L16.155,12.483 L16.413,12.101 L16.716,11.757 L17.060,11.454 L17.441,11.197 L17.855,10.989 L18.298,10.836 L18.764,10.740 L19.237,11.000 Z" Fill="{ThemeResource RibbonIconAccentBrush}" />
+                                    </Grid>
                                     <FontIcon x:Name="ParagraphMenuIcon" FontSize="8" FontFamily="Segoe Fluent Icons" Glyph="" VerticalAlignment="Bottom" Margin="0,2,0,0" />
                                 </StackPanel.Children>
                             </StackPanel>
@@ -1010,17 +1014,19 @@
                Grid.Row="1" />
                     <Button AccessKey="GI"
         Style="{StaticResource PaintUIButtonStyle}"
-        Width="32"
+        Width="34"
         Height="48"
         HorizontalAlignment="Center">
                         <Button.Content>
                             <StackPanel>
                                 <StackPanel.Children>
-                                    <FontIcon Width="24"
-Height="24" FontSize="24" Glyph=""
-HorizontalAlignment="Center"
-VerticalAlignment="Top"
-  Margin="0,0,0,2" FontFamily="Segoe Fluent Icons" />
+                                    <!-- Fluent System Icons (MIT), enlarged to 28 px like the group icons in Paint, lines
+                                         thinned to 1 px with their straight edges on whole pixels; part of the outline is
+                                         drawn in the accent blue -->
+                                    <Grid Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,2">
+                                        <Path Data="F0 M7.304,4.000 L6.828,3.907 L6.383,3.998 L5.962,4.144 L5.568,4.342 L5.204,4.587 L4.876,4.876 L4.587,5.204 L4.342,5.568 L4.144,5.962 L3.998,6.383 L3.907,6.828 L4.000,7.304 L4.000,20.696 L3.907,21.172 L3.998,21.617 L4.144,22.038 L4.342,22.432 L4.587,22.796 L4.876,23.124 L5.204,23.413 L5.568,23.658 L5.962,23.856 L6.383,24.002 L6.828,24.093 L7.304,24.000 L20.696,24.000 L21.172,24.093 L21.617,24.002 L22.038,23.856 L22.432,23.658 L22.796,23.413 L23.124,23.124 L23.413,22.796 L23.658,22.432 L23.856,22.038 L24.002,21.617 L24.093,21.172 L24.000,20.696 L24.000,7.304 L24.093,6.828 L24.002,6.383 L23.856,5.962 L23.658,5.568 L23.413,5.204 L23.124,4.876 L22.796,4.587 L22.432,4.342 L22.038,4.144 L21.617,3.998 L21.172,3.907 L20.696,4.000 Z M4.949,21.304 L4.940,21.265 L4.925,21.198 L4.912,21.130 L4.901,21.061 L4.891,20.991 L4.884,20.921 L4.879,20.851 L4.876,20.780 L5.000,20.711 L5.000,7.279 L4.896,6.964 L4.961,6.649 L5.064,6.351 L5.204,6.071 L5.378,5.814 L5.582,5.582 L5.814,5.378 L6.071,5.204 L6.351,5.064 L6.649,4.961 L6.964,4.896 L7.279,5.000 L20.721,5.000 L21.036,4.896 L21.351,4.961 L21.649,5.064 L21.929,5.204 L22.186,5.378 L22.418,5.582 L22.622,5.814 L22.796,6.071 L22.936,6.351 L23.039,6.649 L23.104,6.964 L23.000,7.279 L23.000,20.711 L23.124,20.780 L23.121,20.851 L23.116,20.922 L23.109,20.992 L23.099,21.062 L23.088,21.130 L23.075,21.199 L23.060,21.266 L23.051,21.304 L23.160,21.419 L22.980,21.535 L22.790,22.085 L22.527,21.827 L21.665,22.383 L22.085,22.795 L21.447,23.010 L21.383,23.030 L21.318,23.047 L21.253,23.063 L21.187,23.078 L21.120,23.090 L21.053,23.101 L20.985,23.109 L20.916,23.116 L20.848,23.121 L20.778,23.124 L20.711,23.000 L7.289,23.000 L7.222,23.124 L7.152,23.121 L7.083,23.116 L7.015,23.109 L6.947,23.101 L6.879,23.090 L6.812,23.077 L6.746,23.063 L6.681,23.047 L6.616,23.029 L6.552,23.010 L5.913,22.795 L6.334,22.383 L5.472,21.827 L5.209,22.084 L5.020,21.535 L4.840,21.419 Z" Fill="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Path Data="F0 M17.195,8.040 L16.918,8.136 L16.658,8.266 L16.418,8.428 L16.202,8.619 L16.011,8.835 L15.850,9.074 L15.719,9.334 L15.623,9.612 L15.563,9.905 L15.543,10.211 L15.563,10.517 L15.623,10.810 L15.719,11.087 L15.850,11.347 L16.011,11.587 L16.202,11.803 L16.418,11.993 L16.658,12.155 L16.918,12.286 L17.195,12.382 L17.488,12.442 L17.794,12.462 L18.100,12.442 L18.393,12.382 L18.671,12.286 L18.930,12.155 L19.170,11.993 L19.386,11.803 L19.577,11.587 L19.739,11.347 L19.869,11.087 L19.965,10.810 L20.025,10.517 L20.046,10.211 L20.025,9.905 L19.965,9.612 L19.869,9.334 L19.739,9.074 L19.577,8.835 L19.386,8.619 L19.170,8.428 L18.930,8.266 L18.671,8.136 L18.393,8.040 L18.100,7.980 L17.794,7.959 L17.488,7.980 Z M18.127,9.002 L18.282,9.056 L18.427,9.129 L18.560,9.219 L18.680,9.325 L18.786,9.445 L18.876,9.578 L18.949,9.723 L19.003,9.878 L19.036,10.041 L19.047,10.211 L19.036,10.380 L19.003,10.544 L18.949,10.699 L18.876,10.843 L18.786,10.977 L18.680,11.097 L18.560,11.203 L18.427,11.293 L18.282,11.365 L18.127,11.419 L17.964,11.453 L17.794,11.464 L17.625,11.453 L17.461,11.419 L17.306,11.365 L17.161,11.293 L17.028,11.203 L16.908,11.097 L16.802,10.977 L16.712,10.843 L16.639,10.699 L16.586,10.544 L16.552,10.380 L16.541,10.211 L16.552,10.041 L16.586,9.878 L16.639,9.723 L16.712,9.578 L16.802,9.445 L16.908,9.325 L17.028,9.219 L17.161,9.129 L17.306,9.056 L17.461,9.002 L17.625,8.969 L17.794,8.957 L17.964,8.969 Z M6.884,21.845 L13.135,15.723 L13.262,15.616 L13.389,15.534 L13.522,15.470 L13.659,15.422 L13.800,15.391 L13.943,15.376 L14.086,15.378 L14.228,15.396 L14.369,15.431 L14.505,15.481 L14.636,15.549 L14.760,15.633 L14.866,15.725 L21.115,21.845 L21.978,21.289 L15.579,15.023 L15.449,14.905 L15.217,14.734 L14.975,14.598 L14.720,14.494 L14.458,14.423 L14.189,14.384 L13.919,14.378 L13.649,14.404 L13.384,14.462 L13.126,14.553 L12.878,14.675 L12.644,14.831 L12.417,15.026 L6.021,21.288 Z" Fill="{ThemeResource RibbonIconAccentBrush}" />
+                                    </Grid>
                                     <FontIcon FontSize="8" Glyph="" VerticalAlignment="Bottom" Margin="0,2,0,0" />
                                 </StackPanel.Children>
                             </StackPanel>
@@ -1060,17 +1066,19 @@ Padding="12">
          Grid.Row="1" />
                     <Button AccessKey="GE"
   Style="{StaticResource PaintUIButtonStyle}"
-  Width="32"
+  Width="34"
   Height="48"
   HorizontalAlignment="Center">
                         <Button.Content>
                             <StackPanel>
                                 <StackPanel.Children>
-                                    <FontIcon Width="24"
-Height="24" FontSize="24" Glyph=""
-HorizontalAlignment="Center"
-VerticalAlignment="Top"
-  Margin="0,0,0,2" FontFamily="Segoe Fluent Icons" />
+                                    <!-- Fluent System Icons (MIT), enlarged to 28 px like the group icons in Paint, lines
+                                         thinned to 1 px with their straight edges on whole pixels; part of the outline is
+                                         drawn in the accent blue -->
+                                    <Grid Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,2">
+                                        <Path Data="F0 M4.866,17.762 L4.760,17.873 L4.661,17.986 L4.569,18.103 L4.481,18.224 L4.400,18.349 L4.325,18.477 L4.255,18.609 L4.191,18.743 L4.134,18.881 L4.083,19.021 L4.038,19.164 L3.999,19.313 L2.724,24.670 L2.714,24.720 L2.710,24.763 L2.709,24.805 L2.712,24.847 L2.718,24.889 L2.728,24.929 L2.741,24.969 L2.757,25.008 L2.777,25.045 L2.800,25.081 L2.826,25.115 L2.855,25.147 L2.887,25.176 L2.921,25.202 L2.956,25.225 L2.994,25.244 L3.032,25.261 L3.072,25.274 L3.113,25.284 L3.155,25.290 L3.197,25.293 L3.239,25.292 L3.282,25.288 L3.332,25.278 L8.688,24.003 L8.837,23.963 L8.980,23.919 L9.121,23.868 L9.258,23.810 L9.393,23.747 L9.525,23.677 L9.653,23.601 L9.778,23.520 L9.899,23.433 L10.016,23.340 L10.128,23.242 L10.240,23.135 L21.637,11.737 L20.930,11.030 L9.527,22.434 L9.455,22.503 L9.377,22.571 L9.296,22.635 L9.212,22.696 L9.126,22.752 L9.037,22.804 L8.946,22.853 L8.852,22.897 L8.757,22.936 L8.660,22.972 L8.561,23.003 L8.465,23.028 L3.883,24.119 L4.974,19.537 L4.999,19.440 L5.030,19.341 L5.065,19.244 L5.105,19.149 L5.149,19.056 L5.197,18.965 L5.250,18.876 L5.306,18.790 L5.366,18.706 L5.430,18.625 L5.498,18.547 L5.567,18.475 L16.970,7.070 L16.263,6.363 Z" Fill="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Path Data="F0 M23.789,3.481 L23.368,3.203 L22.921,2.987 L22.456,2.833 L21.977,2.740 L21.492,2.709 L21.006,2.740 L20.528,2.833 L20.062,2.987 L19.616,3.203 L19.195,3.482 L18.796,3.830 L16.793,5.833 L22.167,11.207 L24.170,9.204 L24.519,8.805 L24.797,8.384 L25.013,7.938 L25.167,7.472 L25.260,6.993 L25.291,6.508 L25.260,6.023 L25.167,5.544 L25.013,5.078 L24.797,4.632 L24.519,4.211 L24.178,3.822 Z M19.798,4.278 L20.108,4.072 L20.438,3.913 L20.781,3.799 L21.134,3.730 L21.492,3.708 L21.849,3.730 L22.202,3.799 L22.546,3.913 L22.875,4.072 L23.186,4.278 L23.472,4.528 L23.722,4.814 L23.928,5.125 L24.087,5.454 L24.201,5.798 L24.270,6.151 L24.292,6.508 L24.270,6.865 L24.201,7.218 L24.087,7.562 L23.928,7.891 L23.722,8.202 L23.481,8.479 L22.167,9.793 L18.207,5.833 L19.521,4.520 Z" Fill="{ThemeResource RibbonIconAccentBrush}" />
+                                    </Grid>
                                     <FontIcon FontSize="8" Glyph="" VerticalAlignment="Bottom" Margin="0,2,0,0" />
                                 </StackPanel.Children>
                             </StackPanel>
@@ -1169,7 +1177,7 @@ VerticalAlignment="Top"
               Grid.Row="4"
               SizeChanged="EditorContentHost_SizeChanged" Grid.Column="0" Grid.ColumnSpan="3">
             <Grid x:Name="EditorContainer">
-                <ScrollViewer x:Name="RichTextScrollView" Style="{StaticResource PaintScrollViewerStyle}" VerticalScrollBarVisibility="Auto" ViewChanged="RichTextScrollView_ViewChanged" SizeChanged="RichTextScrollView_SizeChanged" HorizontalScrollBarVisibility="Auto" ZoomMode="Enabled" MinZoomFactor="0.25" MaxZoomFactor="3" VerticalAlignment="Top">
+                <ScrollViewer x:Name="RichTextScrollView" Style="{StaticResource PaintScrollViewerStyle}" VerticalScrollBarVisibility="Auto" ViewChanged="RichTextScrollView_ViewChanged" SizeChanged="RichTextScrollView_SizeChanged" HorizontalScrollBarVisibility="Auto" ZoomMode="Enabled" MinZoomFactor="0.25" MaxZoomFactor="3" VerticalAlignment="Stretch">
                     <Grid x:Name="EditorMandatoryPrintingGrid" MinHeight="48" Width="816">
                         <local:Editor x:Name="Editor" FontSize="14.6667" ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Padding="45,45,45,45" KeyDown="Editor_KeyDown_1" Loaded="Editor_Loaded" SizeChanged="Editor_SizeChanged" MinHeight="48" Width="816" Style="{StaticResource MinEditStyleNeo}" SelectionChanged="editor_SelectionChanged" TextChanged="Editor_TextChanged" RenderTransformOrigin="0.5,0.5" IsSpellCheckEnabled="False" x:FieldModifier="public" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,0,0,0">
                             <RichEditBox.Resources>
@@ -1214,7 +1222,7 @@ VerticalAlignment="Top"
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem x:Name="MenuParagraph" x:Uid="paragr" Click="MenuParagraph_Click">
                                         <MenuFlyoutItem.Icon>
-                                            <FontIcon Glyph="" x:Name="MenuParagraphIcon"  FontSize="20"/>
+                                            <BitmapIcon x:Name="MenuParagraphIcon" UriSource="ms-appx:///Assets/MenuParagraph.png" ShowAsMonochrome="True" />
                                         </MenuFlyoutItem.Icon>
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSubItem x:Uid="lists">
@@ -1224,10 +1232,10 @@ VerticalAlignment="Top"
                                         <MenuFlyoutItem>
                                             <MenuFlyoutItem.Template>
                                                 <ControlTemplate>
-                                                    <Grid>
+                                                    <Grid Loaded="ContextListStylesGrid_Loaded">
                                                         <Grid.Resources>
                                                             <Style TargetType="Button">
-                                                                <Setter Property="Padding" Value="4"/>
+                                                                <Setter Property="Padding" Value="2"/>
                                                                 <Setter Property="MinWidth" Value="0"/>
                                                                 <Setter Property="MinHeight" Value="0"/>
                                                                 <Setter Property="Margin" Value="6"/>
@@ -1247,38 +1255,38 @@ VerticalAlignment="Top"
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <Button x:Name="NoneNumeral" Grid.Row="0" Grid.Column="0" Click="NoneNumeral_Click" Width="64" Height="64">
-                                                            <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                                                <Image Source="{ThemeResource ResourceKey=none}" Width="50" Height="50" />
+                                                            <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                                                <Image Source="{ThemeResource ResourceKey=none}" Width="58" Height="58" />
                                                             </Border>
                                                         </Button>
                                                         <Button x:Name="DottedNumeral" Grid.Row="0" Grid.Column="1" Click="DottedNumeral_Click" Width="64" Height="64">
-                                                            <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                                                <Image Source="{ThemeResource ResourceKey=dot}" Width="50" Height="50" />
+                                                            <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                                                <Image Source="{ThemeResource ResourceKey=dot}" Width="58" Height="58" />
                                                             </Border>
                                                         </Button>
                                                         <Button x:Name="NumberNumeral" Grid.Row="0" Grid.Column="2" Click="NumberNumeral_Click" Height="64" Width="64">
-                                                            <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                                                <Image Source="{ThemeResource ResourceKey=number}" Width="50" Height="50" />
+                                                            <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                                                <Image Source="{ThemeResource ResourceKey=number}" Width="58" Height="58" />
                                                             </Border>
                                                         </Button>
                                                         <Button x:Name="LetterSmallNumeral" Grid.Row="1" Grid.Column="0" Click="LetterSmallNumeral_Click" Height="64" Width="64">
-                                                            <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                                                <Image Source="{ThemeResource ResourceKey=abc}" Width="50" Height="50" />
+                                                            <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                                                <Image Source="{ThemeResource ResourceKey=abc}" Width="58" Height="58" />
                                                             </Border>
                                                         </Button>
                                                         <Button x:Name="LetterBigNumeral"  Grid.Row="1" Grid.Column="1" Click="LetterBigNumeral_Click" Height="64" Width="64">
-                                                            <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                                                <Image Source="{ThemeResource ResourceKey=ABCB}" Width="50" Height="50" />
+                                                            <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                                                <Image Source="{ThemeResource ResourceKey=ABCB}" Width="58" Height="58" />
                                                             </Border>
                                                         </Button>
                                                         <Button x:Name="SmalliNumeral" Grid.Row="1" Grid.Column="2" Click="SmalliNumeral_Click" Height="64" Width="64">
-                                                            <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                                                <Image Source="{ThemeResource ResourceKey=iii}" Width="50" Height="50" />
+                                                            <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                                                <Image Source="{ThemeResource ResourceKey=iii}" Width="58" Height="58" />
                                                             </Border>
                                                         </Button>
                                                         <Button x:Name="BigINumeral" Grid.Row="2" Grid.Column="0" Click="BigINumeral_Click" Height="64" Width="64">
-                                                            <Border Width="50" Height="50" CornerRadius="{StaticResource ControlCornerRadius}">
-                                                                <Image Source="{ThemeResource ResourceKey=IIII}" Width="50" Height="50" />
+                                                            <Border Width="58" Height="58" CornerRadius="{StaticResource ControlCornerRadius}">
+                                                                <Image Source="{ThemeResource ResourceKey=IIII}" Width="58" Height="58" />
                                                             </Border>
                                                         </Button>
                                                     </Grid>

@@ -40,12 +40,14 @@ namespace UltraPad.UltraPadUI.Ribbon
         public EditingToolbar()
         {
             this.InitializeComponent();
-            Loaded += (s, e) => UpdateEnabledState();
+            Loaded += (s, e) => UpdateEnabledState(true);
         }
 
         private void Editor_TextChanged(object sender, RoutedEventArgs e) => UpdateEnabledState();
 
-        public void UpdateEnabledState()
+        public void UpdateEnabledState() => UpdateEnabledState(false);
+
+        private void UpdateEnabledState(bool refreshLook)
         {
             bool hasContent = false;
             try
@@ -63,16 +65,28 @@ namespace UltraPad.UltraPadUI.Ribbon
             }
             catch { hasContent = true; }
 
-            SetEnabled(FindButton, FindIcon, hasContent);
-            SetEnabled(ReplaceButton, ReplaceIcon, hasContent);
-            SetEnabled(SelectAllButton, SelectAllIcon, hasContent);
+            SetEnabled(FindButton, FindIcon, hasContent, refreshLook);
+            SetEnabled(ReplaceButton, ReplaceIcon, hasContent, refreshLook);
+            SetEnabled(SelectAllButton, SelectAllIcon, hasContent, refreshLook);
         }
 
-        private static void SetEnabled(Control button, UIElement icon, bool enabled)
+        private static void SetEnabled(Windows.UI.Xaml.Controls.Control button, Windows.UI.Xaml.UIElement icon, bool enabled, bool refreshLook)
         {
-            if (button.IsEnabled == enabled) return;
+            if (icon is Windows.UI.Xaml.Controls.Image) icon.Opacity = enabled ? 1.0 : 0.36;
+            if (button.IsEnabled == enabled && !refreshLook) return;
             button.IsEnabled = enabled;
-            if (icon is Image) icon.Opacity = enabled ? 1.0 : 0.36;
+
+            // the drop-down buttons sometimes kept their old look after IsEnabled changed (Find looked
+            // enabled, Replace had a grey icon but white text), so the matching state is set again,
+            // also once more after the next layout in case the template wasn't ready yet
+            Windows.UI.Xaml.VisualStateManager.GoToState(button, enabled ? "Normal" : "Disabled", false);
+            _ = button.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
+            {
+                if (button.IsEnabled == enabled)
+                {
+                    Windows.UI.Xaml.VisualStateManager.GoToState(button, enabled ? "Normal" : "Disabled", false);
+                }
+            });
         }
 
         #region Find and replace

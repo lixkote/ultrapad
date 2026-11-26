@@ -41,8 +41,13 @@ namespace UltraPad.UltraPadUI.Ribbon
             dialog.Title = UltraPad.Helpers.Loc.Get("dlg_datetime_title", "Date and time");
 
             // Create a ListView for the user to select the date format
-            ListView listView = new ListView();
-            listView.SelectionMode = ListViewSelectionMode.Single;
+            // framed like the object type list in Insert object (created from XAML so the theme
+            // brushes follow the dialog's theme)
+            ListView listView = (ListView)Windows.UI.Xaml.Markup.XamlReader.Load(
+                "<ListView xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" " +
+                "SelectionMode=\"Single\" BorderThickness=\"1\" CornerRadius=\"4\" Padding=\"0,4\" " +
+                "BorderBrush=\"{ThemeResource CardStrokeColorDefaultBrush}\" " +
+                "Background=\"{ThemeResource ControlFillColorDefaultBrush}\" />");
 
             // Create a list of date formats to display in the ListView
             List<string> dateFormats = new List<string>();
