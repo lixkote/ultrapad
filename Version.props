@@ -7,6 +7,6 @@
       This is the only place to change it. Building copies it into UltraPad\Package.appxmanifest
       (shown in Settings > About) and into the file properties of Installer\UltraPad-Setup.exe.
     -->
-    <UltraPadVersion>11.2605.1.0</UltraPadVersion>
+    <UltraPadVersion>11.2611.226.0</UltraPadVersion>
   </PropertyGroup>
 </Project>
